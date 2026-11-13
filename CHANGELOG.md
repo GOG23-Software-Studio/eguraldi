@@ -1,5 +1,11 @@
 # Cambios
 
+## 0.1.0b10
+
+- Modos de tarjeta por localidad para histórico, resúmenes, comparación, radar, avisos y ambiente; refrescan su fuente al cambiar de estación.
+- El histórico invalida la caché al cambiar de estación y descarta respuestas antiguas pendientes, conservando el mes seleccionado.
+- Encabezados por localidad y origen de los datos indicado por separado.
+
 ## 0.1.0b9
 
 - Las tarjetas abiertas actualizan estación y distancia al guardar un cambio de estación, sin recargar la tarjeta ni perder la localidad. Renuevan las suscripciones de previsión y liberan las anteriores.

@@ -2,7 +2,7 @@
 
 Tu localidad primero. Observaciones de una estación cercana, previsión para tu municipio y tarjetas animadas incluidas en una integración de Home Assistant.
 
-**Beta 0.1.0b9. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
+**Beta 0.1.0b10. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
 
 ![Vista previa con datos simulados](docs/preview.jpg)
 
@@ -82,3 +82,24 @@ Consulta [VALIDATION.md](VALIDATION.md) para distinguir pruebas automatizadas, v
 MIT. La conexión a Euskalmet y las plataformas parten de [mitxol/home-assistant-euskalmet v2.12.9](https://github.com/mitxol/home-assistant-euskalmet/tree/v2.12.9), Copyright 2026 Mitxol. No es una creación desde cero ni un proyecto oficial. El asistente por localidad, la selección y las tarjetas integradas son trabajo de GOG23 Software Studio. Véase [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 Datos: Euskalmet / Open Data Euskadi. Geocodificación: Open-Meteo / GeoNames. Iconos: Meteocons, Bas Milius (MIT). Mapa: OpenStreetMap; Leaflet y su licencia van incluidos.
+
+
+### Tarjetas que siguen la localidad y su estación
+
+Los modos `summaries`, `history`, `radar`, `alerts`, `comparison` y `environment` usan el mismo catálogo de la entrada. El encabezado mantiene la localidad. Al guardar otra estación se actualizan la fuente, la distancia, los resúmenes y el histórico abierto sin recargar el panel. El histórico conserva el mes elegido y descarta respuestas pendientes de la estación anterior.
+
+```yaml
+type: custom:euskalmet-local-card
+mode: history
+```
+
+Para comparar las observaciones de la estación con otro sensor:
+
+```yaml
+type: custom:euskalmet-local-card
+mode: comparison
+comparison_entity: sensor.temperatura_balcon
+comparison_name: Balcón
+```
+
+Con varias localidades, fija `entry_id` o elígela en la tarjeta. El radar es regional; los avisos y la previsión siguen la localidad. Mar, mareas y polen conservan sus fuentes de referencia, señaladas en la tarjeta. El gráfico de últimas 24 horas conserva las lecturas registradas en HA; el histórico mensual consulta la estación seleccionada.

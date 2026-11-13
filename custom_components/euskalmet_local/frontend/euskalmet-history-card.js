@@ -1,3 +1,4 @@
+const historyEscape = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#39;"}[ch]));
 class EuskalmetHistoryCard extends HTMLElement {
   constructor() {
     super();
@@ -10,14 +11,30 @@ class EuskalmetHistoryCard extends HTMLElement {
 
   setConfig(config) {
     if (!config) throw new Error(this.text().missingConfig);
+    const oldKey = this._sourceKey();
     this.config = { measure: "temperature", ...config };
+    if (oldKey !== this._sourceKey()) this._invalidateSource();
     this.render();
     this.scheduleLoad();
   }
 
   set hass(hass) {
+    const oldKey = this._sourceKey();
     this._hass = hass;
+    if (oldKey !== this._sourceKey()) this._invalidateSource();
     this.scheduleLoad();
+  }
+
+  _sourceKey() {
+    return JSON.stringify([this.config?.entry_id, this.config?.entity,
+      this.config?.station_id || this._hass?.states[this.config?.entity]?.attributes?.station]);
+  }
+
+  _invalidateSource() {
+    this.request = (this.request || 0) + 1;
+    clearTimeout(this.retryTimer);
+    this.data = null; this.loaded = false; this.loading = false;
+    this.error = null; this.retries = 0;
   }
 
   connectedCallback() { this.scheduleLoad(); }
@@ -89,7 +106,7 @@ class EuskalmetHistoryCard extends HTMLElement {
       const entityState = this.config.entity
         ? this._hass.states[this.config.entity]
         : undefined;
-      const stationId = entityState?.attributes?.station;
+      const stationId = this.config.station_id || entityState?.attributes?.station;
       const data = await this._hass.callWS({
         type: "euskalmet_local/history",
         entry_id: this.config.entry_id,
@@ -386,7 +403,7 @@ class EuskalmetHistoryCard extends HTMLElement {
         .legend{gap:2px}.legend-item{padding:5px 6px}}
     </style>
     <ha-card>
-      <header><div><h2>${this.config.title || text.title}</h2><small>${month}</small></div></header>
+      <header><div>${this.config.show_title === false ? "" : `<h2>${historyEscape(this.config.title || text.title)}</h2>`}<small>${month}</small></div></header>
       <div class="controls">
         <select id="measure">${Object.entries(text.measures).map(([key, label]) =>
           `<option value="${key}" ${key === this.config.measure ? "selected" : ""}>${label}</option>`).join("")}</select>
