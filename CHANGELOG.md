@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.1.0b4
+
+- Enlace del asistente compatible con la validación de traducciones de Home Assistant.
+
 ## 0.1.0b3
 
 Enlace directo para obtener las claves en el asistente y la reautenticación; recomendación de acceso con Google ante problemas del correo de activación. Título de las nuevas entradas corregido a Eguraldi.

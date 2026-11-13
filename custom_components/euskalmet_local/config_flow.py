@@ -180,6 +180,9 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
+            description_placeholders={
+                "api_keys_url": "https://api.euskadi.eus/opendata-apikey/#/"
+            },
             data_schema=vol.Schema(
                 {
                     vol.Required("email"): EMAIL_SELECTOR,
@@ -237,6 +240,9 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="reauth_confirm",
+            description_placeholders={
+                "api_keys_url": "https://api.euskadi.eus/opendata-apikey/#/"
+            },
             data_schema=self.add_suggested_values_to_schema(
                 vol.Schema(
                     {

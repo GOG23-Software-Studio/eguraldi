@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Configurar Eguraldi",
-        "description": "Introduce el **correo con el que te registraste en Open Data Euskadi** y el contenido completo del archivo **privatekey.pem**.\n\n[Obtener o descargar mis claves en Open Data Euskadi](https://api.euskadi.eus/opendata-apikey/#/)\n\n**¿Todavía no tienes cuenta?** Recomendamos usar **Acceder con Google** (por ejemplo, con tu cuenta de Gmail). El registro por correo puede fallar al enviar el mensaje de activación. Si tu cuenta ya está pendiente de activación, puede que necesites otra cuenta de Google que no esté pendiente. Revisa también spam.\n\nUna vez dentro, descarga el ZIP de claves y abre privatekey.pem para copiar su contenido. La clave se guarda únicamente en tu Home Assistant.",
+        "description": "Introduce el **correo con el que te registraste en Open Data Euskadi** y el contenido completo del archivo **privatekey.pem**.\n\n[Obtener o descargar mis claves en Open Data Euskadi]({api_keys_url})\n\n**¿Todavía no tienes cuenta?** Recomendamos usar **Acceder con Google** (por ejemplo, con tu cuenta de Gmail). El registro por correo puede fallar al enviar el mensaje de activación. Si tu cuenta ya está pendiente de activación, puede que necesites otra cuenta de Google que no esté pendiente. Revisa también spam.\n\nUna vez dentro, descarga el ZIP de claves y abre privatekey.pem para copiar su contenido. La clave se guarda únicamente en tu Home Assistant.",
         "data": {
           "email": "Correo electrónico",
           "private_key": "Clave privada"
@@ -23,7 +23,7 @@
       },
       "reauth_confirm": {
         "title": "Actualizar credenciales de Euskalmet",
-        "description": "Introduce el **correo con el que te registraste en Open Data Euskadi** y el contenido completo del archivo **privatekey.pem**.\n\n[Obtener o descargar mis claves en Open Data Euskadi](https://api.euskadi.eus/opendata-apikey/#/)\n\n**¿Todavía no tienes cuenta?** Recomendamos usar **Acceder con Google** (por ejemplo, con tu cuenta de Gmail). El registro por correo puede fallar al enviar el mensaje de activación. Si tu cuenta ya está pendiente de activación, puede que necesites otra cuenta de Google que no esté pendiente. Revisa también spam.\n\nUna vez dentro, descarga el ZIP de claves y abre privatekey.pem para copiar su contenido. La clave se guarda únicamente en tu Home Assistant.",
+        "description": "Introduce el **correo con el que te registraste en Open Data Euskadi** y el contenido completo del archivo **privatekey.pem**.\n\n[Obtener o descargar mis claves en Open Data Euskadi]({api_keys_url})\n\n**¿Todavía no tienes cuenta?** Recomendamos usar **Acceder con Google** (por ejemplo, con tu cuenta de Gmail). El registro por correo puede fallar al enviar el mensaje de activación. Si tu cuenta ya está pendiente de activación, puede que necesites otra cuenta de Google que no esté pendiente. Revisa también spam.\n\nUna vez dentro, descarga el ZIP de claves y abre privatekey.pem para copiar su contenido. La clave se guarda únicamente en tu Home Assistant.",
         "data": {
           "email": "Correo electrónico",
           "private_key": "Clave privada"

@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Configurar Eguraldi",
-        "description": "Enter your **Open Data Euskadi registered email** and the complete contents of **privatekey.pem**.\n\n[Request or download my Open Data Euskadi keys](https://api.euskadi.eus/opendata-apikey/#/)\n\n**No account yet?** We recommend **Sign in with Google** (for example, a Gmail account). Email registration can fail to deliver the activation message. If an account is already pending activation, use a Google account that is not pending. Also check spam.\n\nDownload the keys ZIP, open privatekey.pem and copy its contents. The key stays in your Home Assistant.",
+        "description": "Enter your **Open Data Euskadi registered email** and the complete contents of **privatekey.pem**.\n\n[Request or download my Open Data Euskadi keys]({api_keys_url})\n\n**No account yet?** We recommend **Sign in with Google** (for example, a Gmail account). Email registration can fail to deliver the activation message. If an account is already pending activation, use a Google account that is not pending. Also check spam.\n\nDownload the keys ZIP, open privatekey.pem and copy its contents. The key stays in your Home Assistant.",
         "data": {
           "email": "Email",
           "private_key": "Private key"
@@ -23,7 +23,7 @@
       },
       "reauth_confirm": {
         "title": "Update Euskalmet credentials",
-        "description": "Enter your **Open Data Euskadi registered email** and the complete contents of **privatekey.pem**.\n\n[Request or download my Open Data Euskadi keys](https://api.euskadi.eus/opendata-apikey/#/)\n\n**No account yet?** We recommend **Sign in with Google** (for example, a Gmail account). Email registration can fail to deliver the activation message. If an account is already pending activation, use a Google account that is not pending. Also check spam.\n\nDownload the keys ZIP, open privatekey.pem and copy its contents. The key stays in your Home Assistant.",
+        "description": "Enter your **Open Data Euskadi registered email** and the complete contents of **privatekey.pem**.\n\n[Request or download my Open Data Euskadi keys]({api_keys_url})\n\n**No account yet?** We recommend **Sign in with Google** (for example, a Gmail account). Email registration can fail to deliver the activation message. If an account is already pending activation, use a Google account that is not pending. Also check spam.\n\nDownload the keys ZIP, open privatekey.pem and copy its contents. The key stays in your Home Assistant.",
         "data": {
           "email": "Email",
           "private_key": "Private key"
