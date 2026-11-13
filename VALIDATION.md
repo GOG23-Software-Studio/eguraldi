@@ -47,6 +47,6 @@ npm test
 - Prueba real con la misma entrada y las tarjetas abiertas: Ortuella → Bilbao → Ortuella, sin recargar el panel durante los cambios.
 - Bilbao selecciona automáticamente Zorrotza (4,3 km) y actualiza los títulos, las observaciones y la previsión oficial a Bilbao.
 - Elección manual verificada en Bilbao: Arboleda (12,1 km), manteniendo Bilbao como localidad y previsión.
-- La vuelta a Ortuella restablece automáticamente Arboleda (1,9 km), conserva los identificadores de entidades y actualiza todas las tarjetas.
+- La vuelta a Ortuella restablece automáticamente Arboleda (1,8 km, calculados sin redondeo intermedio), conserva los identificadores de entidades y actualiza todas las tarjetas.
 - Pruebas de protección frente a localidad duplicada y localidad sin previsión; la configuración anterior no se modifica antes de confirmar ni en caso de error.
 - Selección por distancia sin redondear: una estación más cercana no pierde por tener menos magnitudes; la cobertura solo desempata distancias iguales.
