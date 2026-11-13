@@ -1,0 +1,23 @@
+{
+  "domain": "euskalmet_local",
+  "name": "Euskalmet Local",
+  "codeowners": [
+    "@oyogor1985"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "frontend",
+    "http"
+  ],
+  "documentation": "https://github.com/GOG23-Software-Studio/euskalmet-local",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/GOG23-Software-Studio/euskalmet-local/issues",
+  "loggers": [
+    "custom_components.euskalmet_local"
+  ],
+  "requirements": [
+    "PyJWT[crypto]==2.10.1"
+  ],
+  "version": "0.1.0b1"
+}

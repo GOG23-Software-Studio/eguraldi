@@ -1,0 +1,372 @@
+{
+  "title": "Euskalmet Local",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar Euskalmet Local",
+        "description": "Introduce tus credenciales personales de Open Data Euskadi. Después registrarás tu localidad. La clave se guarda únicamente en Home Assistant.",
+        "data": {
+          "email": "Correo electrónico",
+          "private_key": "Clave privada"
+        }
+      },
+      "station": {
+        "title": "Elegir estación meteorológica",
+        "description": "Se han encontrado {station_count} estaciones meteorológicas activas. Cada opción indica cuántas magnitudes ofrece y cuáles faltan. Los mareógrafos y las estaciones sin datos meteorológicos no aparecen.",
+        "data": {
+          "station_id": "Estación"
+        }
+      },
+      "confirm": {
+        "title": "Confirmar estación incompleta",
+        "description": "La estación **{station}** ofrece: {available}.\n\nNo ofrece: **{missing}**.\n\nSolo se crearán sensores para las magnitudes disponibles. Pulsa Enviar para añadirla de todos modos.",
+        "data": {}
+      },
+      "reauth_confirm": {
+        "title": "Actualizar credenciales de Euskalmet",
+        "description": "Euskalmet ha rechazado las credenciales actuales. Introduce de nuevo el correo y la clave privada.",
+        "data": {
+          "email": "Correo electrónico",
+          "private_key": "Clave privada"
+        }
+      },
+      "locality": {
+        "title": "Tu localidad",
+        "description": "Escribe el municipio. Se consulta Open-Meteo / GeoNames solo con ese nombre para obtener sus coordenadas; tus credenciales no se comparten. La previsión y los avisos serán los de la localidad, aunque cambies de estación.",
+        "data": {
+          "locality": "Localidad"
+        }
+      },
+      "place": {
+        "title": "Confirma la localidad",
+        "description": "Elige el municipio correcto para evitar confundir localidades con el mismo nombre.",
+        "data": {
+          "place": "Localidad"
+        }
+      },
+      "recommendation": {
+        "title": "Estación recomendada para {locality}",
+        "description": "Recomendamos **{station}**, a **{distance} km** en línea recta. Publica: {available}. No publica: {missing}. Se priorizan cercanía, temperatura, humedad y lluvia. La altitud y el entorno pueden producir diferencias respecto a tu localidad. Puedes aceptar o elegir otra estación cercana.",
+        "data": {
+          "station_id": "Estación (puedes modificarla después)"
+        }
+      }
+    },
+    "error": {
+      "invalid_private_key": "La clave privada no es válida. Pega el archivo .pem completo, incluidas las líneas BEGIN y END.",
+      "invalid_auth": "Las credenciales de Euskalmet no son válidas.",
+      "cannot_connect": "No se pudo conectar con Euskalmet. Inténtalo de nuevo.",
+      "cannot_determine_location": "No se pudo asociar la estación elegida con una localidad de previsión de Euskalmet.",
+      "cannot_load_stations": "No se pudo cargar el catálogo oficial de estaciones.",
+      "no_compatible_stations": "No se encontraron estaciones meteorológicas que publiquen alguna de las magnitudes compatibles.",
+      "station_not_available": "La estación no está disponible.",
+      "locality_not_found": "No se encontró la localidad. Prueba el nombre oficial del municipio.",
+      "cannot_geocode": "No se pudo consultar el catálogo de localidades.",
+      "no_nearby_station": "No hay estaciones compatibles a menos de 120 km.",
+      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial."
+    },
+    "abort": {
+      "already_configured": "La integración ya está configurada.",
+      "reauth_successful": "Las credenciales se han actualizado.",
+      "no_nearby_station": "No hay estaciones meteorológicas cercanas disponibles."
+    }
+  },
+  "device": {
+    "summaries": {
+      "name": "{station_name} - Resúmenes y estadísticas"
+    },
+    "pollen_station": {
+      "name": "Polen - {municipality_name}"
+    },
+    "astronomy": {
+      "name": "{station_name} - Astronomía"
+    },
+    "ocean": {
+      "name": "Euskalmet - Mar Cantábrico"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "weather_alert": {
+        "name": "Aviso meteorológico"
+      }
+    },
+    "camera": {
+      "precipitation_radar": {
+        "name": "Radar de precipitación"
+      }
+    },
+    "sensor": {
+      "temperature": {
+        "name": "Temperatura"
+      },
+      "humidity": {
+        "name": "Humedad"
+      },
+      "pressure": {
+        "name": "Presión"
+      },
+      "wind_speed": {
+        "name": "Velocidad del viento"
+      },
+      "wind_gust": {
+        "name": "Racha máxima"
+      },
+      "wind_direction": {
+        "name": "Dirección del viento"
+      },
+      "irradiance": {
+        "name": "Radiación solar"
+      },
+      "precipitation": {
+        "name": "Precipitación"
+      },
+      "pollen_total": {
+        "name": "Polen total"
+      },
+      "ocean_forecast": {
+        "name": "Previsión marítima"
+      },
+      "ocean_wave_height": {
+        "name": "Altura de ola"
+      },
+      "ocean_water_temperature": {
+        "name": "Temperatura del agua"
+      },
+      "ocean_visibility_min": {
+        "name": "Visibilidad mínima"
+      },
+      "ocean_visibility_max": {
+        "name": "Visibilidad máxima"
+      },
+      "ocean_tide_state": {
+        "name": "Estado de la marea",
+        "state": {
+          "rising": "Subiendo",
+          "falling": "Bajando"
+        }
+      },
+      "ocean_tide_high": {
+        "name": "Próxima pleamar"
+      },
+      "ocean_tide_high_height": {
+        "name": "Altura de la próxima pleamar"
+      },
+      "ocean_tide_low": {
+        "name": "Próxima bajamar"
+      },
+      "ocean_tide_low_height": {
+        "name": "Altura de la próxima bajamar"
+      },
+      "astro_moonrise": {
+        "name": "Salida de la Luna"
+      },
+      "astro_moonset": {
+        "name": "Puesta de la Luna"
+      },
+      "astro_sunrise": {
+        "name": "Salida del Sol"
+      },
+      "astro_sunset": {
+        "name": "Puesta del Sol"
+      },
+      "astro_moon_phase": {
+        "name": "Fase lunar",
+        "state": {
+          "new_moon": "Luna nueva",
+          "waxing_crescent": "Luna creciente",
+          "first_quarter": "Cuarto creciente",
+          "waxing_gibbous": "Gibosa creciente",
+          "full_moon": "Luna llena",
+          "waning_gibbous": "Gibosa menguante",
+          "last_quarter": "Cuarto menguante",
+          "waning_crescent": "Luna menguante"
+        }
+      },
+      "summary_precipitation_today": {
+        "name": "Precipitación hoy"
+      },
+      "summary_precipitation_month": {
+        "name": "Precipitación este mes"
+      },
+      "summary_precipitation_year": {
+        "name": "Precipitación este año"
+      },
+      "summary_temperature_min_today": {
+        "name": "Temperatura mínima hoy"
+      },
+      "summary_temperature_mean_today": {
+        "name": "Temperatura media hoy"
+      },
+      "summary_temperature_max_today": {
+        "name": "Temperatura máxima hoy"
+      },
+      "summary_temperature_min_month": {
+        "name": "Temperatura mínima del mes"
+      },
+      "summary_temperature_mean_month": {
+        "name": "Temperatura media del mes"
+      },
+      "summary_temperature_max_month": {
+        "name": "Temperatura máxima del mes"
+      },
+      "summary_temperature_min_year": {
+        "name": "Temperatura mínima del año"
+      },
+      "summary_temperature_mean_year": {
+        "name": "Temperatura media del año"
+      },
+      "summary_temperature_max_year": {
+        "name": "Temperatura máxima del año"
+      },
+      "summary_wind_gust_max_today": {
+        "name": "Racha máxima hoy"
+      },
+      "summary_wind_gust_max_month": {
+        "name": "Racha máxima del mes"
+      },
+      "summary_wind_gust_max_year": {
+        "name": "Racha máxima del año"
+      },
+      "summary_humidity_min_today": {
+        "name": "Humedad mínima hoy"
+      },
+      "summary_humidity_mean_today": {
+        "name": "Humedad media hoy"
+      },
+      "summary_humidity_max_today": {
+        "name": "Humedad máxima hoy"
+      },
+      "summary_humidity_min_month": {
+        "name": "Humedad mínima del mes"
+      },
+      "summary_humidity_mean_month": {
+        "name": "Humedad media del mes"
+      },
+      "summary_humidity_max_month": {
+        "name": "Humedad máxima del mes"
+      },
+      "summary_humidity_min_year": {
+        "name": "Humedad mínima del año"
+      },
+      "summary_humidity_mean_year": {
+        "name": "Humedad media del año"
+      },
+      "summary_humidity_max_year": {
+        "name": "Humedad máxima del año"
+      },
+      "summary_pressure_min_today": {
+        "name": "Presión mínima hoy"
+      },
+      "summary_pressure_mean_today": {
+        "name": "Presión media hoy"
+      },
+      "summary_pressure_max_today": {
+        "name": "Presión máxima hoy"
+      },
+      "summary_pressure_min_month": {
+        "name": "Presión mínima del mes"
+      },
+      "summary_pressure_mean_month": {
+        "name": "Presión media del mes"
+      },
+      "summary_pressure_max_month": {
+        "name": "Presión máxima del mes"
+      },
+      "summary_pressure_min_year": {
+        "name": "Presión mínima del año"
+      },
+      "summary_pressure_mean_year": {
+        "name": "Presión media del año"
+      },
+      "summary_pressure_max_year": {
+        "name": "Presión máxima del año"
+      },
+      "summary_irradiance_mean_today": {
+        "name": "Radiación solar media hoy"
+      },
+      "summary_irradiance_max_today": {
+        "name": "Radiación solar máxima hoy"
+      },
+      "summary_irradiance_mean_month": {
+        "name": "Radiación solar media del mes"
+      },
+      "summary_irradiance_max_month": {
+        "name": "Radiación solar máxima del mes"
+      },
+      "summary_irradiance_mean_year": {
+        "name": "Radiación solar media del año"
+      },
+      "summary_irradiance_max_year": {
+        "name": "Radiación solar máxima del año"
+      },
+      "summary_wind_speed_mean_today": {
+        "name": "Velocidad media del viento hoy"
+      },
+      "summary_wind_speed_mean_month": {
+        "name": "Velocidad media del viento del mes"
+      },
+      "summary_wind_speed_mean_year": {
+        "name": "Velocidad media del viento del año"
+      },
+      "alert_level": {
+        "name": "Nivel de aviso",
+        "state": {
+          "none": "Sin avisos",
+          "yellow": "Amarillo",
+          "orange": "Naranja",
+          "red": "Rojo"
+        }
+      }
+    },
+    "weather": {
+      "weather": {
+        "name": "Tiempo",
+        "state": {
+          "clear-night": "Despejado",
+          "cloudy": "Nublado",
+          "exceptional": "Excepcional",
+          "fog": "Niebla",
+          "hail": "Granizo",
+          "lightning": "Tormenta",
+          "lightning-rainy": "Tormenta con lluvia",
+          "partlycloudy": "Parcialmente nublado",
+          "pouring": "Lluvia intensa",
+          "rainy": "Lluvia",
+          "snowy": "Nieve",
+          "snowy-rainy": "Aguanieve",
+          "sunny": "Soleado",
+          "windy": "Viento",
+          "windy-variant": "Viento con nubes"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Estación de observación",
+        "description": "Cambia la estación o vuelve a la recomendada. La previsión y los avisos permanecen ligados a tu localidad.",
+        "data": {
+          "station_id": "Estación"
+        }
+      }
+    },
+    "error": {
+      "invalid_private_key": "La clave privada no es válida. Pega el archivo .pem completo, incluidas las líneas BEGIN y END.",
+      "invalid_auth": "Las credenciales de Euskalmet no son válidas.",
+      "cannot_connect": "No se pudo conectar con Euskalmet. Inténtalo de nuevo.",
+      "cannot_determine_location": "No se pudo asociar la estación elegida con una localidad de previsión de Euskalmet.",
+      "cannot_load_stations": "No se pudo cargar el catálogo oficial de estaciones.",
+      "no_compatible_stations": "No se encontraron estaciones meteorológicas que publiquen alguna de las magnitudes compatibles.",
+      "station_not_available": "La estación no está disponible.",
+      "locality_not_found": "No se encontró la localidad. Prueba el nombre oficial del municipio.",
+      "cannot_geocode": "No se pudo consultar el catálogo de localidades.",
+      "no_nearby_station": "No hay estaciones compatibles a menos de 120 km.",
+      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial."
+    },
+    "abort": {
+      "no_nearby_station": "No hay estaciones cercanas disponibles."
+    }
+  }
+}

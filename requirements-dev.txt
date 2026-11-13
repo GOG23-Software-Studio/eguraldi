@@ -1,0 +1,6 @@
+pytest==9.2.0
+ruff==0.17.5
+tzdata>=2026.1
+aiohttp>=3.12
+voluptuous>=0.15
+PyJWT[crypto]==2.10.1
