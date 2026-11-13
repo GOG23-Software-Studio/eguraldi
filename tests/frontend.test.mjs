@@ -22,7 +22,7 @@ test('24 hourly slots, six CSS columns, safe missing values',async()=>{const dom
 test('day/night variants depend on each forecast hour',()=>{const dom=setup(),l=dom.window.logic;assert.equal(l.isNight('2026-07-01T00:00:00Z',43.3,-3),true);assert.equal(l.isNight('2026-07-01T12:00:00Z',43.3,-3),false);assert.equal(l.iconName('sunny',true),'clear-night');assert.equal(l.iconName('partlycloudy',true),'partly-cloudy-night');dom.window.close();});
 test('unsubscribes on removal and reconnects once',async()=>{const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),count={subscriptions:0,unsubscribed:0};card.setConfig({mode:'hourly'});card.hass=hass(count);dom.window.document.body.append(card);await flush();assert.equal(count.subscriptions,2);card.remove();assert.equal(count.unsubscribed,2);dom.window.document.body.append(card);await flush();assert.equal(count.subscriptions,4);dom.window.close();});
 test('multiple localities never silently choose first',async()=>{const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card');const h=hass();h.callWS=async()=>[location,{...location,entry_id:'other',locality:'Bilbao'}];card.setConfig({mode:'hourly'});card.hass=h;dom.window.document.body.append(card);await flush();assert.ok(card.shadowRoot.querySelector('select'));assert.equal(card.shadowRoot.querySelectorAll('.hour').length,0);dom.window.close();});
-test('invalid humidity is explicit and locality labels are escaped',async()=>{const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'overview'});card.hass=hass();dom.window.document.body.append(card);await flush();assert.match(card.shadowRoot.textContent,/101,2/);assert.match(card.shadowRoot.textContent,/fuera de rango/);assert.equal(dom.window.logic.escapeHTML('<script>'),'&lt;script&gt;');dom.window.close();});
+test('original humidity is shown without explanatory blocks and locality labels are escaped',async()=>{const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'overview'});card.hass=hass();dom.window.document.body.append(card);await flush();assert.match(card.shadowRoot.textContent,/101,2/);assert.equal(card.shadowRoot.querySelector('.warning'),null);assert.doesNotMatch(card.shadowRoot.textContent,/fuera de rango|La estación mide|Municipio detectado/);assert.equal(dom.window.logic.escapeHTML('<script>'),'&lt;script&gt;');dom.window.close();});
 test('all referenced icon assets are packaged',()=>{const dom=setup();for(const condition of ['sunny','clear-night','partlycloudy','cloudy','rainy','pouring','fog','snowy','snowy-rainy','lightning','lightning-rainy','windy','hail','exceptional','unknown'])for(const night of [true,false])assert.ok(existsSync(new URL('../custom_components/euskalmet_local/frontend/icons/'+dom.window.logic.iconName(condition,night)+'.svg',import.meta.url)));dom.window.close();});
 
 
@@ -163,6 +163,34 @@ test('HA source labels distance from HA while manual localities remain independe
   card.setConfig({mode:'overview',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
   assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella');
   assert.match(card.shadowRoot.querySelector('.measurement-source').textContent,/de la ubicación de HA/);
-  assert.match(card.shadowRoot.textContent,/geoEuskadi.*Gobierno Vasco/);
+  assert.doesNotMatch(card.shadowRoot.textContent,/Municipio detectado|La estación mide|Humedad fuera de rango/);
   card.remove();dom.window.close();
+});
+
+
+test('radar passes the selected locality coordinates to its marker',async()=>{
+  const dom=setup(),h=hass();
+  dom.window.customElements.define('euskalmet-local-radar-map-card',class extends dom.window.HTMLElement{setConfig(value){this.config=value;}set hass(value){this._hass=value;}});
+  h.callWS=async()=>[{...location,entities:{...location.entities,radar:'camera.test'}}];
+  const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'radar',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
+  const radar=card.shadowRoot.querySelector('euskalmet-local-radar-map-card');
+  assert.equal(radar.config.locality,'Ortuella');assert.equal(radar.config.latitude,43.3);assert.equal(radar.config.longitude,-3.05);
+  card.remove();dom.window.close();
+});
+
+test('radar marker moves with locality, keeps one marker and ignores invalid coordinates',()=>{
+  const dom=setup();
+  vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-radar-map-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
+  const radar=dom.window.document.createElement('euskalmet-local-radar-map-card'),markers=[];
+  dom.window.L={circleMarker:(point,options)=>{
+    const marker={point,options,element:dom.window.document.createElement('span'),addTo(){return this;},bindTooltip(label,settings){this.label=label;this.settings=settings;return this;},setLatLng(value){this.point=value;},setTooltipContent(value){this.label=value;},getElement(){return this.element;},remove(){this.removed=true;}};
+    markers.push(marker);return marker;
+  }};
+  radar._map={};
+  radar.setConfig({entity:'camera.test',locality:'Ortuella',latitude:43.3,longitude:-3.05});
+  assert.equal(markers.length,1);assert.equal(markers[0].label.textContent,'Ortuella');assert.equal(markers[0].settings.permanent,true);
+  radar.setConfig({entity:'camera.test',locality:'Bilbao',latitude:43.26,longitude:-2.93});
+  assert.equal(markers.length,1);assert.equal(markers[0].label.textContent,'Bilbao');assert.deepEqual(Array.from(markers[0].point),[43.26,-2.93]);
+  radar.setConfig({entity:'camera.test',locality:'<img onerror=alert(1)>',latitude:43.26,longitude:-2.93});assert.equal(markers[0].label.querySelector('img'),null);
+  radar.setConfig({entity:'camera.test',latitude:null,longitude:null});assert.equal(markers[0].removed,true);dom.window.close();
 });

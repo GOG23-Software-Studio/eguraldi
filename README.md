@@ -2,7 +2,7 @@
 
 Tu localidad primero. Observaciones de una estación cercana, previsión para tu municipio y tarjetas animadas incluidas en una integración de Home Assistant.
 
-**Beta 0.1.0b12. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
+**Beta 0.1.0b13. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
 
 ![Vista previa con datos simulados](docs/preview.jpg)
 
@@ -119,3 +119,8 @@ La opción predeterminada al configurar es **Ubicación de Home Assistant**. El 
 Para añadir otra localidad, pulsa **Añadir servicio**, reutiliza la cuenta que ya está guardada en HA y elige **Otra localidad**. Las claves se reutilizan únicamente dentro de HA y nunca se envían al navegador. Cada localidad dispone de sus propias tarjetas y selección de estación. También puedes convertir una entrada desde **Configurar → Usar ubicación de Home Assistant**.
 
 Identificación de municipios limitada a los polígonos de Euskadi incluidos; fuera de cobertura o en un límite ambiguo se ofrece la selección manual. Fuente cartográfica: **Eusko Jaurlaritza / Gobierno Vasco. geoEuskadi.** [Límites administrativos](https://www.geo.euskadi.eus/limites-administrativos-del-pais-vasco/webgeo00-dataset/es/), descargados el 13 de noviembre de 2026. Se distribuyen en su formato comprimido sin enviar ninguna ubicación personal al proveedor.
+
+
+### Humedad y marcador de ubicación
+
+La tarjeta muestra el valor original de humedad publicado por Euskalmet, incluso cuando supera el 100 %, sin avisos explicativos debajo. Los sensores mantienen sus atributos de calidad y valor original. El radar señala la ubicación configurada con un punto y una etiqueta permanente con el nombre de la localidad; ambos siguen los cambios de ubicación.

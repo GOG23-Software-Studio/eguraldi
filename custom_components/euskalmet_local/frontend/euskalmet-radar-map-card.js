@@ -87,6 +87,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
       this._map.remove();
       this._map = undefined;
       this._overlay = undefined;
+      this._locationMarker = undefined;
     }
   }
 
@@ -201,6 +202,8 @@ class EuskalmetRadarMapCard extends HTMLElement {
         filter: grayscale(1) saturate(0) contrast(0.9) brightness(1.08);
       }
       .leaflet-pane.basemap-labels { pointer-events: none; }
+      .eguraldi-location-label { background:#132b3d; color:#effaff; border:1px solid #7dd3cb; border-radius:8px; font-size:12px; font-weight:600; padding:4px 8px; box-shadow:0 2px 8px #0006; }
+      .eguraldi-location-label::before { border-top-color:#7dd3cb; }
       .map-controls {
         position: absolute;
         z-index: 600;
@@ -442,6 +445,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
         element.hidden = !visible;
       }
     }
+    this._syncLocationMarker();
     if (this._config.autoplay !== true && this._playing) {
       this._stopPlayback();
     }
@@ -482,6 +486,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
       });
 
       this._addBasemap(L);
+      this._syncLocationMarker();
 
       this._map.fitBounds(this._currentBounds(), { padding: [8, 8] });
       this._syncFromState();
@@ -489,6 +494,31 @@ class EuskalmetRadarMapCard extends HTMLElement {
     } catch (error) {
       this._showMessage(error.message);
     }
+  }
+
+  _syncLocationMarker() {
+    if (!this._map || !window.L) return;
+    const { latitude, longitude } = this._config || {};
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude) ||
+        latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      this._locationMarker?.remove(); this._locationMarker = undefined; return;
+    }
+    const label = document.createElement('span');
+    label.textContent = this._config.locality || 'Tu ubicación';
+    if (!this._locationMarker) {
+      this._locationMarker = window.L.circleMarker([latitude, longitude], {
+        radius: 6, color: '#ffffff', weight: 2, fillColor: '#53d8ce',
+        fillOpacity: 1, pane: 'markerPane',
+      }).addTo(this._map).bindTooltip(label, {
+        permanent: true, direction: 'top', offset: [0, -8], className: 'eguraldi-location-label',
+      });
+    } else {
+      this._locationMarker.setLatLng([latitude, longitude]);
+      this._locationMarker.setTooltipContent(label);
+    }
+    const element = this._locationMarker.getElement();
+    element?.setAttribute('role', 'img');
+    element?.setAttribute('aria-label', `Ubicación: ${label.textContent}`);
   }
 
   _addBasemap(L) {

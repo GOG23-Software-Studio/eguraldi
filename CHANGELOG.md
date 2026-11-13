@@ -1,5 +1,10 @@
 # Cambios
 
+## 0.1.0b13
+
+- La tarjeta muestra la humedad original de Euskalmet, incluso fuera del rango habitual, sin el bloque de aviso ni los textos explicativos inferiores. Los atributos de calidad del sensor se conservan.
+- El radar marca la ubicación seleccionada con un punto y su nombre permanente; el marcador se actualiza al cambiar de localidad.
+
 ## 0.1.0b12
 
 - Ubicación de Home Assistant como opción predeterminada; municipio detectado localmente con geoEuskadi, sin enviar coordenadas a un geocodificador.

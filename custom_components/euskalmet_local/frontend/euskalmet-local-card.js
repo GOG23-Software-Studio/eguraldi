@@ -92,11 +92,11 @@ export class EuskalmetLocalCard extends HTMLElement {
   _weather(){return this._state('weather')?.attributes||{};}
   _overview(){
     const weather=this._state('weather'),a=weather?.attributes||{},humidity=this._state('humidity');
-    const invalid=humidity?.attributes.quality==='out_of_range';
+    const sourceHumidity=numeric(humidity?.state)??numeric(humidity?.attributes.raw_value)??numeric(a.humidity);
     const observed=this._state('temperature')?.attributes.observed_at;
     const age=observed?(Date.now()-Date.parse(observed))/60000:null;
     const stale=age===null||age>45||this._state('temperature')?.attributes.stale===true;
-    return `<section class="hero"><div class="eyebrow">EGURALDI</div><h2 class="place">${escapeHTML(this._location.locality)}</h2><div class="muted measurement-source">${escapeHTML(this._measurementSource())}</div><div class="current"><div class="big">${fmt(a.temperature)}<small> ${escapeHTML(a.temperature_unit||'°C')}</small></div>${this._icon(weather?.state,Date.now())}</div><div>${escapeHTML(CONDITIONS[weather?.state]||'Esperando observaciones')}</div><div class="metrics"><div>${fmt(a.wind_speed)} ${escapeHTML(a.wind_speed_unit||'km/h')}<small>Viento</small></div><div>${fmt(this._state('precipitation_today')?.state)} mm<small>Lluvia hoy</small></div><div>${invalid?'Sin validar':fmt(a.humidity)+' %'}<small>Humedad</small></div></div><div class="source ${stale?'error':''}">${stale?'Revisar antigüedad':'Última lectura'} · ${observed?escapeHTML(this._time(observed,{hour:'2-digit',minute:'2-digit'})):'sin fecha'}</div>${invalid?`<div class="warning">Humedad fuera de rango: Euskalmet publica ${fmt(humidity.attributes.raw_value)} %. Se conserva el valor original en los atributos.</div>`:''}<div class="source">La estación mide en su propia ubicación y altitud; las condiciones pueden diferir de las de tu localidad.</div>${this._location.location_source==='home_assistant'?'<div class="source">Municipio detectado en HA · geoEuskadi · Eusko Jaurlaritza / Gobierno Vasco.</div>':''}</section>`;
+    return `<section class="hero"><div class="eyebrow">EGURALDI</div><h2 class="place">${escapeHTML(this._location.locality)}</h2><div class="muted measurement-source">${escapeHTML(this._measurementSource())}</div><div class="current"><div class="big">${fmt(a.temperature)}<small> ${escapeHTML(a.temperature_unit||'°C')}</small></div>${this._icon(weather?.state,Date.now())}</div><div>${escapeHTML(CONDITIONS[weather?.state]||'Esperando observaciones')}</div><div class="metrics"><div>${fmt(a.wind_speed)} ${escapeHTML(a.wind_speed_unit||'km/h')}<small>Viento</small></div><div>${fmt(this._state('precipitation_today')?.state)} mm<small>Lluvia hoy</small></div><div>${fmt(sourceHumidity)} %<small>Humedad</small></div></div><div class="source ${stale?'error':''}">${stale?'Revisar antigüedad':'Última lectura'} · ${observed?escapeHTML(this._time(observed,{hour:'2-digit',minute:'2-digit'})):'sin fecha'}</div></section>`;
   }
   _hourly(){
     const forecast=forecastRows(this._forecasts.hourly),units=this._weather();
@@ -170,7 +170,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       const entity=loc.entities[mode==='history'?'temperature':mode==='radar'?'radar':'alert_level'];
       config={entity,entry_id:loc.entry_id,title:`${loc.locality} · ${labels[mode]}`};
       if(mode==='history'){config.station_id=loc.station_id;config.show_title=false;if(this._config.measure)config.measure=this._config.measure;}
-      if(mode==='radar'){config.show_header=false;config.map_style=this._config.map_style||'dark';}
+      if(mode==='radar'){config.show_header=false;config.map_style=this._config.map_style||'dark';config.latitude=loc.latitude;config.longitude=loc.longitude;config.locality=loc.locality;}
     }
     const key=JSON.stringify([mode,config]);
     if(content.firstElementChild?.dataset.extraKey===key){content.firstElementChild.hass=this._hass;return;}
