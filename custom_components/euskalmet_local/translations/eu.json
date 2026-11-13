@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Configurar Eguraldi",
-        "description": "Introduce tus credenciales personales de Open Data Euskadi. Después registrarás tu localidad. La clave se guarda únicamente en Home Assistant.",
+        "description": "Sartu **Open Data Euskadin erregistratutako helbide elektronikoa** eta **privatekey.pem** fitxategiaren eduki osoa.\n\n[Eskatu edo deskargatu Open Data Euskadiko gakoak](https://api.euskadi.eus/opendata-apikey/#/)\n\n**Oraindik konturik ez?** **Google bidez sartzea** gomendatzen dugu (adibidez, Gmail kontuarekin). Posta bidezko erregistroan aktibazio-mezua ez iristeko arazoak egon daitezke. Kontua aktibatzeko zain badago, erabili aktibatzeko zain ez dagoen beste Google kontu bat. Begiratu spam karpeta ere.\n\nDeskargatu gakoen ZIPa, ireki privatekey.pem eta kopiatu edukia. Gakoa zure Home Assistanten bakarrik gordetzen da.",
         "data": {
           "email": "Helbide elektronikoa",
           "private_key": "Gako pribatua"
@@ -23,7 +23,7 @@
       },
       "reauth_confirm": {
         "title": "Euskalmeteko egiaztagiriak eguneratu",
-        "description": "Euskalmetek uneko egiaztagiriak baztertu ditu. Sartu berriro helbide elektronikoa eta gako pribatua.",
+        "description": "Sartu **Open Data Euskadin erregistratutako helbide elektronikoa** eta **privatekey.pem** fitxategiaren eduki osoa.\n\n[Eskatu edo deskargatu Open Data Euskadiko gakoak](https://api.euskadi.eus/opendata-apikey/#/)\n\n**Oraindik konturik ez?** **Google bidez sartzea** gomendatzen dugu (adibidez, Gmail kontuarekin). Posta bidezko erregistroan aktibazio-mezua ez iristeko arazoak egon daitezke. Kontua aktibatzeko zain badago, erabili aktibatzeko zain ez dagoen beste Google kontu bat. Begiratu spam karpeta ere.\n\nDeskargatu gakoen ZIPa, ireki privatekey.pem eta kopiatu edukia. Gakoa zure Home Assistanten bakarrik gordetzen da.",
         "data": {
           "email": "Helbide elektronikoa",
           "private_key": "Gako pribatua"

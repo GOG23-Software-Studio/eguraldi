@@ -2,7 +2,7 @@
 
 Tu localidad primero. Observaciones de una estación cercana, previsión para tu municipio y tarjetas animadas incluidas en una integración de Home Assistant.
 
-**Beta 0.1.0b2. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
+**Beta 0.1.0b3. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
 
 ![Vista previa con datos simulados](docs/preview.jpg)
 
@@ -20,7 +20,7 @@ Tu localidad primero. Observaciones de una estación cercana, previsión para tu
 ## Requisitos
 
 - Home Assistant 2026.8 o posterior. La beta se verifica también mediante CI en HA 2026.11.1.
-- Cuenta personal de [Open Data Euskadi](https://api.euskadi.eus/opendata-apikey#/) y archivo `privatekey.pem`.
+- Cuenta personal de [Open Data Euskadi](https://api.euskadi.eus/opendata-apikey/#/) y archivo `privatekey.pem`.
 - Internet para las APIs de Euskalmet; Open-Meteo/GeoNames se usa únicamente para buscar el nombre del municipio durante la configuración. El mapa de radar utiliza teselas de OpenStreetMap.
 
 ## Instalar por HACS / Marketplace
@@ -33,7 +33,7 @@ https://github.com/GOG23-Software-Studio/eguraldi
 
 Activa las versiones preliminares si tu HACS no ofrece la beta. Instala **Eguraldi**, reinicia HA y ve a **Ajustes → Dispositivos y servicios → Añadir integración → Eguraldi**.
 
-1. Introduce tu correo de Open Data Euskadi y el contenido de tu clave PEM.
+1. Abre el enlace a Open Data Euskadi incluido en el asistente. Recomendamos **Acceder con Google** (por ejemplo, con Gmail): el correo de activación del registro tradicional puede no llegar. Si la cuenta está pendiente, usa una cuenta de Google que no esté pendiente. Descarga el ZIP y pega el correo y el contenido de `privatekey.pem`.
 2. Escribe tu localidad y confirma el municipio correcto.
 3. Revisa la estación recomendada, su distancia y las magnitudes disponibles. Puedes cambiarla antes de confirmar.
 

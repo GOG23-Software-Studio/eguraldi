@@ -10,12 +10,19 @@
 
 ## Pendiente antes de versión estable
 
-- Configurar una entrada real con credenciales personales en un HA de prueba y recorrer el asistente completo.
 - Cambiar de estación y volver a automática, comprobando que la previsión sigue ligada a la localidad.
 - Probar reautenticación, reinicio, instalación/actualización por HACS y convivencia con la integración original.
 - Confirmar comportamiento con distintas localidades y respuestas actuales de los proveedores.
 
-No se han extraído ni copiado las credenciales del HA del autor para hacer pruebas. La integración existente en su HA sigue intacta. La vista previa local utiliza datos simulados señalados como tales.
+No se han extraído ni copiado las credenciales del HA del autor para hacer pruebas. La vista previa local utiliza datos simulados señalados como tales.
+
+## Validación real · 13 de noviembre de 2026
+
+- Asistente completado por el usuario con sus credenciales en HA 2026.11.1: localidad Ortuella y estación Arboleda, a 1,9 km.
+- Entrada cargada, observaciones disponibles y previsión horaria y diaria para Ortuella.
+- Tarjetas incluidas verificadas en HA: observaciones, 24 horas en cuatro filas de seis, próximos días, avisos, radar e histórico mensual.
+- Humedad publicada de 101,2 % conservada en atributos y señalada fuera de rango; no se muestra como una lectura válida.
+- Convivencia con la integración original comprobada antes de la migración de la pestaña.
 
 ## Ejecutar
 

@@ -7,7 +7,7 @@ from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
 
-VERSION = "0.1.0b2"
+VERSION = "0.1.0b3"
 
 
 @websocket_api.websocket_command({vol.Required("type"): "euskalmet_local/locations"})

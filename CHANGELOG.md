@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.1.0b3
+
+Enlace directo para obtener las claves en el asistente y la reautenticación; recomendación de acceso con Google ante problemas del correo de activación. Título de las nuevas entradas corregido a Eguraldi.
+
 ## 0.1.0b2
 
 Nuevo nombre público: Eguraldi. Se mantienen el dominio y las referencias de tarjetas para compatibilidad con la primera beta.

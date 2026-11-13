@@ -427,7 +427,7 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             await self.async_set_unique_id(f"locality_{place['id']}")
             self._abort_if_unique_id_configured()
             return self.async_create_entry(
-                title=f"Euskalmet Local · {place['name']}",
+                title=f"Eguraldi · {place['name']}",
                 data={
                     **self._credentials,
                     **station,
