@@ -186,11 +186,30 @@ test('radar marker moves with locality, keeps one marker and ignores invalid coo
     const marker={point,options,element:dom.window.document.createElement('span'),addTo(){return this;},bindTooltip(label,settings){this.label=label;this.settings=settings;return this;},setLatLng(value){this.point=value;},setTooltipContent(value){this.label=value;},getElement(){return this.element;},remove(){this.removed=true;}};
     markers.push(marker);return marker;
   }};
-  radar._map={};
+  radar._map={setView(){},fitBounds(){}};
   radar.setConfig({entity:'camera.test',locality:'Ortuella',latitude:43.3,longitude:-3.05});
   assert.equal(markers.length,1);assert.equal(markers[0].label.textContent,'Ortuella');assert.equal(markers[0].settings.permanent,true);
   radar.setConfig({entity:'camera.test',locality:'Bilbao',latitude:43.26,longitude:-2.93});
   assert.equal(markers.length,1);assert.equal(markers[0].label.textContent,'Bilbao');assert.deepEqual(Array.from(markers[0].point),[43.26,-2.93]);
   radar.setConfig({entity:'camera.test',locality:'<img onerror=alert(1)>',latitude:43.26,longitude:-2.93});assert.equal(markers[0].label.querySelector('img'),null);
   radar.setConfig({entity:'camera.test',latitude:null,longitude:null});assert.equal(markers[0].removed,true);dom.window.close();
+});
+
+
+test('radar centers with local zoom on location changes, preserving manual navigation between updates',()=>{
+  const dom=setup();
+  vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-radar-map-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
+  const radar=dom.window.document.createElement('euskalmet-local-radar-map-card'),views=[],coverage=[];
+  radar._map={setView:(point,zoom)=>views.push({point:Array.from(point),zoom}),fitBounds:(bounds)=>coverage.push(bounds)};
+  radar.setConfig({entity:'camera.test',latitude:43.3,longitude:-3.05,locality:'Ortuella'});
+  assert.deepEqual(views,[{point:[43.3,-3.05],zoom:10}]);
+  radar.setConfig({entity:'camera.test',latitude:43.3,longitude:-3.05,locality:'Ortuella'});
+  assert.equal(views.length,1);
+  radar.setConfig({entity:'camera.test',latitude:43.26,longitude:-2.93,locality:'Bilbao'});
+  assert.deepEqual(views.at(-1),{point:[43.26,-2.93],zoom:10});
+  radar.setConfig({entity:'camera.test',latitude:43.26,longitude:-2.93,locality:'Bilbao',zoom:11});
+  assert.equal(views.at(-1).zoom,11);
+  radar.setConfig({entity:'camera.test',latitude:null,longitude:null});
+  assert.equal(coverage.length,1);assert.equal(views.length,3);
+  dom.window.close();
 });

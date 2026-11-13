@@ -54,6 +54,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
     this._config = {
       opacity: 1,
       map_style: "gray",
+      zoom: 10,
       frame_interval: 125,
       autoplay: true,
       show_header: true,
@@ -88,6 +89,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
       this._map = undefined;
       this._overlay = undefined;
       this._locationMarker = undefined;
+      this._viewKey = undefined;
     }
   }
 
@@ -446,6 +448,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
       }
     }
     this._syncLocationMarker();
+    this._syncLocationView();
     if (this._config.autoplay !== true && this._playing) {
       this._stopPlayback();
     }
@@ -488,12 +491,26 @@ class EuskalmetRadarMapCard extends HTMLElement {
       this._addBasemap(L);
       this._syncLocationMarker();
 
-      this._map.fitBounds(this._currentBounds(), { padding: [8, 8] });
+      this._syncLocationView();
       this._syncFromState();
       queueMicrotask(() => this._map?.invalidateSize());
     } catch (error) {
       this._showMessage(error.message);
     }
+  }
+
+  _syncLocationView() {
+    if (!this._map) return;
+    const { latitude, longitude } = this._config || {};
+    const valid = Number.isFinite(latitude) && Number.isFinite(longitude) &&
+      latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
+    const zoom = Number.isFinite(this._config?.zoom) ? Math.max(3, Math.min(16, this._config.zoom)) : 10;
+    const key = valid ? JSON.stringify([latitude, longitude, zoom]) : 'coverage';
+    // Preserve a user's pan/zoom and the coverage button until the location changes.
+    if (key === this._viewKey) return;
+    this._viewKey = key;
+    if (valid) this._map.setView([latitude, longitude], zoom, { animate: false });
+    else this._map.fitBounds(this._currentBounds(), { padding: [8, 8] });
   }
 
   _syncLocationMarker() {

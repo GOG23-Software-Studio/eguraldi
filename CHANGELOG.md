@@ -1,5 +1,10 @@
 # Cambios
 
+## 0.1.0b14
+
+- El radar se centra automáticamente en la ubicación elegida con zoom local 10. Se actualiza al cambiar de localidad y respeta el desplazamiento o zoom manual entre actualizaciones.
+- Ver cobertura mantiene disponible la vista regional.
+
 ## 0.1.0b13
 
 - La tarjeta muestra la humedad original de Euskalmet, incluso fuera del rango habitual, sin el bloque de aviso ni los textos explicativos inferiores. Los atributos de calidad del sensor se conservan.

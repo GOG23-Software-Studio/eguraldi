@@ -170,7 +170,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       const entity=loc.entities[mode==='history'?'temperature':mode==='radar'?'radar':'alert_level'];
       config={entity,entry_id:loc.entry_id,title:`${loc.locality} · ${labels[mode]}`};
       if(mode==='history'){config.station_id=loc.station_id;config.show_title=false;if(this._config.measure)config.measure=this._config.measure;}
-      if(mode==='radar'){config.show_header=false;config.map_style=this._config.map_style||'dark';config.latitude=loc.latitude;config.longitude=loc.longitude;config.locality=loc.locality;}
+      if(mode==='radar'){config.show_header=false;config.map_style=this._config.map_style||'dark';config.latitude=loc.latitude;config.longitude=loc.longitude;config.locality=loc.locality;config.zoom=this._config.zoom??10;}
     }
     const key=JSON.stringify([mode,config]);
     if(content.firstElementChild?.dataset.extraKey===key){content.firstElementChild.hass=this._hass;return;}
