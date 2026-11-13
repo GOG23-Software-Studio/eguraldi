@@ -28,6 +28,7 @@ jobs:
           python-version: '3.14'
       - run: pip install homeassistant==2026.11.1 pytest
       - run: python -c "import custom_components.euskalmet_local; import custom_components.euskalmet_local.config_flow; import custom_components.euskalmet_local.sensor; import custom_components.euskalmet_local.weather"
+      - run: pytest tests/test_ha_smoke.py
   validate:
     runs-on: ubuntu-latest
     steps:
