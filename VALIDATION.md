@@ -50,3 +50,12 @@ npm test
 - La vuelta a Ortuella restablece automáticamente Arboleda (1,8 km, calculados sin redondeo intermedio), conserva los identificadores de entidades y actualiza todas las tarjetas.
 - Pruebas de protección frente a localidad duplicada y localidad sin previsión; la configuración anterior no se modifica antes de confirmar ni en caso de error.
 - Selección por distancia sin redondear: una estación más cercana no pierde por tener menos magnitudes; la cobertura solo desempata distancias iguales.
+
+
+## Ubicación de HA y localidades adicionales · beta 0.1.0b12
+
+- Activación real en HA desde Configurar → Usar ubicación de Home Assistant: municipio identificado localmente como Ortuella, estación Arboleda, distancia 1,8 km desde la ubicación de HA.
+- Las tarjetas abiertas actualizan el origen a la ubicación de HA y mantienen la previsión de Ortuella; no se han enviado coordenadas de casa a un geocodificador.
+- Asistente de Añadir servicio verificado con la cuenta guardada, sin pedir ni mostrar otra vez la clave: HA aparece seleccionado por defecto y Otra localidad abre la búsqueda manual. El asistente se cancela sin crear una localidad de prueba adicional.
+- Seguimiento de cambios de la ubicación de HA verificado con eventos simulados, sin modificar la ubicación global real de HA; las entradas manuales no se recargan por ese evento.
+- 71 pruebas Python locales, 14 de tarjetas, pruebas de flujo con HA 2026.11.1 y HACS/hassfest superadas.
