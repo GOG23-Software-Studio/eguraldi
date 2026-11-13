@@ -21,8 +21,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .coordinator import EuskalmetCoordinator
 from .const import DOMAIN, MANUFACTURER
+from .coordinator import EuskalmetCoordinator
 from .formatting import spanish_weather_condition
 from .quality import valid_humidity
 

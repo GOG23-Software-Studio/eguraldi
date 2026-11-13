@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.1.0b7
+
+- Validación estática del cambio de dispositivo por localidad. Sustituye a las betas b5 y b6.
+
 ## 0.1.0b6
 
 - El tiempo pertenece a un dispositivo con el nombre de la localidad; la estación conserva su propio dispositivo como fuente. Evita que HA anteponga la estación al municipio y mantiene los IDs existentes.

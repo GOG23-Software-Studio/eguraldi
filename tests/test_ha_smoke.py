@@ -73,3 +73,18 @@ def test_real_ha_forms_and_locality_entry(tmp_path, monkeypatch):
         await hass.async_block_till_done()
 
     asyncio.run(scenario())
+
+
+def test_weather_identity_uses_locality_and_preserves_station():
+    from custom_components.euskalmet_local.weather import EuskalmetWeather
+
+    coordinator = SimpleNamespace(
+        config_entry_id="example_entry",
+        locality="Ortuella",
+        api=SimpleNamespace(station_id="C061", station_name="Arboleda"),
+    )
+    entity = EuskalmetWeather(coordinator)
+    assert entity.unique_id == "example_entry_weather"
+    assert entity.device_info["name"] == "Ortuella"
+    assert entity.device_info["via_device"] == ("euskalmet_local", "C061")
+    assert entity.name is None
