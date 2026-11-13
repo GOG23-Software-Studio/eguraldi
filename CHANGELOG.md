@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.1.0b8
+
+- Bajo la localidad se indica en letra pequeña dónde se realizan las mediciones y la distancia respecto al municipio seleccionado.
+
 ## 0.1.0b7
 
 - Validación estática del cambio de dispositivo por localidad. Sustituye a las betas b5 y b6.
