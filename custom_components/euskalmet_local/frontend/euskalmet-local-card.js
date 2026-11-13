@@ -52,7 +52,7 @@ export class EuskalmetLocalCard extends HTMLElement {
   set hass(value){const previous=this._hass;this._hass=value;this._start();const changed=!previous||!this._location||Object.values(this._location.entities).some(id=>previous.states[id]!==value.states[id])||previous.config?.time_zone!==value.config?.time_zone;if(changed&&!this._renderScheduled){this._renderScheduled=true;queueMicrotask(()=>{this._renderScheduled=false;this._render();});}}
   connectedCallback(){this._start();}
   disconnectedCallback(){this._stop();}
-  _stop(){this._generation++;for(const unsubscribe of this._unsubs.splice(0))unsubscribe();this._starting=false;}
+  _stop(){this._generation++;this._extraRevision=(this._extraRevision||0)+1;this._extraPending=null;for(const unsubscribe of this._unsubs.splice(0))unsubscribe();this._starting=false;}
   async _start(){
     if(!this._hass||!this._config||!this.isConnected||this._starting||this._unsubs.length)return;
     this._starting=true;const generation=this._generation;

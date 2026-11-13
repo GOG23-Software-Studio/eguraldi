@@ -104,3 +104,16 @@ test('comparison legend and environmental source follow the selected entry',asyn
   assert.equal(configs.at(-1).entities[0].name,'Ortuella · estación Galindo');assert.equal(configs.at(-1).entities[1].entity,'sensor.balcony');
   card.remove();dom.window.close();
 });
+
+
+test('comparison can reconnect while its lazy card helper is pending',async()=>{
+  const dom=setup(),h=hass(),card=dom.window.document.createElement('euskalmet-local-card');
+  let finish;const pending=new Promise(resolve=>{finish=resolve;});
+  dom.window.loadCardHelpers=()=>pending;
+  card.setConfig({mode:'comparison',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
+  card.remove();dom.window.document.body.append(card);await flush();
+  class Graph extends dom.window.HTMLElement{set hass(value){this._hass=value;}}
+  dom.window.customElements.define('test-reconnected-graph',Graph);
+  finish({createCardElement:()=>dom.window.document.createElement('test-reconnected-graph')});await flush();await flush();
+  assert.ok(card.shadowRoot.querySelector('test-reconnected-graph'));card.remove();dom.window.close();
+});
