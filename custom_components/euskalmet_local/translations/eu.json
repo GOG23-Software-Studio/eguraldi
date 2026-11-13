@@ -45,9 +45,23 @@
       },
       "recommendation": {
         "title": "Estación recomendada para {locality}",
-        "description": "Recomendamos **{station}**, a **{distance} km** en línea recta. Publica: {available}. No publica: {missing}. Se priorizan cercanía, temperatura, humedad y lluvia. La altitud y el entorno pueden producir diferencias respecto a tu localidad. Puedes aceptar o elegir otra estación cercana.",
+        "description": "Recomendamos **{station}**, a **{distance} km** en línea recta. Publica: {available}. No publica: {missing}. Se priorizan cercanía, temperatura, humedad y lluvia. La altitud y el entorno pueden producir diferencias respecto a tu localidad. Puedes aceptar o elegir otra estación cercana.\n\n{origin}",
         "data": {
           "station_id": "Estación (puedes modificarla después)"
+        }
+      },
+      "account": {
+        "title": "Beste kokapen bat gehitu",
+        "description": "Erabili HAn gordetako kontua gakoa berriro sartu gabe, edo konfiguratu beste kontu bat.",
+        "data": {
+          "account": "Open Data Euskadiko kontua"
+        }
+      },
+      "location_source": {
+        "title": "Eguraldiren kokapena",
+        "description": "Lehenespenez Home Assistant-en kokapena erabiliko da. Udalerria lokalean identifikatzen da, koordenatuak geokodetzaile batera bidali gabe. Beste herri bat ere gehi dezakezu izenaren bidez.",
+        "data": {
+          "location_source": "Kokapena"
         }
       }
     },
@@ -62,7 +76,8 @@
       "locality_not_found": "No se encontró la localidad. Prueba el nombre oficial del municipio.",
       "cannot_geocode": "No se pudo consultar el catálogo de localidades.",
       "no_nearby_station": "No hay estaciones compatibles a menos de 120 km.",
-      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial."
+      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial.",
+      "home_location_unavailable": "Ez da Euskalmeteko udalerri egokirik aurkitu HAren kokapenean. Berrikusi Home Assistant-en kokapena edo aukeratu beste herri bat eskuz."
     },
     "abort": {
       "already_configured": "Integrazioa dagoeneko konfiguratuta dago.",
@@ -356,7 +371,8 @@
         "description": "Aldatu herria edo behaketa-estazioa.",
         "menu_options": {
           "locality": "Herria aldatu",
-          "station": "Estazioa aldatu"
+          "station": "Estazioa aldatu",
+          "home_assistant": "Home Assistant-en kokapena erabili"
         }
       },
       "locality": {
@@ -375,7 +391,11 @@
       },
       "confirm_locality": {
         "title": "Herri berria gorde",
-        "description": "Txartel guztiek **{locality}** erakutsiko dute.\n\nEstazio automatikoa: **{station}**, udalerritik **{distance} km**-ra.\n\nIragarpena, abisuak, neurketak eta historikoa eguneratuko dira, entitateen IDak mantenduz. Aukeretan beste estazio bat hauta dezakezu."
+        "description": "Txartel guztiek **{locality}** erakutsiko dute.\n\nEstazio automatikoa: **{station}**, {reference} **{distance} km**-ra.\n\nIragarpena, abisuak, neurketak eta historikoa eguneratuko dira, entitateen IDak mantenduz. Aukeretan beste estazio bat hauta dezakezu.\n\n{origin}"
+      },
+      "home_assistant": {
+        "title": "Home Assistant-en kokapena",
+        "description": "Ezarpenak → Sistema → Orokorra ataleko kokapena erabiliko da. Beste herri bat ere hauta dezakezu aukeretan."
       }
     },
     "error": {
@@ -389,7 +409,8 @@
       "locality_not_found": "No se encontró la localidad. Prueba el nombre oficial del municipio.",
       "cannot_geocode": "No se pudo consultar el catálogo de localidades.",
       "no_nearby_station": "No hay estaciones compatibles a menos de 120 km.",
-      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial."
+      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial.",
+      "home_location_unavailable": "Ez da Euskalmeteko udalerri egokirik aurkitu HAren kokapenean. Berrikusi Home Assistant-en kokapena edo aukeratu beste herri bat eskuz."
     },
     "abort": {
       "no_nearby_station": "No hay estaciones cercanas disponibles.",

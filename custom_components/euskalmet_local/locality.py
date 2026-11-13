@@ -100,7 +100,11 @@ async def resolve_forecast(api: Any, place: dict) -> dict:
     """
     from .geography import alert_zone_for, catalog_identifier, catalog_names
 
-    wanted = normalize_text(place["name"])
+    wanted_names = {
+        normalize_text(name)
+        for name in [place["name"], *place.get("aliases", [])]
+        if name
+    }
     matches = []
     for region in await api.get_regions():
         region_id = catalog_identifier(region, "region")
@@ -118,8 +122,10 @@ async def resolve_forecast(api: Any, place: dict) -> dict:
                 # Bilingual catalogs also publish "Donostia / San Sebastián".
                 for name in names:
                     aliases.update(normalize_text(part) for part in name.split("/"))
-                if wanted in aliases or any(
-                    f" {wanted} " in f" {alias} " for alias in aliases
+                if any(
+                    wanted in aliases
+                    or any(f" {wanted} " in f" {alias} " for alias in aliases)
+                    for wanted in wanted_names
                 ):
                     matches.append(
                         {"region": region_id, "zone": zone_id, "location": location_id}

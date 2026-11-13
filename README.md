@@ -2,7 +2,7 @@
 
 Tu localidad primero. Observaciones de una estación cercana, previsión para tu municipio y tarjetas animadas incluidas en una integración de Home Assistant.
 
-**Beta 0.1.0b11. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
+**Beta 0.1.0b12. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
 
 ![Vista previa con datos simulados](docs/preview.jpg)
 
@@ -69,7 +69,7 @@ En la entrada de Eguraldi, abre **Opciones**. Selecciona una estación cercana o
 
 ## Privacidad y datos
 
-Las credenciales permanecen en la configuración local de HA y el JWT se firma en HA. No hay claves compartidas ni telemetría. El nombre de municipio se envía a Open-Meteo para localizarlo; no se le envían la clave, el correo ni la ubicación de tu casa. Las coordenadas usadas son las del municipio elegido. Las tarjetas obtienen datos a través del servidor HA y nunca reciben la clave privada.
+Las credenciales permanecen en la configuración local de HA y el JWT se firma en HA. No hay claves compartidas ni telemetría. El nombre de municipio se envía a Open-Meteo para localizarlo; no se le envían la clave, el correo ni la ubicación de tu casa. La entrada vinculada a HA usa sus coordenadas localmente; las entradas manuales usan las del municipio. Las coordenadas usadas son las del municipio elegido. Las tarjetas obtienen datos a través del servidor HA y nunca reciben la clave privada.
 
 La disponibilidad y calidad de los datos dependen de la fuente. Polen es una muestra semanal; mar es la previsión del Cantábrico y las mareas son la referencia de Pasaia. Una estación cercana puede estar a otra altitud o tener sensores incompletos. La recomendación muestra esas limitaciones.
 
@@ -110,3 +110,12 @@ Con varias localidades, fija `entry_id` o elígela en la tarjeta. El radar es re
 En **Configurar → Cambiar localidad**, escribe el municipio, confirma la coincidencia correcta y revisa la nueva estación antes de guardar. La misma entrada adopta la localidad nueva, su previsión y zona de avisos, y la estación compatible más cercana. Las tarjetas abiertas se actualizan automáticamente y conservan los IDs de entidades. Las lecturas ya registradas en HA se conservan.
 
 Desde **Configurar → Cambiar estación** puedes seleccionar otra manualmente o volver a **Automática · más cercana a tu localidad**. Al guardar otra localidad se restablece la selección automática. Si la localidad está duplicada o no tiene previsión o estaciones compatibles, la configuración anterior permanece intacta.
+
+
+### Ubicación de Home Assistant y otras localidades
+
+La opción predeterminada al configurar es **Ubicación de Home Assistant**. El municipio se identifica localmente con los límites de geoEuskadi. La estación se elige por distancia a la ubicación de HA, no al centro del municipio. Las coordenadas de casa no se envían a servicios de geocodificación. Si cambias la ubicación de HA, esta entrada se actualiza; las entradas manuales permanecen independientes.
+
+Para añadir otra localidad, pulsa **Añadir servicio**, reutiliza la cuenta que ya está guardada en HA y elige **Otra localidad**. Las claves se reutilizan únicamente dentro de HA y nunca se envían al navegador. Cada localidad dispone de sus propias tarjetas y selección de estación. También puedes convertir una entrada desde **Configurar → Usar ubicación de Home Assistant**.
+
+Identificación de municipios limitada a los polígonos de Euskadi incluidos; fuera de cobertura o en un límite ambiguo se ofrece la selección manual. Fuente cartográfica: **Eusko Jaurlaritza / Gobierno Vasco. geoEuskadi.** [Límites administrativos](https://www.geo.euskadi.eus/limites-administrativos-del-pais-vasco/webgeo00-dataset/es/), descargados el 13 de noviembre de 2026. Se distribuyen en su formato comprimido sin enviar ninguna ubicación personal al proveedor.

@@ -5,8 +5,9 @@ from pathlib import Path
 
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import EVENT_CORE_CONFIG_UPDATE, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -19,6 +20,7 @@ from .coordinator import EuskalmetCoordinator
 from .dashboard import EVENT_LOCATIONS_UPDATED, register_dashboard
 from .entity import device_info
 from .history_websocket import async_register_history_websocket
+from .home_location import home_entry_data, resolve_home
 from .radar_websocket import async_register_websocket_commands
 
 PLATFORMS: list[Platform] = [
@@ -77,6 +79,29 @@ async def async_setup_entry(
     """Configurar Euskalmet desde una entrada de configuración."""
 
     await _async_register_frontend(hass)
+    if entry.data.get("location_source") == "home_assistant" and (
+        entry.data.get("latitude"),
+        entry.data.get("longitude"),
+    ) != (hass.config.latitude, hass.config.longitude):
+        api = EuskalmetAPI(
+            session=async_get_clientsession(hass),
+            email=entry.data["email"],
+            private_key=entry.data["private_key"],
+            time_zone=dt_util.get_default_time_zone(),
+        )
+        try:
+            place, ranked, forecast = await resolve_home(hass, api)
+        except (EuskalmetAPIError, OSError, ValueError) as err:
+            raise ConfigEntryNotReady(
+                "No se pudo actualizar la ubicación de HA; "
+                "revisa la ubicación o elige otra localidad"
+            ) from err
+        if entry.data.get("location_source") == "home_assistant":
+            hass.config_entries.async_update_entry(
+                entry,
+                data=home_entry_data(entry.data, place, ranked, forecast),
+                title=f"Eguraldi · {place['name']}",
+            )
     coordinator = EuskalmetCoordinator(
         hass=hass,
         config_entry=entry,
@@ -112,6 +137,19 @@ async def async_setup_entry(
         entry,
         PLATFORMS,
     )
+
+    if entry.data.get("location_source") == "home_assistant":
+
+        async def home_config_changed(event):
+            if (entry.data.get("latitude"), entry.data.get("longitude")) != (
+                hass.config.latitude,
+                hass.config.longitude,
+            ):
+                await hass.config_entries.async_reload(entry.entry_id)
+
+        entry.async_on_unload(
+            hass.bus.async_listen(EVENT_CORE_CONFIG_UPDATE, home_config_changed)
+        )
 
     hass.bus.async_fire(EVENT_LOCATIONS_UPDATED, {"entry_id": entry.entry_id})
     return True

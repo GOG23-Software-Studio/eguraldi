@@ -15,6 +15,7 @@ from custom_components.euskalmet_local import config_flow  # noqa: E402
 def test_real_ha_forms_and_locality_entry(tmp_path, monkeypatch):
     async def scenario():
         hass = HomeAssistant(str(tmp_path))
+        hass.config_entries = SimpleNamespace(async_entries=lambda domain: [])
         flow = config_flow.EuskalmetConfigFlow()
         flow.hass = hass
         first = await flow.async_step_user()
@@ -255,7 +256,7 @@ def test_locality_options_apply_once_keep_identity_and_allow_manual_station(
     async def scenario():
         flow, entry, updates, _ = options_locality_fixture(monkeypatch)
         menu = await flow.async_step_init()
-        assert menu["menu_options"] == ["locality", "station"]
+        assert menu["menu_options"] == ["home_assistant", "locality", "station"]
         result = await flow.async_step_locality({"locality": "Bilbao"})
         assert result["step_id"] == "place"
         result = await flow.async_step_place({"place": "2"})
@@ -318,5 +319,189 @@ def test_locality_options_forecast_failure_keeps_old_configuration(monkeypatch):
         result = await flow.async_step_place({"place": "2"})
         assert result["errors"]["base"] == "forecast_locality_not_found"
         assert not updates and entry.data["locality"] == "Ortuella"
+
+    asyncio.run(scenario())
+
+
+def test_home_source_is_default_and_manual_locality_still_available(monkeypatch):
+    async def scenario():
+        flow = config_flow.EuskalmetConfigFlow()
+        result = await flow.async_step_location_source()
+        key = next(iter(result["data_schema"].schema))
+        assert key.default() == "home_assistant"
+        called = []
+
+        async def home():
+            called.append("home")
+            return {"step_id": "recommendation"}
+
+        async def manual():
+            called.append("manual")
+            return {"step_id": "locality"}
+
+        monkeypatch.setattr(flow, "async_step_home_assistant", home)
+        monkeypatch.setattr(flow, "async_step_locality", manual)
+        await flow.async_step_location_source({"location_source": "home_assistant"})
+        await flow.async_step_location_source({"location_source": "manual"})
+        assert called == ["home", "manual"]
+
+    asyncio.run(scenario())
+
+
+def test_home_options_bind_current_entry_and_can_return_to_manual(monkeypatch):
+    async def scenario():
+        flow, entry, updates, _ = options_locality_fixture(monkeypatch)
+
+        async def home(hass, api):
+            return (
+                {
+                    "id": "home_assistant",
+                    "name": "Ortuella",
+                    "province": "Bizkaia",
+                    "latitude": 43.31113,
+                    "longitude": -3.05617,
+                    "municipality_code": "48083",
+                    "location_source": "home_assistant",
+                },
+                [
+                    {
+                        "station_id": "C061",
+                        "station_name": "Arboleda",
+                        "distance_km": 1.2,
+                    }
+                ],
+                {
+                    "region": "basque_country",
+                    "zone": "cantabrian_valleys",
+                    "location": "ortuella",
+                    "alert_zone": "BIZKAIA_INTERIOR",
+                },
+            )
+
+        monkeypatch.setattr(config_flow, "resolve_home", home)
+        result = await flow.async_step_home_assistant()
+        assert result["step_id"] == "confirm_locality" and not updates
+        await flow.async_step_confirm_locality({})
+        assert (
+            entry.data["location_source"] == "home_assistant"
+            and entry.unique_id == "locality_home_assistant"
+        )
+        assert entry.entry_id == "stable-entry"
+        await flow.async_step_station({"station_id": "complete"})
+        assert (
+            entry.data["selection_mode"] == "manual"
+            and entry.data["location_source"] == "home_assistant"
+        )
+        await flow.async_step_locality({"locality": "Bilbao"})
+        await flow.async_step_place({"place": "2"})
+        await flow.async_step_confirm_locality({})
+        assert (
+            entry.data["location_source"] == "manual"
+            and entry.data["locality"] == "Bilbao"
+        )
+
+    asyncio.run(scenario())
+
+
+def test_another_locality_reuses_credentials_only_on_the_server(monkeypatch):
+    async def scenario():
+        entry = SimpleNamespace(
+            entry_id="saved-account",
+            title="Eguraldi · Ortuella",
+            data={"email": "demo@example.invalid", "private_key": "TEST_ONLY"},
+        )
+        flow = config_flow.EuskalmetConfigFlow()
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(async_entries=lambda domain: [entry])
+        )
+        shown = await flow.async_step_account()
+        assert "TEST_ONLY" not in str(shown)
+        credentials = []
+
+        async def use_saved(user_input=None):
+            credentials.append(user_input)
+            return {"step_id": "location_source"}
+
+        monkeypatch.setattr(flow, "async_step_user", use_saved)
+        result = await flow.async_step_account({"account": "saved-account"})
+        assert result["step_id"] == "location_source"
+        assert credentials == [entry.data]
+        assert "TEST_ONLY" not in str(result)
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("source", ["home_assistant", "manual"])
+def test_only_ha_bound_entries_follow_core_location_changes(monkeypatch, source):
+    import custom_components.euskalmet_local as integration
+
+    async def noop(*args, **kwargs):
+        return None
+
+    async def scenario():
+        callbacks = {}
+        reloads = []
+        constructed = []
+
+        class Coordinator:
+            def __init__(self, **kwargs):
+                constructed.append(kwargs)
+                self.api = SimpleNamespace(
+                    station_id=kwargs["station_id"], station_name=kwargs["station_name"]
+                )
+
+            async def async_config_entry_first_refresh(self):
+                pass
+
+        def listen(event, callback):
+            callbacks[event] = callback
+            return lambda: None
+
+        async def reload(entry_id):
+            reloads.append(entry_id)
+
+        monkeypatch.setattr(integration, "_async_register_frontend", noop)
+        monkeypatch.setattr(integration, "EuskalmetCoordinator", Coordinator)
+        monkeypatch.setattr(
+            integration.dr,
+            "async_get",
+            lambda hass: SimpleNamespace(
+                async_get_or_create=lambda **kwargs: SimpleNamespace(id="device")
+            ),
+        )
+        entry = SimpleNamespace(
+            entry_id="stable",
+            data={
+                "email": "demo@example.invalid",
+                "private_key": "TEST_ONLY",
+                "location_source": source,
+                "latitude": 43.3,
+                "longitude": -3.05,
+                "station_id": "manual-station",
+                "station_name": "Manual",
+                "selection_mode": "manual",
+            },
+            async_on_unload=lambda callback: None,
+            add_update_listener=lambda callback: lambda: None,
+        )
+        hass = SimpleNamespace(
+            config=SimpleNamespace(latitude=43.3, longitude=-3.05),
+            data={"euskalmet_local": {}},
+            config_entries=SimpleNamespace(
+                async_forward_entry_setups=noop, async_reload=reload
+            ),
+            bus=SimpleNamespace(async_listen=listen, async_fire=lambda *args: None),
+        )
+        await integration.async_setup_entry(hass, entry)
+        assert constructed[0]["station_id"] == "manual-station"
+        if source == "manual":
+            assert not callbacks
+        else:
+            callback = callbacks[integration.EVENT_CORE_CONFIG_UPDATE]
+            await callback(None)
+            assert not reloads
+            hass.config.latitude = 43.4
+            await callback(None)
+            assert reloads == ["stable"]
 
     asyncio.run(scenario())

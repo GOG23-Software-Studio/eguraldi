@@ -27,6 +27,7 @@ from .api import (
 )
 from .const import DOMAIN, MEASURES
 from .geography import LocationDiscoveryError
+from .home_location import home_entry_data, resolve_home
 from .locality import rank_stations, resolve_forecast, search_localities
 from .pem import normalize_pem
 
@@ -145,6 +146,13 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         errors: dict[str, str] = {}
 
+        if (
+            user_input is None
+            and not getattr(self, "_account_chosen", False)
+            and self.hass.config_entries.async_entries(DOMAIN)
+        ):
+            return await self.async_step_account()
+
         if user_input is not None:
             user_input = _clean_credentials(user_input)
             if not await self.hass.async_add_executor_job(
@@ -176,7 +184,7 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     self._credentials = dict(user_input)
                     self._api = api
                     self._stations = stations
-                    return await self.async_step_locality()
+                    return await self.async_step_location_source()
 
         return self.async_show_form(
             step_id="user",
@@ -350,6 +358,114 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             },
         )
 
+    async def async_step_account(self, user_input=None):
+        entries = self.hass.config_entries.async_entries(DOMAIN)
+        if user_input is not None:
+            self._account_chosen = True
+            selected = next(
+                (entry for entry in entries if entry.entry_id == user_input["account"]),
+                None,
+            )
+            if selected is not None:
+                # Reuse on the server; credentials are never sent to the browser.
+                return await self.async_step_user(
+                    {
+                        "email": selected.data["email"],
+                        "private_key": selected.data["private_key"],
+                    }
+                )
+            return await self.async_step_user()
+        return self.async_show_form(
+            step_id="account",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "account", default=entries[0].entry_id if entries else "new"
+                    ): SelectSelector(
+                        SelectSelectorConfig(
+                            options=[
+                                *[
+                                    SelectOptionDict(
+                                        value=entry.entry_id, label=entry.title
+                                    )
+                                    for entry in entries
+                                ],
+                                SelectOptionDict(
+                                    value="new",
+                                    label="Otra cuenta de Open Data Euskadi",
+                                ),
+                            ]
+                        )
+                    )
+                }
+            ),
+        )
+
+    async def async_step_location_source(self, user_input=None):
+        if user_input is not None:
+            if user_input["location_source"] == "home_assistant":
+                return await self.async_step_home_assistant()
+            return await self.async_step_locality()
+        return self.async_show_form(
+            step_id="location_source",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "location_source", default="home_assistant"
+                    ): SelectSelector(
+                        SelectSelectorConfig(
+                            options=[
+                                SelectOptionDict(
+                                    value="home_assistant",
+                                    label="Ubicación de Home Assistant · recomendada",
+                                ),
+                                SelectOptionDict(
+                                    value="manual",
+                                    label="Otra localidad · elegir por nombre",
+                                ),
+                            ]
+                        )
+                    )
+                }
+            ),
+        )
+
+    async def async_step_home_assistant(self, user_input=None):
+        errors = {}
+        try:
+            place, ranked, forecast = await resolve_home(self.hass, self._api)
+            self._place, self._ranked, self._forecast_location = place, ranked, forecast
+            self._selected_station = ranked[0]
+            return await self.async_step_recommendation()
+        except (LocationDiscoveryError, OSError, ValueError):
+            errors["base"] = "home_location_unavailable"
+        except EuskalmetAuthenticationError:
+            errors["base"] = "invalid_auth"
+        except (EuskalmetAPIError, aiohttp.ClientError, TimeoutError):
+            errors["base"] = "cannot_connect"
+        return self.async_show_form(
+            step_id="location_source",
+            errors=errors,
+            data_schema=vol.Schema(
+                {
+                    vol.Required("location_source", default="manual"): SelectSelector(
+                        SelectSelectorConfig(
+                            options=[
+                                SelectOptionDict(
+                                    value="home_assistant",
+                                    label="Ubicación de Home Assistant",
+                                ),
+                                SelectOptionDict(
+                                    value="manual",
+                                    label="Otra localidad · elegir por nombre",
+                                ),
+                            ]
+                        )
+                    )
+                }
+            ),
+        )
+
     async def async_step_locality(self, user_input=None):
         """Ask for a municipality, never start with a station list."""
         errors = {}
@@ -443,6 +559,7 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     "locality": place["name"],
                     "locality_id": place["id"],
                     "locality_province": place["province"],
+                    "location_source": place.get("location_source", "manual"),
                     "recommended_station": self._ranked[0]["station_id"],
                     "selection_mode": "automatic"
                     if station_id == self._ranked[0]["station_id"]
@@ -458,6 +575,12 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "distance": str(station["distance_km"]),
                 "available": self._measure_names(station["available_measures"]),
                 "missing": self._measure_names(station["missing_measures"]) or "—",
+                "origin": (
+                    "Ubicación de Home Assistant · geoEuskadi · "
+                    "Eusko Jaurlaritza / Gobierno Vasco"
+                )
+                if self._place.get("location_source") == "home_assistant"
+                else "Localidad elegida manualmente",
             },
             data_schema=vol.Schema(
                 {
@@ -496,7 +619,7 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
         if user_input and "station_id" in user_input:
             return await self.async_step_station(user_input)
         return self.async_show_menu(
-            step_id="init", menu_options=["locality", "station"]
+            step_id="init", menu_options=["home_assistant", "locality", "station"]
         )
 
     def _api_for_options(self):
@@ -507,6 +630,39 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
             private_key=entry.data["private_key"],
             time_zone=dt_util.get_default_time_zone(),
         )
+
+    async def async_step_home_assistant(self, user_input=None):
+        try:
+            place, ranked, forecast = await resolve_home(
+                self.hass, self._api_for_options()
+            )
+        except (LocationDiscoveryError, OSError, ValueError):
+            return self.async_show_form(
+                step_id="home_assistant",
+                errors={"base": "home_location_unavailable"},
+                data_schema=vol.Schema({}),
+            )
+        except EuskalmetAuthenticationError:
+            return self.async_show_form(
+                step_id="home_assistant",
+                errors={"base": "invalid_auth"},
+                data_schema=vol.Schema({}),
+            )
+        except (EuskalmetAPIError, aiohttp.ClientError, TimeoutError):
+            return self.async_show_form(
+                step_id="home_assistant",
+                errors={"base": "cannot_connect"},
+                data_schema=vol.Schema({}),
+            )
+        entry = self.config_entry
+        if any(
+            other.entry_id != entry.entry_id
+            and other.unique_id == "locality_home_assistant"
+            for other in self.hass.config_entries.async_entries(DOMAIN)
+        ):
+            return self.async_abort(reason="already_configured")
+        self._pending_locality = home_entry_data(entry.data, place, ranked, forecast)
+        return await self.async_step_confirm_locality()
 
     async def async_step_locality(self, user_input=None):
         errors = {}
@@ -569,6 +725,7 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
                             "locality": place["name"],
                             "locality_id": place["id"],
                             "locality_province": place["province"],
+                            "location_source": place.get("location_source", "manual"),
                             "selection_mode": "automatic",
                             "recommended_station": station["station_id"],
                         }
@@ -629,6 +786,12 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
                 "locality": data["locality"],
                 "station": data["station_name"],
                 "distance": f"{data['distance_km']:.1f}",
+                "reference": "la ubicación de HA"
+                if data.get("location_source") == "home_assistant"
+                else "el municipio",
+                "origin": "geoEuskadi · Eusko Jaurlaritza / Gobierno Vasco"
+                if data.get("location_source") == "home_assistant"
+                else "Localidad elegida manualmente",
             },
         )
 

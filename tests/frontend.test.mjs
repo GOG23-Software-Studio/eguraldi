@@ -155,3 +155,14 @@ test('environment never falls back to the old locality pollen station',async()=>
   card.setConfig({mode:'environment',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
   assert.doesNotMatch(card.shadowRoot.textContent,/999|OLD/);assert.match(card.shadowRoot.textContent,/No disponible/);card.remove();dom.window.close();
 });
+
+
+test('HA source labels distance from HA while manual localities remain independent',async()=>{
+  const dom=setup(),h=hass(),card=dom.window.document.createElement('euskalmet-local-card');
+  h.callWS=async()=>[{...location,location_source:'home_assistant'}];
+  card.setConfig({mode:'overview',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
+  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella');
+  assert.match(card.shadowRoot.querySelector('.measurement-source').textContent,/de la ubicación de HA/);
+  assert.match(card.shadowRoot.textContent,/geoEuskadi.*Gobierno Vasco/);
+  card.remove();dom.window.close();
+});

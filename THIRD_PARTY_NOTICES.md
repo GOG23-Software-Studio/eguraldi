@@ -6,3 +6,14 @@
 - Datos meteorológicos: Euskalmet / Open Data Euskadi. Catálogo de localidades: Open-Meteo / GeoNames. No se redistribuyen credenciales.
 
 Las marcas de los proveedores identifican la procedencia de los datos; no expresan afiliación ni aprobación. Los nuevos elementos de interfaz y selección se distribuyen bajo MIT, Copyright 2026 GOG23 Software Studio.
+
+
+## Límites municipales de geoEuskadi
+
+**Eusko Jaurlaritza / Gobierno Vasco. geoEuskadi.**
+
+Fuente: https://www.geo.euskadi.eus/geoeuskadi/rest/services/U11/AE55J/FeatureServer/2
+
+Condiciones publicadas: se permite cualquier uso citando la autoría. Catálogo y condiciones: https://www.geo.euskadi.eus/limites-administrativos-del-pais-vasco/webgeo00-dataset/es/
+
+Instantánea pública descargada el 13 de noviembre de 2026: 259 geometrías municipales, reproyectadas por el servidor a EPSG:4326 y almacenadas como líneas JSON comprimidas. Se conservan las geometrías completas. Esta cartografía se utiliza únicamente para identificar localmente el municipio de las coordenadas configuradas en HA; no contiene información de ningún usuario.

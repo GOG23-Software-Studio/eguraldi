@@ -46,9 +46,23 @@
       },
       "recommendation": {
         "title": "Estación recomendada para {locality}",
-        "description": "Recomendamos **{station}**, a **{distance} km** en línea recta. Publica: {available}. No publica: {missing}. Se priorizan cercanía, temperatura, humedad y lluvia. La altitud y el entorno pueden producir diferencias respecto a tu localidad. Puedes aceptar o elegir otra estación cercana.",
+        "description": "Recomendamos **{station}**, a **{distance} km** en línea recta. Publica: {available}. No publica: {missing}. Se priorizan cercanía, temperatura, humedad y lluvia. La altitud y el entorno pueden producir diferencias respecto a tu localidad. Puedes aceptar o elegir otra estación cercana.\n\n{origin}",
         "data": {
           "station_id": "Estación (puedes modificarla después)"
+        }
+      },
+      "account": {
+        "title": "Añadir otra ubicación",
+        "description": "Puedes usar la cuenta ya guardada en HA sin volver a introducir la clave, o configurar otra cuenta.",
+        "data": {
+          "account": "Cuenta de Open Data Euskadi"
+        }
+      },
+      "location_source": {
+        "title": "Ubicación de Eguraldi",
+        "description": "Por defecto se usa la ubicación configurada en Home Assistant. El municipio se identifica localmente y las coordenadas no se envían a un geocodificador. También puedes añadir otra localidad por nombre.",
+        "data": {
+          "location_source": "Ubicación"
         }
       }
     },
@@ -63,7 +77,8 @@
       "locality_not_found": "No se encontró la localidad. Prueba el nombre oficial del municipio.",
       "cannot_geocode": "No se pudo consultar el catálogo de localidades.",
       "no_nearby_station": "No hay estaciones compatibles a menos de 120 km.",
-      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial."
+      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial.",
+      "home_location_unavailable": "No se pudo identificar un municipio con previsión de Euskalmet para la ubicación de HA. Revisa la ubicación de Home Assistant o elige otra localidad manualmente."
     },
     "abort": {
       "already_configured": "La integración ya está configurada.",
@@ -356,7 +371,8 @@
         "description": "Cambia tu localidad o elige otra estación de observación.",
         "menu_options": {
           "locality": "Cambiar localidad",
-          "station": "Cambiar estación"
+          "station": "Cambiar estación",
+          "home_assistant": "Usar ubicación de Home Assistant"
         }
       },
       "locality": {
@@ -375,7 +391,11 @@
       },
       "confirm_locality": {
         "title": "Guardar nueva localidad",
-        "description": "**{locality}** será la localidad de todas las tarjetas.\n\nEstación automática: **{station}**, a **{distance} km** del municipio.\n\nSe actualizarán la previsión, los avisos, las mediciones y el histórico sin cambiar los identificadores de las entidades. Podrás elegir otra estación desde las opciones."
+        "description": "**{locality}** será la localidad de todas las tarjetas.\n\nEstación automática: **{station}**, a **{distance} km** de {reference}.\n\nSe actualizarán la previsión, los avisos, las mediciones y el histórico sin cambiar los identificadores de las entidades. Podrás elegir otra estación desde las opciones.\n\n{origin}"
+      },
+      "home_assistant": {
+        "title": "Ubicación de Home Assistant",
+        "description": "Se usará la ubicación configurada en Ajustes → Sistema → General. También puedes elegir otra localidad desde las opciones."
       }
     },
     "error": {
@@ -389,7 +409,8 @@
       "locality_not_found": "No se encontró la localidad. Prueba el nombre oficial del municipio.",
       "cannot_geocode": "No se pudo consultar el catálogo de localidades.",
       "no_nearby_station": "No hay estaciones compatibles a menos de 120 km.",
-      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial."
+      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial.",
+      "home_location_unavailable": "No se pudo identificar un municipio con previsión de Euskalmet para la ubicación de HA. Revisa la ubicación de Home Assistant o elige otra localidad manualmente."
     },
     "abort": {
       "no_nearby_station": "No hay estaciones cercanas disponibles.",

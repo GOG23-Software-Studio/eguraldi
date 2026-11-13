@@ -1,5 +1,11 @@
 # Cambios
 
+## 0.1.0b12
+
+- Ubicación de Home Assistant como opción predeterminada; municipio detectado localmente con geoEuskadi, sin enviar coordenadas a un geocodificador.
+- La entrada vinculada a HA sigue sus cambios de ubicación y mantiene la elección manual de estación.
+- Añadir otras localidades reutilizando en HA una cuenta guardada, sin volver a introducir ni mostrar la clave.
+
 ## 0.1.0b11
 
 - Cambio de localidad desde opciones: confirma el municipio y actualiza la misma entrada, las tarjetas, previsión y avisos.

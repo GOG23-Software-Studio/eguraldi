@@ -7,7 +7,7 @@ from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
 
-VERSION = "0.1.0b11"
+VERSION = "0.1.0b12"
 EVENT_LOCATIONS_UPDATED = f"{DOMAIN}_locations_updated"
 
 
@@ -35,6 +35,7 @@ def websocket_locations(hass, connection, msg):
                 "entry_id": entry.entry_id,
                 "locality": entry.data.get("locality", entry.title),
                 "locality_id": entry.data.get("locality_id"),
+                "location_source": entry.data.get("location_source", "manual"),
                 "station": entry.data.get("station_name"),
                 "station_id": entry.data.get("station_id"),
                 "distance_km": entry.data.get("distance_km"),
