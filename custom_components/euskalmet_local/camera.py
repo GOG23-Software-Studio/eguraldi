@@ -82,4 +82,5 @@ class EuskalmetRadarCamera(CoordinatorEntity, Camera):
             "center": RADAR_CENTER,
             "range_km": RADAR_RANGE_KM,
             "config_entry_id": self.coordinator.config_entry_id,
+            "locality": self.coordinator.locality,
         }

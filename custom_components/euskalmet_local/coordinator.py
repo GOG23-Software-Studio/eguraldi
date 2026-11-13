@@ -78,6 +78,11 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
         )
         self._failed_endpoints: set[str] = set()
         self.config_entry_id = ""
+        self.locality = (
+            config_entry.data.get("locality", station_name)
+            if config_entry
+            else station_name
+        )
         self.device_id: str | None = None
         self._summary_day: Any = None
         self._summary_day_attempted: datetime | None = None

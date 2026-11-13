@@ -86,6 +86,8 @@ class EuskalmetWeather(
         super().__init__(coordinator)
 
         self._attr_unique_id = f"{coordinator.config_entry_id}_weather"
+        self._attr_has_entity_name = False
+        self._attr_name = coordinator.locality
 
     @callback
     def _handle_coordinator_update(self) -> None:

@@ -546,7 +546,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
       return;
     }
 
-    const title = this._config.title || state.attributes.friendly_name || this._text().title;
+    const title = this._config.title || (state.attributes.locality ? `${state.attributes.locality} · ${this._text().title}` : this._text().title);
     this.shadowRoot.querySelector(".title").textContent = title;
 
     const key = [

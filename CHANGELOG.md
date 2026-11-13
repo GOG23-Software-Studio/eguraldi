@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.1.0b5
+
+- La entidad de tiempo y los encabezados de radar e histórico muestran la localidad elegida. La estación sigue identificada como fuente de las observaciones.
+
 ## 0.1.0b4
 
 - Enlace del asistente compatible con la validación de traducciones de Home Assistant.

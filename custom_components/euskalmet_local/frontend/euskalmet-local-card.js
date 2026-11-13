@@ -118,7 +118,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       else{
         const entity=this._tab==='radar'?this._location.entities.radar:this._tab==='history'?this._location.entities.temperature:this._location.entities.alert_level;
         const tag=this._tab==='radar'?'euskalmet-local-radar-map-card':this._tab==='history'?'euskalmet-local-history-card':'euskalmet-local-alert-card';
-        if(entity&&customElements.get(tag)){const card=document.createElement(tag);card.setConfig({entity,entry_id:this._location.entry_id,measure:'temperature'});card.hass=this._hass;content.append(card);}else content.innerHTML='<div class="message">Esta entidad todavía no está disponible.</div>';
+        if(entity&&customElements.get(tag)){const card=document.createElement(tag);card.setConfig({entity,entry_id:this._location.entry_id,measure:'temperature',title:`${this._location.locality} · ${this._tab==='history'?'Histórico':this._tab==='radar'?'Radar de precipitación':'Avisos'}`});card.hass=this._hass;content.append(card);}else content.innerHTML='<div class="message">Esta entidad todavía no está disponible.</div>';
       }
     }
   }
