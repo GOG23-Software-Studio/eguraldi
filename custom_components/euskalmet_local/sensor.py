@@ -22,6 +22,7 @@ from .entity import (
 )
 from .formatting import degrees_to_compass
 from .pollen import pollen_species_value, registered_pollen_species
+from .quality import valid_humidity
 from .tides import next_tide_event
 
 PARALLEL_UPDATES = 0
@@ -960,9 +961,7 @@ class EuskalmetSensor(
 
         value = data.get("value")
 
-        if self.key == "humidity" and (
-            not isinstance(value, (int, float)) or not 0 <= value <= 100
-        ):
+        if self.key == "humidity" and not valid_humidity(value):
             return None
 
         if self.key == "wind_direction":
@@ -1008,7 +1007,7 @@ class EuskalmetSensor(
             attributes["raw_value"] = value
             attributes["quality"] = (
                 "valid"
-                if isinstance(value, (int, float)) and 0 <= value <= 100
+                if valid_humidity(value)
                 else "out_of_range"
             )
 

@@ -24,6 +24,7 @@ from homeassistant.util import dt as dt_util
 from .coordinator import EuskalmetCoordinator
 from .entity import device_info
 from .formatting import spanish_weather_condition
+from .quality import valid_humidity
 
 PARALLEL_UPDATES = 0
 
@@ -304,7 +305,7 @@ class EuskalmetWeather(
     def humidity(self) -> Any:
         value = self._current("humidity")
         raw = value.get("value") if value else None
-        return raw if isinstance(raw, (int, float)) and 0 <= raw <= 100 else None
+        return raw if valid_humidity(raw) else None
 
     @property
     def native_pressure(self) -> Any:
