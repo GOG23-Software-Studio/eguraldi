@@ -49,7 +49,7 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
             StaticPathConfig(
                 FRONTEND_URL,
                 str(frontend_path),
-                True,
+                False,
             )
         ]
     )

@@ -16,7 +16,7 @@ jobs:
           cache: npm
       - run: pip install -r requirements-dev.txt
       - run: ruff check custom_components tests
-      - run: pytest
+      - run: python -m pytest
       - run: npm ci --ignore-scripts
       - run: npm test
   home-assistant:
@@ -28,7 +28,7 @@ jobs:
           python-version: '3.14'
       - run: pip install homeassistant==2026.11.1 pytest
       - run: python -c "import custom_components.euskalmet_local; import custom_components.euskalmet_local.config_flow; import custom_components.euskalmet_local.sensor; import custom_components.euskalmet_local.weather"
-      - run: pytest tests/test_ha_smoke.py
+      - run: python -m pytest tests/test_ha_smoke.py
   validate:
     runs-on: ubuntu-latest
     steps:

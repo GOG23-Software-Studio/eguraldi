@@ -16,8 +16,6 @@
   "loggers": [
     "custom_components.euskalmet_local"
   ],
-  "requirements": [
-    "PyJWT[crypto]==2.10.1"
-  ],
+  "requirements": [],
   "version": "0.1.0b1"
 }
