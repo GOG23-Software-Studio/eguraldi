@@ -213,3 +213,22 @@ test('radar centers with local zoom on location changes, preserving manual navig
   assert.equal(coverage.length,1);assert.equal(views.length,3);
   dom.window.close();
 });
+
+
+test('Mi ubicación returns from coverage and manual navigation without resetting radar playback',()=>{
+  const dom=setup();
+  vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-radar-map-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
+  const radar=dom.window.document.createElement('euskalmet-local-radar-map-card'),views=[],coverage=[];
+  radar._map={setView:(point,zoom)=>views.push({point:Array.from(point),zoom}),fitBounds:bounds=>coverage.push(bounds)};
+  radar.setConfig({entity:'camera.test',latitude:43.3,longitude:-3.05,locality:'Ortuella',zoom:10});
+  const button=radar.shadowRoot.querySelector('.recenter');
+  assert.equal(button.textContent,'Mi ubicación');assert.equal(button.disabled,false);
+  radar._activeIndex=7;radar._playing=true;
+  radar.shadowRoot.querySelector('.fit').click();assert.equal(coverage.length,1);
+  button.click();assert.deepEqual(views.at(-1),{point:[43.3,-3.05],zoom:10});assert.equal(views.length,2);
+  radar._map.setView([43.5,-3.5],8);
+  button.click();assert.deepEqual(views.at(-1),{point:[43.3,-3.05],zoom:10});
+  assert.equal(radar._activeIndex,7);assert.equal(radar._playing,true);
+  radar.setConfig({entity:'camera.test',latitude:null,longitude:null});assert.equal(button.disabled,true);
+  const count=views.length;button.click();assert.equal(views.length,count);dom.window.close();
+});

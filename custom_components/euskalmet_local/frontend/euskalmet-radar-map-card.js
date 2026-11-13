@@ -110,7 +110,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
       speed: "Erreprodukzio-abiadura", legend: "Prezipitazio-intentsitatearen legenda",
       precipitation: "PREZIPITAZIOAK", weak: "Ahulak", moderate: "Ertainak",
       strong: "Indartsuak", veryStrong: "Oso indartsuak", torrential: "Uholde-euriak",
-      opacity: "Opakutasuna", coverage: "Estaldura ikusi", reload: "Datuak berritu",
+      opacity: "Opakutasuna", recenter: "Nire kokapena", coverage: "Estaldura ikusi", reload: "Datuak berritu",
       leafletError: "Ezin izan da Leaflet kargatu", entityMissing: "Ez dago entitate hau",
       unavailable: "Radar-irudia ez dago eskuragarri", loadingTimeline: "Denbora-lerroa kargatzen…",
       noFrames: "Oraindik ez dago animatzeko fotogramarik",
@@ -130,7 +130,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
       legend: "Leyenda de intensidad de precipitación", precipitation: "PRECIPITACIONES",
       weak: "Débiles", moderate: "Moderadas", strong: "Fuertes",
       veryStrong: "Muy fuertes", torrential: "Torrenciales", opacity: "Opacidad",
-      coverage: "Ver cobertura", reload: "Recargar datos", leafletError: "No se pudo cargar Leaflet",
+      recenter: "Mi ubicación", coverage: "Ver cobertura", reload: "Recargar datos", leafletError: "No se pudo cargar Leaflet",
       entityMissing: "No existe la entidad", unavailable: "La imagen del radar no está disponible",
       loadingTimeline: "Cargando línea temporal…", noFrames: "Todavía no hay fotogramas para animar",
       frames: (count) => `${count} fotogramas · intervalo de 10 min`,
@@ -385,6 +385,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
           ${t.opacity}
           <input class="opacity" type="range" min="0" max="1" step="0.05" aria-label="${t.opacity}">
         </label>
+        <button class="recenter text-button" type="button" disabled>${t.recenter}</button>
         <button class="fit text-button" type="button">${t.coverage}</button>
         <button class="refresh text-button" type="button">${t.reload}</button>
       </div>
@@ -419,6 +420,10 @@ class EuskalmetRadarMapCard extends HTMLElement {
 
     card.querySelector(".speed").addEventListener("click", () => {
       this._cycleSpeed();
+    });
+
+    card.querySelector(".recenter").addEventListener("click", () => {
+      this._syncLocationView(true);
     });
 
     card.querySelector(".fit").addEventListener("click", () => {
@@ -499,15 +504,17 @@ class EuskalmetRadarMapCard extends HTMLElement {
     }
   }
 
-  _syncLocationView() {
-    if (!this._map) return;
+  _syncLocationView(force = false) {
     const { latitude, longitude } = this._config || {};
     const valid = Number.isFinite(latitude) && Number.isFinite(longitude) &&
       latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
+    const button = this.shadowRoot.querySelector(".recenter");
+    if (button) button.disabled = !valid || !this._map;
+    if (!this._map) return;
     const zoom = Number.isFinite(this._config?.zoom) ? Math.max(3, Math.min(16, this._config.zoom)) : 10;
     const key = valid ? JSON.stringify([latitude, longitude, zoom]) : 'coverage';
     // Preserve a user's pan/zoom and the coverage button until the location changes.
-    if (key === this._viewKey) return;
+    if (!force && key === this._viewKey) return;
     this._viewKey = key;
     if (valid) this._map.setView([latitude, longitude], zoom, { animate: false });
     else this._map.fitBounds(this._currentBounds(), { padding: [8, 8] });

@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.1.0b15
+
+- Botón Mi ubicación en el radar para recuperar el centro y zoom local tras desplazar el mapa o ver la cobertura, sin reiniciar la animación.
+
 ## 0.1.0b14
 
 - El radar se centra automáticamente en la ubicación elegida con zoom local 10. Se actualiza al cambiar de localidad y respeta el desplazamiento o zoom manual entre actualizaciones.

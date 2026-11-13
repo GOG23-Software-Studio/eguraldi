@@ -2,7 +2,7 @@
 
 Tu localidad primero. Observaciones de una estación cercana, previsión para tu municipio y tarjetas animadas incluidas en una integración de Home Assistant.
 
-**Beta 0.1.0b14. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
+**Beta 0.1.0b15. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
 
 ![Vista previa con datos simulados](docs/preview.jpg)
 
@@ -124,3 +124,5 @@ Identificación de municipios limitada a los polígonos de Euskadi incluidos; fu
 ### Humedad y marcador de ubicación
 
 La tarjeta muestra el valor original de humedad publicado por Euskalmet, incluso cuando supera el 100 %, sin avisos explicativos debajo. Los sensores mantienen sus atributos de calidad y valor original. El radar señala la ubicación configurada con un punto y una etiqueta permanente con el nombre de la localidad; ambos siguen los cambios de ubicación.
+
+En el radar, **Mi ubicación** recupera el centro y el zoom cercano de la ubicación seleccionada después de mover el mapa o pulsar **Ver cobertura**, sin reiniciar la animación.
