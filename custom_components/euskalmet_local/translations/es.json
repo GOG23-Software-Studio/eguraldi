@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configurar Euskalmet Local",
+        "title": "Configurar Eguraldi",
         "description": "Introduce tus credenciales personales de Open Data Euskadi. Después registrarás tu localidad. La clave se guarda únicamente en Home Assistant.",
         "data": {
           "email": "Correo electrónico",
@@ -341,7 +341,7 @@
       }
     }
   },
-  "title": "Euskalmet Local",
+  "title": "Eguraldi",
   "options": {
     "step": {
       "init": {

@@ -1,4 +1,4 @@
-/* Euskalmet Local — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
+/* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
 import './euskalmet-alert-card.js';
 import './euskalmet-history-card.js';
 import './euskalmet-radar-map-card.js';
@@ -83,7 +83,7 @@ export class EuskalmetLocalCard extends HTMLElement {
     const observed=this._state('temperature')?.attributes.observed_at;
     const age=observed?(Date.now()-Date.parse(observed))/60000:null;
     const stale=age===null||age>45||this._state('temperature')?.attributes.stale===true;
-    return `<section class="hero"><div class="eyebrow">EUSKALMET LOCAL</div><h2 class="place">${escapeHTML(this._location.locality)}</h2><div class="muted">Observaciones · ${escapeHTML(this._location.station)} · ${fmt(this._location.distance_km)} km</div><div class="current"><div class="big">${fmt(a.temperature)}<small> ${escapeHTML(a.temperature_unit||'°C')}</small></div>${this._icon(weather?.state,Date.now())}</div><div>${escapeHTML(CONDITIONS[weather?.state]||'Esperando observaciones')}</div><div class="metrics"><div>${fmt(a.wind_speed)} ${escapeHTML(a.wind_speed_unit||'km/h')}<small>Viento</small></div><div>${fmt(this._state('precipitation_today')?.state)} mm<small>Lluvia hoy</small></div><div>${invalid?'Sin validar':fmt(a.humidity)+' %'}<small>Humedad</small></div></div><div class="source ${stale?'error':''}">${stale?'Revisar antigüedad':'Última lectura'} · ${observed?escapeHTML(this._time(observed,{hour:'2-digit',minute:'2-digit'})):'sin fecha'}</div>${invalid?`<div class="warning">Humedad fuera de rango: Euskalmet publica ${fmt(humidity.attributes.raw_value)} %. Se conserva el valor original en los atributos.</div>`:''}<div class="source">La estación mide en su propia ubicación y altitud; las condiciones pueden diferir de las de tu localidad.</div></section>`;
+    return `<section class="hero"><div class="eyebrow">EGURALDI</div><h2 class="place">${escapeHTML(this._location.locality)}</h2><div class="muted">Observaciones · ${escapeHTML(this._location.station)} · ${fmt(this._location.distance_km)} km</div><div class="current"><div class="big">${fmt(a.temperature)}<small> ${escapeHTML(a.temperature_unit||'°C')}</small></div>${this._icon(weather?.state,Date.now())}</div><div>${escapeHTML(CONDITIONS[weather?.state]||'Esperando observaciones')}</div><div class="metrics"><div>${fmt(a.wind_speed)} ${escapeHTML(a.wind_speed_unit||'km/h')}<small>Viento</small></div><div>${fmt(this._state('precipitation_today')?.state)} mm<small>Lluvia hoy</small></div><div>${invalid?'Sin validar':fmt(a.humidity)+' %'}<small>Humedad</small></div></div><div class="source ${stale?'error':''}">${stale?'Revisar antigüedad':'Última lectura'} · ${observed?escapeHTML(this._time(observed,{hour:'2-digit',minute:'2-digit'})):'sin fecha'}</div>${invalid?`<div class="warning">Humedad fuera de rango: Euskalmet publica ${fmt(humidity.attributes.raw_value)} %. Se conserva el valor original en los atributos.</div>`:''}<div class="source">La estación mide en su propia ubicación y altitud; las condiciones pueden diferir de las de tu localidad.</div></section>`;
   }
   _hourly(){
     const forecast=forecastRows(this._forecasts.hourly),units=this._weather();
@@ -104,7 +104,7 @@ export class EuskalmetLocalCard extends HTMLElement {
     let html='';
     if(!this._location){
       const locations=this._locations||[];
-      html=`<section><h2>Euskalmet Local</h2>${locations.length?`<label>Selecciona localidad <select id="locality"><option value="">Elegir…</option>${locations.map(l=>`<option value="${escapeHTML(l.entry_id)}">${escapeHTML(l.locality)}</option>`).join('')}</select></label>`:`<div class="message">${escapeHTML(this._error||(this._locations?'Añade una localidad desde la integración Euskalmet Local.':'Cargando localidades…'))}</div>`}</section>`;
+      html=`<section><h2>Eguraldi</h2>${locations.length?`<label>Selecciona localidad <select id="locality"><option value="">Elegir…</option>${locations.map(l=>`<option value="${escapeHTML(l.entry_id)}">${escapeHTML(l.locality)}</option>`).join('')}</select></label>`:`<div class="message">${escapeHTML(this._error||(this._locations?'Añade una localidad desde la integración Eguraldi.':'Cargando localidades…'))}</div>`}</section>`;
     }else{
       const mode=this._config.mode;
       html=mode==='overview'?this._overview():mode==='hourly'?this._hourly():mode==='daily'?this._daily():this._overview()+`<section class="divider"><nav class="tabs" aria-label="Vista del tiempo">${[['hourly','24 horas'],['daily','Próximos días'],['radar','Radar'],['history','Histórico'],['alerts','Avisos']].map(([id,label])=>`<button data-tab="${id}" class="${this._tab===id?'active':''}" aria-pressed="${this._tab===id}">${label}</button>`).join('')}</nav><div id="content"></div></section>`;
@@ -135,4 +135,4 @@ class EuskalmetLocalEditor extends HTMLElement {
 if(!customElements.get('euskalmet-local-card'))customElements.define('euskalmet-local-card',EuskalmetLocalCard);
 if(!customElements.get('euskalmet-local-editor'))customElements.define('euskalmet-local-editor',EuskalmetLocalEditor);
 window.customCards=window.customCards||[];
-if(!window.customCards.some(c=>c.type==='euskalmet-local-card'))window.customCards.push({type:'euskalmet-local-card',name:'Euskalmet Local',description:'Tu localidad: observaciones, 24 horas, siete días, radar, históricos y avisos.',preview:true});
+if(!window.customCards.some(c=>c.type==='euskalmet-local-card'))window.customCards.push({type:'euskalmet-local-card',name:'Eguraldi',description:'Tu localidad: observaciones, 24 horas, siete días, radar, históricos y avisos.',preview:true});

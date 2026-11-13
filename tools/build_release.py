@@ -5,11 +5,11 @@ from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "0.1.0b1"
+VERSION = "0.1.0b2"
 
 
 def build():
-    output = ROOT / "dist" / f"euskalmet-local-{VERSION}.zip"
+    output = ROOT / "dist" / f"eguraldi-{VERSION}.zip"
     output.parent.mkdir(exist_ok=True)
     with ZipFile(output, "w", ZIP_DEFLATED) as archive:
         for path in sorted((ROOT / "custom_components" / "euskalmet_local").rglob("*")):

@@ -1,8 +1,8 @@
-# Euskalmet Local
+# Eguraldi
 
 Tu localidad primero. Observaciones de una estación cercana, previsión para tu municipio y tarjetas animadas incluidas en una integración de Home Assistant.
 
-**Beta 0.1.0b1. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
+**Beta 0.1.0b2. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
 
 ![Vista previa con datos simulados](docs/preview.jpg)
 
@@ -28,10 +28,10 @@ Tu localidad primero. Observaciones de una estación cercana, previsión para tu
 Mientras no forme parte del catálogo general, añade un **repositorio personalizado** de tipo **Integración**:
 
 ```text
-https://github.com/GOG23-Software-Studio/euskalmet-local
+https://github.com/GOG23-Software-Studio/eguraldi
 ```
 
-Activa las versiones preliminares si tu HACS no ofrece la beta. Instala **Euskalmet Local**, reinicia HA y ve a **Ajustes → Dispositivos y servicios → Añadir integración → Euskalmet Local**.
+Activa las versiones preliminares si tu HACS no ofrece la beta. Instala **Eguraldi**, reinicia HA y ve a **Ajustes → Dispositivos y servicios → Añadir integración → Eguraldi**.
 
 1. Introduce tu correo de Open Data Euskadi y el contenido de tu clave PEM.
 2. Escribe tu localidad y confirma el municipio correcto.
@@ -43,7 +43,7 @@ El dominio es `euskalmet_local`, por lo que puede coexistir con `euskalmet`. No 
 
 ## Añadir las tarjetas
 
-Los recursos se registran automáticamente. Recarga el navegador después de instalar. En un panel, pulsa **Añadir tarjeta → Euskalmet Local** y selecciona la vista en el editor visual.
+Los recursos se registran automáticamente. Recarga el navegador después de instalar. En un panel, pulsa **Añadir tarjeta → Eguraldi** y selecciona la vista en el editor visual.
 
 Panel con tiempo actual y pestañas de previsión, radar, histórico y avisos:
 
@@ -59,13 +59,13 @@ type: custom:euskalmet-local-card
 mode: hourly
 ```
 
-También existen `mode: daily` y `mode: overview`. No hay que escribir nombres de sensores. Con una única localidad se detecta automáticamente; con varias, la tarjeta solicita elegir una. Para fijarla de forma permanente en YAML, añade `entry_id` (ID de la entrada de Euskalmet Local).
+También existen `mode: daily` y `mode: overview`. No hay que escribir nombres de sensores. Con una única localidad se detecta automáticamente; con varias, la tarjeta solicita elegir una. Para fijarla de forma permanente en YAML, añade `entry_id` (ID de la entrada de Eguraldi).
 
 El paquete **incluye las tarjetas**, pero no modifica paneles existentes ni crea una pestaña sin que el usuario la añada. Este diseño permite usarlo en cualquier panel y evita sobrescribir configuraciones personales.
 
 ## Cambiar estación
 
-En la entrada de Euskalmet Local, abre **Opciones**. Selecciona una estación cercana o **Automática** para recalcular la recomendación. La selección automática se fija al aceptar: no salta entre estaciones con cada actualización. Los identificadores de las entidades están ligados a la entrada para conservarlos al cambiar de estación. Los dispositivos antiguos pueden permanecer vacíos en el registro de HA.
+En la entrada de Eguraldi, abre **Opciones**. Selecciona una estación cercana o **Automática** para recalcular la recomendación. La selección automática se fija al aceptar: no salta entre estaciones con cada actualización. Los identificadores de las entidades están ligados a la entrada para conservarlos al cambiar de estación. Los dispositivos antiguos pueden permanecer vacíos en el registro de HA.
 
 ## Privacidad y datos
 

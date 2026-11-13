@@ -1,6 +1,6 @@
 {
   "domain": "euskalmet_local",
-  "name": "Euskalmet Local",
+  "name": "Eguraldi",
   "codeowners": [
     "@oyogor1985"
   ],
@@ -9,13 +9,13 @@
     "frontend",
     "http"
   ],
-  "documentation": "https://github.com/GOG23-Software-Studio/euskalmet-local",
+  "documentation": "https://github.com/GOG23-Software-Studio/eguraldi",
   "integration_type": "service",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/GOG23-Software-Studio/euskalmet-local/issues",
+  "issue_tracker": "https://github.com/GOG23-Software-Studio/eguraldi/issues",
   "loggers": [
     "custom_components.euskalmet_local"
   ],
   "requirements": [],
-  "version": "0.1.0b1"
+  "version": "0.1.0b2"
 }
