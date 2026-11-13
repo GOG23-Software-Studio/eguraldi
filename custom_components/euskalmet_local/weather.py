@@ -22,7 +22,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from .coordinator import EuskalmetCoordinator
-from .entity import device_info
+from .const import DOMAIN, MANUFACTURER
 from .formatting import spanish_weather_condition
 from .quality import valid_humidity
 
@@ -86,8 +86,7 @@ class EuskalmetWeather(
         super().__init__(coordinator)
 
         self._attr_unique_id = f"{coordinator.config_entry_id}_weather"
-        self._attr_has_entity_name = False
-        self._attr_name = coordinator.locality
+        self._attr_name = None
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -100,9 +99,12 @@ class EuskalmetWeather(
     def device_info(self) -> DeviceInfo:
         """Información del dispositivo."""
 
-        return device_info(
-            self.coordinator.api.station_id,
-            self.coordinator.api.station_name,
+        return DeviceInfo(
+            identifiers={(DOMAIN, f"{self.coordinator.config_entry_id}_locality")},
+            name=self.coordinator.locality,
+            manufacturer=MANUFACTURER,
+            model="Tiempo por localidad",
+            via_device=(DOMAIN, self.coordinator.api.station_id),
         )
 
     def _current(self, key: str) -> dict[str, Any] | None:

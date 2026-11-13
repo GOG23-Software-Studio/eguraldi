@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.1.0b6
+
+- El tiempo pertenece a un dispositivo con el nombre de la localidad; la estación conserva su propio dispositivo como fuente. Evita que HA anteponga la estación al municipio y mantiene los IDs existentes.
+
 ## 0.1.0b5
 
 - La entidad de tiempo y los encabezados de radar e histórico muestran la localidad elegida. La estación sigue identificada como fuente de las observaciones.
