@@ -40,3 +40,13 @@ npm test
 - La localidad Ortuella y su previsión se mantienen. Se actualizan la fuente, los resúmenes de mínima/máxima y la leyenda de la comparación con el balcón.
 - El histórico mensual conserva octubre de 2026 y sus tres curvas cambian al consultar Galindo. Al terminar se restaura el mes actual.
 - Pruebas de tarjetas: cambio en una tarjeta montada, resúmenes, histórico con respuesta anterior pendiente, conservación del mes, leyenda y reconexión durante carga de recursos.
+
+
+## Cambio de localidad · beta 0.1.0b11
+
+- Prueba real con la misma entrada y las tarjetas abiertas: Ortuella → Bilbao → Ortuella, sin recargar el panel durante los cambios.
+- Bilbao selecciona automáticamente Zorrotza (4,3 km) y actualiza los títulos, las observaciones y la previsión oficial a Bilbao.
+- Elección manual verificada en Bilbao: Arboleda (12,1 km), manteniendo Bilbao como localidad y previsión.
+- La vuelta a Ortuella restablece automáticamente Arboleda (1,9 km), conserva los identificadores de entidades y actualiza todas las tarjetas.
+- Pruebas de protección frente a localidad duplicada y localidad sin previsión; la configuración anterior no se modifica antes de confirmar ni en caso de error.
+- Selección por distancia sin redondear: una estación más cercana no pierde por tener menos magnitudes; la cobertura solo desempata distancias iguales.
