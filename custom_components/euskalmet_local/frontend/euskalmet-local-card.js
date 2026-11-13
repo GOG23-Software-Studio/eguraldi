@@ -56,6 +56,14 @@ export class EuskalmetLocalCard extends HTMLElement {
     if(!this._hass||!this._config||!this.isConnected||this._starting||this._unsubs.length)return;
     this._starting=true;const generation=this._generation;
     try{
+      const unsubscribeEvents=await this._hass.connection.subscribeMessage(event=>{
+        if(generation!==this._generation)return;
+        const entry=event.data?.entry_id;
+        if(entry&&this._location&&entry!==this._location.entry_id)return;
+        // Reload metadata and forecasts after HA has rebuilt the entry's entities.
+        this._stop();this._error=null;this._start();
+      },{type:'subscribe_events',event_type:'euskalmet_local_locations_updated'});
+      if(generation!==this._generation){unsubscribeEvents();return;}this._unsubs.push(unsubscribeEvents);
       const locations=await this._hass.callWS({type:'euskalmet_local/locations'});
       if(generation!==this._generation)return;
       this._locations=locations;

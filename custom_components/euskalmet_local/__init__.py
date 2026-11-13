@@ -16,7 +16,7 @@ from homeassistant.util import dt as dt_util
 from .api import EuskalmetAPI, EuskalmetAPIError
 from .const import DOMAIN
 from .coordinator import EuskalmetCoordinator
-from .dashboard import register_dashboard
+from .dashboard import EVENT_LOCATIONS_UPDATED, register_dashboard
 from .entity import device_info
 from .history_websocket import async_register_history_websocket
 from .radar_websocket import async_register_websocket_commands
@@ -113,6 +113,7 @@ async def async_setup_entry(
         PLATFORMS,
     )
 
+    hass.bus.async_fire(EVENT_LOCATIONS_UPDATED, {"entry_id": entry.entry_id})
     return True
 
 

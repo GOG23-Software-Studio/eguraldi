@@ -88,3 +88,69 @@ def test_weather_identity_uses_locality_and_preserves_station():
     assert entity.device_info["name"] == "Ortuella"
     assert entity.device_info["via_device"] == ("euskalmet_local", "C061")
     assert entity.name is None
+
+
+def test_options_change_station_and_distance_without_changing_locality(monkeypatch):
+    async def scenario():
+        entry = SimpleNamespace(
+            data={
+                "email": "demo@example.invalid",
+                "private_key": "TEST_ONLY",
+                "locality": "Ortuella",
+                "latitude": 43.31113,
+                "longitude": -3.05617,
+                "region": "basque_country",
+                "zone": "cantabrian_valleys",
+                "location": "ortuella",
+                "station_id": "C061",
+                "station_name": "Arboleda",
+                "distance_km": 1.9,
+            }
+        )
+
+        async def stations():
+            return [
+                {
+                    "station_id": "C999",
+                    "station_name": "Nueva estación",
+                    "station_latitude": 43.35,
+                    "station_longitude": -3.05,
+                    "available_measures": ["temperature", "humidity", "precipitation"],
+                }
+            ]
+
+        monkeypatch.setattr(
+            config_flow,
+            "EuskalmetAPI",
+            lambda **kwargs: SimpleNamespace(list_compatible_stations=stations),
+        )
+        monkeypatch.setattr(config_flow, "async_get_clientsession", lambda hass: None)
+        monkeypatch.setattr(
+            config_flow.EuskalmetLocalOptionsFlow,
+            "config_entry",
+            property(lambda self: entry),
+        )
+        updates = []
+        flow = config_flow.EuskalmetLocalOptionsFlow()
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(
+                async_update_entry=lambda entry, **kwargs: updates.append(
+                    kwargs["data"]
+                )
+            )
+        )
+        monkeypatch.setattr(flow, "async_create_entry", lambda **kwargs: kwargs)
+        await flow.async_step_init({"station_id": "C999"})
+        data = updates[-1]
+        assert data["station_name"] == "Nueva estación"
+        assert data["station_id"] == "C999"
+        assert data["distance_km"] > 1.9
+        assert data["locality"] == "Ortuella"
+        assert data["location"] == "ortuella"
+        assert data["latitude"] == entry.data["latitude"]
+        assert data["selection_mode"] == "manual"
+        await flow.async_step_init({"station_id": "automatic"})
+        assert updates[-1]["selection_mode"] == "automatic"
+        assert updates[-1]["locality"] == "Ortuella"
+
+    asyncio.run(scenario())

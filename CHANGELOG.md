@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.1.0b9
+
+- Las tarjetas abiertas actualizan estación y distancia al guardar un cambio de estación, sin recargar la tarjeta ni perder la localidad. Renuevan las suscripciones de previsión y liberan las anteriores.
+
 ## 0.1.0b8
 
 - Bajo la localidad se indica en letra pequeña dónde se realizan las mediciones y la distancia respecto al municipio seleccionado.
