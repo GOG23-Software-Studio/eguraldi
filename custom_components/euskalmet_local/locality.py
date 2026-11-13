@@ -14,10 +14,10 @@ MAX_DISTANCE_KM = 120
 def rank_stations(
     stations: list[dict], latitude: float, longitude: float
 ) -> list[dict]:
-    """Distance dominates; missing core measures cost at most six km.
+    """Choose the geographically closest compatible station.
 
-    This is a transparent heuristic, not a claim of climatological equivalence.
-    Station elevation is not consistently present in the official catalog.
+    Coverage only breaks distance ties; all stations must publish temperature.
+    The municipality coordinates are used, never the user's home coordinates.
     """
     if not all(math.isfinite(x) for x in (latitude, longitude)):
         raise LocationDiscoveryError("Invalid coordinates")
@@ -45,7 +45,12 @@ def rank_stations(
             }
         )
     return sorted(
-        ranked, key=lambda item: (item["selection_score"], item["station_id"])
+        ranked,
+        key=lambda item: (
+            item["distance_km"],
+            item["selection_score"],
+            item["station_id"],
+        ),
     )
 
 

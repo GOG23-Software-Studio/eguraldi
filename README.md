@@ -2,14 +2,14 @@
 
 Tu localidad primero. Observaciones de una estación cercana, previsión para tu municipio y tarjetas animadas incluidas en una integración de Home Assistant.
 
-**Beta 0.1.0b10. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
+**Beta 0.1.0b11. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
 
 ![Vista previa con datos simulados](docs/preview.jpg)
 
 ## Qué incluye
 
 - Configuración desde la interfaz: correo y clave privada personal de Open Data Euskadi → localidad → confirmación del municipio → estación recomendada.
-- Selección explicable: estaciones meteorológicas activas, temperatura disponible, distancia máxima de 120 km; la falta de humedad o lluvia añade 3 km de penalización por magnitud al ranking. Es una heurística, no una equivalencia climática. La altitud no se puntúa porque no está disponible de forma consistente.
+- Selección explicable: estaciones meteorológicas activas, temperatura disponible, distancia máxima de 120 km; se elige la más cercana por distancia al municipio. La disponibilidad de humedad y lluvia solo desempata distancias iguales. La cercanía no implica equivalencia climática. La altitud no se puntúa porque no está disponible de forma consistente.
 - Posibilidad de elegir otra estación al configurar y desde **Opciones**, o volver a la recomendación automática.
 - Previsión y zona de avisos ligadas a la localidad; cambiar de estación solo cambia las observaciones.
 - Sensores meteorológicos, resúmenes diarios/mensuales/anuales, polen, mar, mareas, radar e históricos consultados bajo demanda.
@@ -103,3 +103,10 @@ comparison_name: Balcón
 ```
 
 Con varias localidades, fija `entry_id` o elígela en la tarjeta. El radar es regional; los avisos y la previsión siguen la localidad. Mar, mareas y polen conservan sus fuentes de referencia, señaladas en la tarjeta. El gráfico de últimas 24 horas conserva las lecturas registradas en HA; el histórico mensual consulta la estación seleccionada.
+
+
+### Cambiar de localidad sin rehacer el panel
+
+En **Configurar → Cambiar localidad**, escribe el municipio, confirma la coincidencia correcta y revisa la nueva estación antes de guardar. La misma entrada adopta la localidad nueva, su previsión y zona de avisos, y la estación compatible más cercana. Las tarjetas abiertas se actualizan automáticamente y conservan los IDs de entidades. Las lecturas ya registradas en HA se conservan.
+
+Desde **Configurar → Cambiar estación** puedes seleccionar otra manualmente o volver a **Automática · más cercana a tu localidad**. Al guardar otra localidad se restablece la selección automática. Si la localidad está duplicada o no tiene previsión o estaciones compatibles, la configuración anterior permanece intacta.

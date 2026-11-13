@@ -1,5 +1,12 @@
 # Cambios
 
+## 0.1.0b11
+
+- Cambio de localidad desde opciones: confirma el municipio y actualiza la misma entrada, las tarjetas, previsión y avisos.
+- Al guardar una localidad se elige la estación compatible geográficamente más cercana; se mantiene el cambio manual y el retorno a automática.
+- Conserva los IDs de entidades y rechaza localidades duplicadas sin modificar la configuración actual.
+- La tarjeta de ambiente usa la captadora de polen activa de la nueva localidad.
+
 ## 0.1.0b10
 
 - Modos de tarjeta por localidad para histórico, resúmenes, comparación, radar, avisos y ambiente; refrescan su fuente al cambiar de estación.

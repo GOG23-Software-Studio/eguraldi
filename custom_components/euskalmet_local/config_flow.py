@@ -489,9 +489,150 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
-    """Change station while preserving the municipality's forecast and alerts."""
+    """Change locality or station without replacing the configured entry."""
 
     async def async_step_init(self, user_input=None):
+        # Preserve direct submissions from an already open older options dialog.
+        if user_input and "station_id" in user_input:
+            return await self.async_step_station(user_input)
+        return self.async_show_menu(
+            step_id="init", menu_options=["locality", "station"]
+        )
+
+    def _api_for_options(self):
+        entry = self.config_entry
+        return EuskalmetAPI(
+            session=async_get_clientsession(self.hass),
+            email=entry.data["email"],
+            private_key=entry.data["private_key"],
+            time_zone=dt_util.get_default_time_zone(),
+        )
+
+    async def async_step_locality(self, user_input=None):
+        errors = {}
+        if user_input is not None:
+            try:
+                self._places = await search_localities(
+                    async_get_clientsession(self.hass), user_input["locality"]
+                )
+                if self._places:
+                    return await self.async_step_place()
+                errors["base"] = "locality_not_found"
+            except (aiohttp.ClientError, TimeoutError, ValueError):
+                errors["base"] = "cannot_geocode"
+        return self.async_show_form(
+            step_id="locality",
+            errors=errors,
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "locality", default=self.config_entry.data.get("locality", "")
+                    ): str
+                }
+            ),
+        )
+
+    async def async_step_place(self, user_input=None):
+        errors = {}
+        if user_input is not None:
+            place = next(
+                (p for p in self._places if p["id"] == user_input["place"]), None
+            )
+            if place is None:
+                errors["base"] = "locality_not_found"
+            else:
+                entry = self.config_entry
+                if any(
+                    other.entry_id != entry.entry_id
+                    and other.unique_id == f"locality_{place['id']}"
+                    for other in self.hass.config_entries.async_entries(DOMAIN)
+                ):
+                    return self.async_abort(reason="already_configured")
+                try:
+                    api = self._api_for_options()
+                    stations = rank_stations(
+                        await api.list_compatible_stations(),
+                        place["latitude"],
+                        place["longitude"],
+                    )
+                    if not stations:
+                        errors["base"] = "no_nearby_station"
+                    else:
+                        forecast = await resolve_forecast(api, place)
+                        station = stations[0]
+                        self._pending_locality = {
+                            **entry.data,
+                            **station,
+                            **forecast,
+                            "latitude": place["latitude"],
+                            "longitude": place["longitude"],
+                            "locality": place["name"],
+                            "locality_id": place["id"],
+                            "locality_province": place["province"],
+                            "selection_mode": "automatic",
+                            "recommended_station": station["station_id"],
+                        }
+                        return await self.async_step_confirm_locality()
+                except EuskalmetAuthenticationError:
+                    errors["base"] = "invalid_auth"
+                except (EuskalmetAPIError, aiohttp.ClientError, TimeoutError):
+                    errors["base"] = "cannot_connect"
+                except LocationDiscoveryError:
+                    errors["base"] = "forecast_locality_not_found"
+        return self.async_show_form(
+            step_id="place",
+            errors=errors,
+            data_schema=vol.Schema(
+                {
+                    vol.Required("place"): SelectSelector(
+                        SelectSelectorConfig(
+                            options=[
+                                SelectOptionDict(
+                                    value=p["id"],
+                                    label=(
+                                        f"{p['name']} · {p['province']}"
+                                        f" · {p['region_name']}"
+                                    ),
+                                )
+                                for p in self._places
+                            ]
+                        )
+                    )
+                }
+            ),
+        )
+
+    async def async_step_confirm_locality(self, user_input=None):
+        data = self._pending_locality
+        if user_input is not None:
+            entry = self.config_entry
+            if any(
+                other.entry_id != entry.entry_id
+                and other.unique_id == f"locality_{data['locality_id']}"
+                for other in self.hass.config_entries.async_entries(DOMAIN)
+            ):
+                return self.async_abort(reason="already_configured")
+            self.hass.config_entries.async_update_entry(
+                entry,
+                data=data,
+                title=f"Eguraldi · {data['locality']}",
+                unique_id=f"locality_{data['locality_id']}",
+            )
+            return self.async_create_entry(
+                title="",
+                data={"station_id": "automatic", "locality_id": data["locality_id"]},
+            )
+        return self.async_show_form(
+            step_id="confirm_locality",
+            data_schema=vol.Schema({}),
+            description_placeholders={
+                "locality": data["locality"],
+                "station": data["station_name"],
+                "distance": f"{data['distance_km']:.1f}",
+            },
+        )
+
+    async def async_step_station(self, user_input=None):
         entry = self.config_entry
         errors = {}
         api = EuskalmetAPI(
@@ -546,7 +687,7 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
             stations = []
         options = [
             SelectOptionDict(
-                value="automatic", label="Automática · recomendada para tu localidad"
+                value="automatic", label="Automática · más cercana a tu localidad"
             )
         ]
         options += [
@@ -562,7 +703,7 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
             else entry.data["station_id"]
         )
         return self.async_show_form(
-            step_id="init",
+            step_id="station",
             errors=errors,
             data_schema=vol.Schema(
                 {

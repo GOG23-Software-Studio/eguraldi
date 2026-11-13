@@ -7,7 +7,7 @@ from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
 
-VERSION = "0.1.0b10"
+VERSION = "0.1.0b11"
 EVENT_LOCATIONS_UPDATED = f"{DOMAIN}_locations_updated"
 
 
@@ -24,10 +24,17 @@ def websocket_locations(hass, connection, msg):
                 entities[key] = entity.entity_id
                 if key == "precipitation_radar":
                     entities["radar"] = entity.entity_id
+        coordinator = (
+            hass.data.get(DOMAIN, {}).get("coordinators", {}).get(entry.entry_id)
+        )
+        if coordinator is not None:
+            pollen_key = f"pollen_{coordinator.api.pollen_municipality_id}_total"
+            entities["pollen_total"] = entities.get(pollen_key)
         result.append(
             {
                 "entry_id": entry.entry_id,
                 "locality": entry.data.get("locality", entry.title),
+                "locality_id": entry.data.get("locality_id"),
                 "station": entry.data.get("station_name"),
                 "station_id": entry.data.get("station_id"),
                 "distance_km": entry.data.get("distance_km"),

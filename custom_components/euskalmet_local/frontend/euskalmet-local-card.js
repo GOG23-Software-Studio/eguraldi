@@ -68,7 +68,10 @@ export class EuskalmetLocalCard extends HTMLElement {
       const locations=await this._hass.callWS({type:'euskalmet_local/locations'});
       if(generation!==this._generation)return;
       this._locations=locations;
-      this._location=locations.find(l=>l.entry_id===this._config.entry_id||l.entities.weather===this._config.entity) || (!this._config.entry_id&&!this._config.entity&&locations.length===1?locations[0]:null);
+      const selected=locations.find(l=>l.entry_id===this._config.entry_id||l.entities.weather===this._config.entity) || (!this._config.entry_id&&!this._config.entity&&locations.length===1?locations[0]:null);
+      if(this._location&&(selected?.locality_id!==this._location.locality_id||selected?.station_id!==this._location.station_id||selected?.locality!==this._location.locality))this._forecasts={};
+      this._location=selected;
+      this._render();
       if(!this._location){this._render();return;}
       if(EXTRA_MODES.includes(this._config.mode)){this._render();return;}
       const weather=this._location.entities.weather;
@@ -149,7 +152,7 @@ export class EuskalmetLocalCard extends HTMLElement {
     this.shadowRoot.querySelector('#extra-source').textContent=['radar','alerts','environment'].includes(mode)?(mode==='radar'?'Radar regional · Euskalmet':mode==='alerts'?'Avisos para la zona de tu localidad':'Cantábrico · mareas de Pasaia · captadora de polen de referencia'):this._measurementSource();
     const content=this.shadowRoot.querySelector('#extra-content');
     if(mode==='summaries'||mode==='environment'){
-      const pollen=Object.keys(loc.entities).find(key=>key.startsWith('pollen_')&&key.endsWith('_total'));
+      const pollen=Object.prototype.hasOwnProperty.call(loc.entities,'pollen_total')?'pollen_total':Object.keys(loc.entities).find(key=>key.startsWith('pollen_')&&key.endsWith('_total'));
       const rows=mode==='summaries'?[['temperature_min_today','Temperatura mínima'],['temperature_max_today','Temperatura máxima'],['wind_gust_max_today','Racha máxima'],['precipitation_today','Lluvia acumulada'],['irradiance','Radiación solar']]:[['ocean_wave_height','Altura de ola · Cantábrico'],['ocean_water_temperature','Temperatura del mar'],['ocean_tide_high','Próxima pleamar · Pasaia'],[pollen,'Polen · muestra de referencia']];
       content.innerHTML='<div class="rows">'+rows.map(([key,label])=>{
         const state=this._state(key),a=state?.attributes||{},n=numeric(state?.state);

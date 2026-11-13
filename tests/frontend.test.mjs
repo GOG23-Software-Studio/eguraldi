@@ -117,3 +117,41 @@ test('comparison can reconnect while its lazy card helper is pending',async()=>{
   finish({createCardElement:()=>dom.window.document.createElement('test-reconnected-graph')});await flush();await flush();
   assert.ok(card.shadowRoot.querySelector('test-reconnected-graph'));card.remove();dom.window.close();
 });
+
+
+test('all mounted card modes adopt the new locality and nearest station on the same entry',async()=>{
+  const dom=setup();
+  for(const tag of ['euskalmet-local-radar-map-card','euskalmet-local-alert-card']){
+    dom.window.customElements.define(tag,class extends dom.window.HTMLElement{setConfig(value){this.config=value;}set hass(value){this._hass=value;}});
+  }
+  class Graph extends dom.window.HTMLElement{set hass(value){this._hass=value;}}
+  dom.window.customElements.define('test-locality-graph',Graph);
+  dom.window.loadCardHelpers=async()=>({createCardElement:config=>{const card=dom.window.document.createElement('test-locality-graph');card.config=config;return card;}});
+  let current={...location,locality_id:'1',station_id:'C061',distance_km:1.9,entities:{...location.entities,radar:'camera.test',alert_level:'sensor.alerts',temperature_min_today:'sensor.min'}};
+  const cards=[];
+  for(const mode of ['overview','hourly','daily','summaries','history','comparison','radar','alerts','environment','dashboard']){
+    const count={subscriptions:0,unsubscribed:0},h=hass(count);
+    h.callWS=async msg=>msg.type==='euskalmet_local/locations'?[current]:{station:current.station_id,items:[]};
+    const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode,entry_id:'test'});card.hass=h;dom.window.document.body.append(card);cards.push({card,count,mode});
+  }
+  await flush();await flush();
+  current={...current,locality:'Bilbao',locality_id:'2',station:'Nueva estación',station_id:'C058',distance_km:2.4,latitude:43.26,longitude:-2.93};
+  for(const {count} of cards)count.events({data:{entry_id:'test'}});
+  await flush();await flush();
+  for(const {card,mode} of cards){
+    assert.match(card.shadowRoot.querySelector('h2').textContent,/Bilbao/,mode);
+    assert.doesNotMatch(card.shadowRoot.textContent,/Ortuella/,mode);
+    if(['overview','summaries','history','comparison','dashboard'].includes(mode))assert.match(card.shadowRoot.querySelector('.measurement-source').textContent,/Nueva estación.*2,4 km/);
+    if(mode==='history')assert.equal(card.shadowRoot.querySelector('euskalmet-local-history-card').data.station,'C058');
+    card.remove();
+  }
+  dom.window.close();
+});
+
+test('environment never falls back to the old locality pollen station',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass();
+  h.callWS=async()=>[{...location,locality:'Bilbao',entities:{...location.entities,pollen_old_total:'sensor.old_pollen',pollen_total:null}}];
+  h.states['sensor.old_pollen']={state:'999',attributes:{municipality_name:'OLD'}};
+  card.setConfig({mode:'environment',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
+  assert.doesNotMatch(card.shadowRoot.textContent,/999|OLD/);assert.match(card.shadowRoot.textContent,/No disponible/);card.remove();dom.window.close();
+});

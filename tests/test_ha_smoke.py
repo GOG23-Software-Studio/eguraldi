@@ -154,3 +154,169 @@ def test_options_change_station_and_distance_without_changing_locality(monkeypat
         assert updates[-1]["locality"] == "Ortuella"
 
     asyncio.run(scenario())
+
+
+def options_locality_fixture(monkeypatch):
+    entry = SimpleNamespace(
+        entry_id="stable-entry",
+        unique_id="locality_1",
+        title="Eguraldi · Ortuella",
+        data={
+            "email": "demo@example.invalid",
+            "private_key": "TEST_ONLY",
+            "locality": "Ortuella",
+            "locality_id": "1",
+            "latitude": 43.31113,
+            "longitude": -3.05617,
+            "region": "old-region",
+            "zone": "old-zone",
+            "location": "ortuella",
+            "alert_zone": "old-alert",
+            "station_id": "C061",
+            "station_name": "Arboleda",
+            "distance_km": 1.9,
+            "selection_mode": "manual",
+        },
+    )
+    place = {
+        "id": "2",
+        "name": "Bilbao",
+        "latitude": 43.263,
+        "longitude": -2.935,
+        "province": "Bizkaia",
+        "region_name": "Euskadi",
+    }
+
+    async def stations():
+        return [
+            {
+                "station_id": "near",
+                "station_name": "Más cercana",
+                "station_latitude": 43.264,
+                "station_longitude": -2.935,
+                "available_measures": ["temperature"],
+            },
+            {
+                "station_id": "complete",
+                "station_name": "Otra estación",
+                "station_latitude": 43.31,
+                "station_longitude": -2.935,
+                "available_measures": ["temperature", "humidity", "precipitation"],
+            },
+        ]
+
+    async def search(session, query):
+        return [place]
+
+    async def forecast(api, selected):
+        return {
+            "region": "new-region",
+            "zone": "new-zone",
+            "location": "bilbao",
+            "alert_zone": "new-alert",
+        }
+
+    monkeypatch.setattr(
+        config_flow,
+        "EuskalmetAPI",
+        lambda **kwargs: SimpleNamespace(list_compatible_stations=stations),
+    )
+    monkeypatch.setattr(config_flow, "async_get_clientsession", lambda hass: None)
+    monkeypatch.setattr(config_flow, "search_localities", search)
+    monkeypatch.setattr(config_flow, "resolve_forecast", forecast)
+    monkeypatch.setattr(
+        config_flow.EuskalmetLocalOptionsFlow,
+        "config_entry",
+        property(lambda self: entry),
+    )
+    updates = []
+    others = []
+
+    def update(current, **kwargs):
+        updates.append(kwargs)
+        for key, value in kwargs.items():
+            setattr(current, key, value)
+
+    flow = config_flow.EuskalmetLocalOptionsFlow()
+    flow.hass = SimpleNamespace(
+        config_entries=SimpleNamespace(
+            async_update_entry=update, async_entries=lambda domain: [entry, *others]
+        )
+    )
+    monkeypatch.setattr(flow, "async_show_form", lambda **kwargs: kwargs)
+    monkeypatch.setattr(flow, "async_create_entry", lambda **kwargs: kwargs)
+    monkeypatch.setattr(flow, "async_abort", lambda **kwargs: kwargs)
+    return flow, entry, updates, others
+
+
+def test_locality_options_apply_once_keep_identity_and_allow_manual_station(
+    monkeypatch,
+):
+    async def scenario():
+        flow, entry, updates, _ = options_locality_fixture(monkeypatch)
+        menu = await flow.async_step_init()
+        assert menu["menu_options"] == ["locality", "station"]
+        result = await flow.async_step_locality({"locality": "Bilbao"})
+        assert result["step_id"] == "place"
+        result = await flow.async_step_place({"place": "2"})
+        assert result["step_id"] == "confirm_locality"
+        assert result["description_placeholders"]["station"] == "Más cercana"
+        assert not updates and entry.data["locality"] == "Ortuella"
+        await flow.async_step_confirm_locality({})
+        assert len(updates) == 1
+        assert entry.entry_id == "stable-entry" and entry.unique_id == "locality_2"
+        assert entry.title == "Eguraldi · Bilbao"
+        assert entry.data["locality"] == "Bilbao" and entry.data["location"] == "bilbao"
+        assert (
+            entry.data["zone"] == "new-zone" and entry.data["alert_zone"] == "new-alert"
+        )
+        assert (
+            entry.data["station_id"] == "near"
+            and entry.data["selection_mode"] == "automatic"
+        )
+        assert (
+            entry.data["latitude"] == 43.263
+            and entry.data["private_key"] == "TEST_ONLY"
+        )
+        await flow.async_step_station({"station_id": "complete"})
+        assert (
+            entry.data["selection_mode"] == "manual"
+            and entry.data["station_id"] == "complete"
+        )
+        assert entry.data["locality"] == "Bilbao" and entry.data["location"] == "bilbao"
+        await flow.async_step_station({"station_id": "automatic"})
+        assert (
+            entry.data["station_id"] == "near"
+            and entry.data["selection_mode"] == "automatic"
+        )
+
+    asyncio.run(scenario())
+
+
+def test_locality_options_reject_duplicates_without_changes(monkeypatch):
+    async def scenario():
+        flow, entry, updates, others = options_locality_fixture(monkeypatch)
+        others.append(
+            SimpleNamespace(entry_id="different-entry", unique_id="locality_2")
+        )
+        await flow.async_step_locality({"locality": "Bilbao"})
+        result = await flow.async_step_place({"place": "2"})
+        assert result["reason"] == "already_configured"
+        assert not updates and entry.data["locality"] == "Ortuella"
+
+    asyncio.run(scenario())
+
+
+def test_locality_options_forecast_failure_keeps_old_configuration(monkeypatch):
+    async def fail(api, place):
+        raise config_flow.LocationDiscoveryError("not covered")
+
+    async def scenario():
+        flow, entry, updates, _ = options_locality_fixture(monkeypatch)
+        monkeypatch.setattr(config_flow, "resolve_forecast", fail)
+        await flow.async_step_locality({"locality": "Bilbao"})
+        result = await flow.async_step_place({"place": "2"})
+        assert result["errors"]["base"] == "forecast_locality_not_found"
+        assert not updates and entry.data["locality"] == "Ortuella"
+
+    asyncio.run(scenario())

@@ -36,13 +36,13 @@ def test_nearest_complete_station_wins():
     assert ranked[0]["station_id"] == "near"
 
 
-def test_small_distance_tradeoff_for_core_coverage():
+def test_closest_station_wins_even_with_fewer_measures():
     ranked = module.rank_stations(
         [station("partial", 43.301, ("temperature",)), station("complete", 43.32)],
         43.3,
         -3.05,
     )
-    assert ranked[0]["station_id"] == "complete"
+    assert ranked[0]["station_id"] == "partial"
 
 
 def test_far_complete_station_does_not_beat_close_partial():

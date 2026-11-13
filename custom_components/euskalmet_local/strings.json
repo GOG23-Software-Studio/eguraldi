@@ -344,12 +344,38 @@
   },
   "options": {
     "step": {
-      "init": {
+      "station": {
         "title": "Estación de observación",
-        "description": "Cambia la estación o vuelve a la recomendada. La previsión y los avisos permanecen ligados a tu localidad.",
+        "description": "Cambia la estación o vuelve a la más cercana. La previsión y los avisos permanecen ligados a tu localidad.",
         "data": {
           "station_id": "Estación"
         }
+      },
+      "init": {
+        "title": "Opciones de Eguraldi",
+        "description": "Cambia tu localidad o elige otra estación de observación.",
+        "menu_options": {
+          "locality": "Cambiar localidad",
+          "station": "Cambiar estación"
+        }
+      },
+      "locality": {
+        "title": "Cambiar localidad",
+        "description": "Escribe el municipio. Al guardarlo se seleccionará automáticamente la estación compatible más cercana. Después podrás cambiarla manualmente.",
+        "data": {
+          "locality": "Localidad"
+        }
+      },
+      "place": {
+        "title": "Confirmar municipio",
+        "description": "Selecciona la localidad correcta para actualizar la previsión, los avisos y todas las tarjetas.",
+        "data": {
+          "place": "Municipio"
+        }
+      },
+      "confirm_locality": {
+        "title": "Guardar nueva localidad",
+        "description": "**{locality}** será la localidad de todas las tarjetas.\n\nEstación automática: **{station}**, a **{distance} km** del municipio.\n\nSe actualizarán la previsión, los avisos, las mediciones y el histórico sin cambiar los identificadores de las entidades. Podrás elegir otra estación desde las opciones."
       }
     },
     "error": {
@@ -366,7 +392,8 @@
       "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial."
     },
     "abort": {
-      "no_nearby_station": "No hay estaciones cercanas disponibles."
+      "no_nearby_station": "No hay estaciones cercanas disponibles.",
+      "already_configured": "Esta localidad ya está configurada en otra entrada de Eguraldi."
     }
   }
 }

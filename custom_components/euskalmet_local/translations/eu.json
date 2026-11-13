@@ -344,12 +344,38 @@
   "title": "Eguraldi",
   "options": {
     "step": {
-      "init": {
+      "station": {
         "title": "Estación de observación",
-        "description": "Cambia la estación o vuelve a la recomendada. La previsión y los avisos permanecen ligados a tu localidad.",
+        "description": "Cambia la estación o vuelve a la más cercana. La previsión y los avisos permanecen ligados a tu localidad.",
         "data": {
           "station_id": "Estación"
         }
+      },
+      "init": {
+        "title": "Eguraldiren aukerak",
+        "description": "Aldatu herria edo behaketa-estazioa.",
+        "menu_options": {
+          "locality": "Herria aldatu",
+          "station": "Estazioa aldatu"
+        }
+      },
+      "locality": {
+        "title": "Herria aldatu",
+        "description": "Idatzi udalerria. Gordetzean estazio bateragarri hurbilena automatikoki aukeratuko da. Ondoren beste estazio bat eskuz aukera dezakezu.",
+        "data": {
+          "locality": "Herria"
+        }
+      },
+      "place": {
+        "title": "Udalerria berretsi",
+        "description": "Aukeratu herri zuzena iragarpena, abisuak eta txartel guztiak eguneratzeko.",
+        "data": {
+          "place": "Udalerria"
+        }
+      },
+      "confirm_locality": {
+        "title": "Herri berria gorde",
+        "description": "Txartel guztiek **{locality}** erakutsiko dute.\n\nEstazio automatikoa: **{station}**, udalerritik **{distance} km**-ra.\n\nIragarpena, abisuak, neurketak eta historikoa eguneratuko dira, entitateen IDak mantenduz. Aukeretan beste estazio bat hauta dezakezu."
       }
     },
     "error": {
@@ -366,7 +392,8 @@
       "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial."
     },
     "abort": {
-      "no_nearby_station": "No hay estaciones cercanas disponibles."
+      "no_nearby_station": "No hay estaciones cercanas disponibles.",
+      "already_configured": "Herri hau Eguraldiren beste sarrera batean konfiguratuta dago."
     }
   }
 }

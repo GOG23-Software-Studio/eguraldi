@@ -327,12 +327,38 @@
   "title": "Eguraldi",
   "options": {
     "step": {
-      "init": {
+      "station": {
         "title": "Estación de observación",
-        "description": "Cambia la estación o vuelve a la recomendada. La previsión y los avisos permanecen ligados a tu localidad.",
+        "description": "Cambia la estación o vuelve a la más cercana. La previsión y los avisos permanecen ligados a tu localidad.",
         "data": {
           "station_id": "Estación"
         }
+      },
+      "init": {
+        "title": "Eguraldi options",
+        "description": "Change your locality or observation station.",
+        "menu_options": {
+          "locality": "Change locality",
+          "station": "Change station"
+        }
+      },
+      "locality": {
+        "title": "Change locality",
+        "description": "Enter your municipality. Saving selects the nearest compatible station automatically. You can then choose another station manually.",
+        "data": {
+          "locality": "Locality"
+        }
+      },
+      "place": {
+        "title": "Confirm municipality",
+        "description": "Choose the correct locality to update forecasts, warnings and all cards.",
+        "data": {
+          "place": "Municipality"
+        }
+      },
+      "confirm_locality": {
+        "title": "Save new locality",
+        "description": "All cards will use **{locality}**.\n\nAutomatic station: **{station}**, **{distance} km** from the municipality.\n\nForecasts, warnings, observations and history will update while keeping entity IDs. You can select another station in options."
       }
     },
     "error": {
@@ -349,7 +375,8 @@
       "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial."
     },
     "abort": {
-      "no_nearby_station": "No hay estaciones cercanas disponibles."
+      "no_nearby_station": "No hay estaciones cercanas disponibles.",
+      "already_configured": "This locality is already configured in another Eguraldi entry."
     }
   }
 }
