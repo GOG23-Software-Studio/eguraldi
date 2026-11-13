@@ -10,7 +10,6 @@
 
 ## Pendiente antes de versión estable
 
-- Cambiar de estación y volver a automática, comprobando que la previsión sigue ligada a la localidad.
 - Probar reautenticación, reinicio, instalación/actualización por HACS y convivencia con la integración original.
 - Confirmar comportamiento con distintas localidades y respuestas actuales de los proveedores.
 
@@ -33,3 +32,11 @@ ruff check custom_components tests
 npm ci
 npm test
 ```
+
+
+## Cambio de estación en tarjetas abiertas · beta 0.1.0b10
+
+- Prueba real en HA: Arboleda (1,9 km) → Galindo (4,7 km) → selección automática de Arboleda, sin recargar la pestaña durante los cambios.
+- La localidad Ortuella y su previsión se mantienen. Se actualizan la fuente, los resúmenes de mínima/máxima y la leyenda de la comparación con el balcón.
+- El histórico mensual conserva octubre de 2026 y sus tres curvas cambian al consultar Galindo. Al terminar se restaura el mes actual.
+- Pruebas de tarjetas: cambio en una tarjeta montada, resúmenes, histórico con respuesta anterior pendiente, conservación del mes, leyenda y reconexión durante carga de recursos.
