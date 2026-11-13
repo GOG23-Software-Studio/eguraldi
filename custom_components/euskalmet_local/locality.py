@@ -40,7 +40,7 @@ def rank_stations(
         ranked.append(
             {
                 **station,
-                "distance_km": round(distance, 2),
+                "distance_km": distance,
                 "selection_score": distance + penalty,
             }
         )

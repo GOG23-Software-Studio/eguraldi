@@ -107,3 +107,24 @@ def test_no_silent_fuzzy_forecast_fallback():
                 FakeAPI(), {"name": "Ortue", "province": "Bizkaia", "latitude": 43.3}
             )
         )
+
+
+def test_nearest_selection_uses_unrounded_distance():
+    ranked = module.rank_stations(
+        [
+            station("near_partial", 43.30001, ("temperature",)),
+            station("far_complete", 43.30002),
+        ],
+        43.3,
+        -3.05,
+    )
+    assert ranked[0]["station_id"] == "near_partial"
+
+
+def test_same_distance_prefers_more_complete_station():
+    ranked = module.rank_stations(
+        [station("partial", 43.31, ("temperature",)), station("complete", 43.31)],
+        43.3,
+        -3.05,
+    )
+    assert ranked[0]["station_id"] == "complete"
