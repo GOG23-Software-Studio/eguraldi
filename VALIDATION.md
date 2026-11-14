@@ -59,3 +59,12 @@ npm test
 - Asistente de AÃ±adir servicio verificado con la cuenta guardada, sin pedir ni mostrar otra vez la clave: HA aparece seleccionado por defecto y Otra localidad abre la bÃºsqueda manual. El asistente se cancela sin crear una localidad de prueba adicional.
 - Seguimiento de cambios de la ubicaciÃ³n de HA verificado con eventos simulados, sin modificar la ubicaciÃ³n global real de HA; las entradas manuales no se recargan por ese evento.
 - 71 pruebas Python locales, 14 de tarjetas, pruebas de flujo con HA 2026.11.1 y HACS/hassfest superadas.
+
+
+## Preparación pública · 0.1.0
+
+- 73 pruebas Python locales y 21 de tarjetas superadas. La prueba de flujos con HA real se ejecuta en Linux en CI; se omite en el entorno Windows local.
+- Editor visual: guarda la localidad elegida, elimina referencias heredadas contradictorias y valida el zoom sin interrumpir cambios en curso.
+- Paquete: verifica archivos de ejecución, licencias, exclusión de caché y suma SHA-256; rechaza claves PEM antes de crear el ZIP.
+- CI valida HA 2026.11.1, HACS y hassfest. La versión mínima declarada no tiene una matriz de compatibilidad completa.
+- La disponibilidad mediante repositorio personalizado no implica aprobación en el catálogo general de HACS.

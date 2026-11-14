@@ -1,0 +1,32 @@
+name: Informar de un fallo
+description: Algo no funciona como se esperaba en Eguraldi.
+title: "[Fallo] "
+body:
+  - type: markdown
+    attributes:
+      value: "No incluyas claves privadas, tokens, correo ni coordenadas de casa."
+  - type: input
+    id: eguraldi_version
+    attributes:
+      label: Versión de Eguraldi
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Versión de Home Assistant
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Pasos, resultado observado y resultado esperado
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error o registros relevantes
+      description: Elimina cualquier dato personal antes de pegarlos.
+      render: text

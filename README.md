@@ -1,128 +1,102 @@
 # Eguraldi
 
-Tu localidad primero. Observaciones de una estación cercana, previsión para tu municipio y tarjetas animadas incluidas en una integración de Home Assistant.
+El tiempo de tu localidad en Home Assistant, con datos de Euskalmet y tarjetas animadas incluidas.
 
-**Beta 0.1.0b15. Proyecto comunitario no oficial**, sin afiliación ni soporte de Euskalmet o del Gobierno Vasco. No reemplaza los avisos oficiales de emergencia.
+[![Comprobaciones](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
+[![Versión](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-![Vista previa con datos simulados](docs/preview.jpg)
+**Versión 0.1.0.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
-## Qué incluye
+![Tarjetas de Eguraldi con datos simulados](docs/preview.jpg)
 
-- Configuración desde la interfaz: correo y clave privada personal de Open Data Euskadi → localidad → confirmación del municipio → estación recomendada.
-- Selección explicable: estaciones meteorológicas activas, temperatura disponible, distancia máxima de 120 km; se elige la más cercana por distancia al municipio. La disponibilidad de humedad y lluvia solo desempata distancias iguales. La cercanía no implica equivalencia climática. La altitud no se puntúa porque no está disponible de forma consistente.
-- Posibilidad de elegir otra estación al configurar y desde **Opciones**, o volver a la recomendación automática.
-- Previsión y zona de avisos ligadas a la localidad; cambiar de estación solo cambia las observaciones.
-- Sensores meteorológicos, resúmenes diarios/mensuales/anuales, polen, mar, mareas, radar e históricos consultados bajo demanda.
-- Tarjetas propias sin Mushroom, button-card, clock-weather-card ni stack-in-card: tiempo actual, **24 horas en cuatro filas de seis**, siete días con barras de mínimas/máximas y panel con radar, histórico y avisos.
-- Iconos animados Meteocons incluidos localmente, con variantes diurnas/nocturnas según la posición solar aproximada de cada hora.
-- La humedad fuera de 0–100 % no se publica como una medida válida. Sus atributos `raw_value` y `quality` conservan y explican el dato original.
+## Instalar
 
-## Requisitos
+[**Abrir Eguraldi en HACS**](https://my.home-assistant.io/redirect/hacs_repository/?owner=GOG23-Software-Studio&repository=eguraldi&category=integration)
 
-- Home Assistant 2026.8 o posterior. La beta se verifica también mediante CI en HA 2026.11.1.
-- Cuenta personal de [Open Data Euskadi](https://api.euskadi.eus/opendata-apikey/#/) y archivo `privatekey.pem`.
-- Internet para las APIs de Euskalmet; Open-Meteo/GeoNames se usa únicamente para buscar el nombre del municipio durante la configuración. El mapa de radar utiliza teselas de OpenStreetMap.
-
-## Instalar por HACS / Marketplace
-
-Mientras no forme parte del catálogo general, añade un **repositorio personalizado** de tipo **Integración**:
+Si el enlace no funciona, añade este repositorio en **HACS / Marketplace**, como **Integración**:
 
 ```text
 https://github.com/GOG23-Software-Studio/eguraldi
 ```
 
-Activa las versiones preliminares si tu HACS no ofrece la beta. Instala **Eguraldi**, reinicia HA y ve a **Ajustes → Dispositivos y servicios → Añadir integración → Eguraldi**.
+1. Instala la última versión de **Eguraldi** y reinicia Home Assistant.
+2. Ve a **Ajustes → Dispositivos y servicios → Añadir integración → Eguraldi**.
+3. Introduce el correo de tu cuenta de [Open Data Euskadi](https://api.euskadi.eus/opendata-apikey/#/) y el contenido completo de `privatekey.pem`.
+4. Deja seleccionada **Ubicación de Home Assistant**, o elige **Otra localidad**. Revisa el municipio y la estación antes de guardar.
+5. Añade una tarjeta **Eguraldi** a tu panel. Elige la vista y la ubicación en el editor visual.
 
-1. Abre el enlace a Open Data Euskadi incluido en el asistente. Recomendamos **Acceder con Google** (por ejemplo, con Gmail): el correo de activación del registro tradicional puede no llegar. Si la cuenta está pendiente, usa una cuenta de Google que no esté pendiente. Descarga el ZIP y pega el correo y el contenido de `privatekey.pem`.
-2. Escribe tu localidad y confirma el municipio correcto.
-3. Revisa la estación recomendada, su distancia y las magnitudes disponibles. Puedes cambiarla antes de confirmar.
+Necesitas **Home Assistant 2026.8 o posterior**, Internet y una cuenta gratuita de Open Data Euskadi. Si no llega el correo de activación, revisa spam o prueba **Iniciar sesión con Google**. El asistente incluye el enlace para descargar tus claves.
 
-Si un municipio no tiene una coincidencia inequívoca en el catálogo de previsiones de Euskalmet, el asistente lo indica. No asigna a escondidas la previsión de otro pueblo.
+La instalación por repositorio personalizado ya está disponible. La inclusión en el catálogo general requiere revisión externa; Eguraldi no se anuncia como aprobado por HACS.
 
-El dominio es `euskalmet_local`, por lo que puede coexistir con `euskalmet`. No migra ni elimina la otra integración, sus entidades o tus paneles.
+[Guía de instalación, actualización y solución de problemas](docs/INSTALLATION.md)
 
-## Añadir las tarjetas
+## Qué incluye
 
-Los recursos se registran automáticamente. Recarga el navegador después de instalar. En un panel, pulsa **Añadir tarjeta → Eguraldi** y selecciona la vista en el editor visual.
+- Tiempo actual y resúmenes meteorológicos diarios, mensuales y anuales.
+- Próximas 24 horas en cuatro filas de seis, con iconos animados y sin desplazamiento horizontal.
+- Previsión de siete días con iconos y barras de mínimas y máximas.
+- Radar animado centrado en la ubicación, marcador, zoom cercano, **Mi ubicación** y **Ver cobertura**.
+- Histórico mensual y comparación de temperaturas con un sensor de tu casa.
+- Avisos, previsión marítima, mareas y polen.
+- Tarjetas incluidas sin Mushroom, button-card ni otros complementos.
 
-Panel con tiempo actual y pestañas de previsión, radar, histórico y avisos:
+## Ubicación y estación
+
+La opción predeterminada usa la ubicación de HA. El municipio se identifica localmente con cartografía incluida de geoEuskadi: **no se envían las coordenadas de casa a un geocodificador**. La estación automática es la compatible más cercana a ese punto. Si cambias la ubicación global de HA, la entrada vinculada se actualiza; las localidades manuales permanecen independientes.
+
+Desde **Configurar** puedes cambiar de localidad o estación. Los títulos, distancias, resúmenes e histórico de las tarjetas abiertas se actualizan sin recargar. Los identificadores de entidades se conservan. Al guardar otra localidad se restablece la estación automática.
+
+Para añadir otra localidad, pulsa **Añadir servicio** y reutiliza la cuenta guardada en HA, sin introducir de nuevo la clave. Añade sus tarjetas y selecciona esa ubicación en el editor visual.
+
+## Tarjetas
+
+En **Añadir tarjeta → Eguraldi**, el editor permite elegir vista y ubicación, ajustar el zoom del radar y seleccionar un sensor para comparar. No hace falta escribir identificadores.
+
+También puedes usar YAML:
 
 ```yaml
 type: custom:euskalmet-local-card
 mode: dashboard
 ```
 
-Tarjeta compacta de 24 horas:
+| Vista | `mode` |
+| --- | --- |
+| Panel completo | `dashboard` |
+| Tiempo actual | `overview` |
+| Próximas 24 horas | `hourly` |
+| Próximos días | `daily` |
+| Resumen de hoy | `summaries` |
+| Histórico mensual | `history` |
+| Radar | `radar` |
+| Avisos | `alerts` |
+| Comparación de temperatura | `comparison` |
+| Costa y ambiente | `environment` |
 
-```yaml
-type: custom:euskalmet-local-card
-mode: hourly
-```
+Con una sola ubicación se detecta automáticamente. Con varias, guarda la ubicación desde el editor; en YAML se puede fijar con `entry_id`. Los recursos se registran automáticamente. La instalación no modifica ni crea paneles personales.
 
-También existen `mode: daily` y `mode: overview`. No hay que escribir nombres de sensores. Con una única localidad se detecta automáticamente; con varias, la tarjeta solicita elegir una. Para fijarla de forma permanente en YAML, añade `entry_id` (ID de la entrada de Eguraldi).
+## Qué representan los datos
 
-El paquete **incluye las tarjetas**, pero no modifica paneles existentes ni crea una pestaña sin que el usuario la añada. Este diseño permite usarlo en cualquier panel y evita sobrescribir configuraciones personales.
+La estación mide en su propia ubicación y altitud. Se eligen estaciones meteorológicas activas con temperatura disponible y a menos de 120 km; otras magnitudes pueden faltar. La cercanía no garantiza condiciones idénticas a las de casa.
 
-## Cambiar estación
+La previsión y los avisos corresponden a la localidad, aunque cambies de estación. El radar es regional; mar y mareas usan sus referencias del Cantábrico y Pasaia. El polen corresponde a una captadora de referencia y su muestra publicada.
 
-En la entrada de Eguraldi, abre **Opciones**. Selecciona una estación cercana o **Automática** para recalcular la recomendación. La selección automática se fija al aceptar: no salta entre estaciones con cada actualización. Los identificadores de las entidades están ligados a la entrada para conservarlos al cambiar de estación. Los dispositivos antiguos pueden permanecer vacíos en el registro de HA.
+La tarjeta muestra la humedad original de Euskalmet, incluso por encima del 100 %. Los atributos `raw_value` y `quality` conservan lectura y calidad. Las lecturas registradas en HA se mantienen al cambiar de estación; el histórico mensual consulta la estación seleccionada.
 
-## Privacidad y datos
+La detección local de municipios cubre los polígonos de Euskadi incluidos. Fuera de cobertura, en límites ambiguos o sin previsión inequívoca, se ofrece la elección manual.
 
-Las credenciales permanecen en la configuración local de HA y el JWT se firma en HA. No hay claves compartidas ni telemetría. El nombre de municipio se envía a Open-Meteo para localizarlo; no se le envían la clave, el correo ni la ubicación de tu casa. La entrada vinculada a HA usa sus coordenadas localmente; las entradas manuales usan las del municipio. Las coordenadas usadas son las del municipio elegido. Las tarjetas obtienen datos a través del servidor HA y nunca reciben la clave privada.
+## Privacidad y ayuda
 
-La disponibilidad y calidad de los datos dependen de la fuente. Polen es una muestra semanal; mar es la previsión del Cantábrico y las mareas son la referencia de Pasaia. Una estación cercana puede estar a otra altitud o tener sensores incompletos. La recomendación muestra esas limitaciones.
+El correo y la clave permanecen en HA; el acceso a Euskalmet se firma allí. Las tarjetas y el editor no reciben la clave. La búsqueda manual envía solo el nombre del municipio a Open-Meteo / GeoNames. El mapa obtiene teselas de Esri en el estilo oscuro predeterminado, u OpenStreetMap en sus estilos correspondientes. No hay telemetría del proyecto.
 
-## Estado de validación
+[Abre una incidencia](https://github.com/GOG23-Software-Studio/eguraldi/issues/new/choose) indicando versiones y pasos. No publiques claves, correo ni coordenadas. Consulta [VALIDATION.md](VALIDATION.md) para conocer las pruebas y sus límites.
 
-Consulta [VALIDATION.md](VALIDATION.md) para distinguir pruebas automatizadas, vista previa y pruebas pendientes en un HA real. Esta beta no se debe anunciar como certificada, aprobada por HACS o probada en todas las instalaciones.
+El dominio `euskalmet_local` se mantiene por compatibilidad con las betas. Puede coexistir con otras integraciones y no las desinstala automáticamente.
 
 ## Créditos y licencia
 
-MIT. La conexión a Euskalmet y las plataformas parten de [mitxol/home-assistant-euskalmet v2.12.9](https://github.com/mitxol/home-assistant-euskalmet/tree/v2.12.9), Copyright 2026 Mitxol. No es una creación desde cero ni un proyecto oficial. El asistente por localidad, la selección y las tarjetas integradas son trabajo de GOG23 Software Studio. Véase [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+MIT. La conexión a Euskalmet y las plataformas parten de [mitxol/home-assistant-euskalmet v2.12.9](https://github.com/mitxol/home-assistant-euskalmet/tree/v2.12.9), Copyright 2026 Mitxol. El asistente por localidad, selección y tarjetas integradas son trabajo de GOG23 Software Studio.
 
-Datos: Euskalmet / Open Data Euskadi. Geocodificación: Open-Meteo / GeoNames. Iconos: Meteocons, Bas Milius (MIT). Mapa: OpenStreetMap; Leaflet y su licencia van incluidos.
+Datos: Euskalmet / Open Data Euskadi. Geocodificación: Open-Meteo / GeoNames. Iconos: Meteocons, Bas Milius. Mapas: Esri / OpenStreetMap; Leaflet incluido. Límites municipales: **Eusko Jaurlaritza / Gobierno Vasco. geoEuskadi.** [Fuente](https://www.geo.euskadi.eus/limites-administrativos-del-pais-vasco/webgeo00-dataset/es/).
 
-
-### Tarjetas que siguen la localidad y su estación
-
-Los modos `summaries`, `history`, `radar`, `alerts`, `comparison` y `environment` usan el mismo catálogo de la entrada. El encabezado mantiene la localidad. Al guardar otra estación se actualizan la fuente, la distancia, los resúmenes y el histórico abierto sin recargar el panel. El histórico conserva el mes elegido y descarta respuestas pendientes de la estación anterior.
-
-```yaml
-type: custom:euskalmet-local-card
-mode: history
-```
-
-Para comparar las observaciones de la estación con otro sensor:
-
-```yaml
-type: custom:euskalmet-local-card
-mode: comparison
-comparison_entity: sensor.temperatura_balcon
-comparison_name: Balcón
-```
-
-Con varias localidades, fija `entry_id` o elígela en la tarjeta. El radar es regional; los avisos y la previsión siguen la localidad. Mar, mareas y polen conservan sus fuentes de referencia, señaladas en la tarjeta. El gráfico de últimas 24 horas conserva las lecturas registradas en HA; el histórico mensual consulta la estación seleccionada.
-
-
-### Cambiar de localidad sin rehacer el panel
-
-En **Configurar → Cambiar localidad**, escribe el municipio, confirma la coincidencia correcta y revisa la nueva estación antes de guardar. La misma entrada adopta la localidad nueva, su previsión y zona de avisos, y la estación compatible más cercana. Las tarjetas abiertas se actualizan automáticamente y conservan los IDs de entidades. Las lecturas ya registradas en HA se conservan.
-
-Desde **Configurar → Cambiar estación** puedes seleccionar otra manualmente o volver a **Automática · más cercana a tu localidad**. Al guardar otra localidad se restablece la selección automática. Si la localidad está duplicada o no tiene previsión o estaciones compatibles, la configuración anterior permanece intacta.
-
-
-### Ubicación de Home Assistant y otras localidades
-
-La opción predeterminada al configurar es **Ubicación de Home Assistant**. El municipio se identifica localmente con los límites de geoEuskadi. La estación se elige por distancia a la ubicación de HA, no al centro del municipio. Las coordenadas de casa no se envían a servicios de geocodificación. Si cambias la ubicación de HA, esta entrada se actualiza; las entradas manuales permanecen independientes.
-
-Para añadir otra localidad, pulsa **Añadir servicio**, reutiliza la cuenta que ya está guardada en HA y elige **Otra localidad**. Las claves se reutilizan únicamente dentro de HA y nunca se envían al navegador. Cada localidad dispone de sus propias tarjetas y selección de estación. También puedes convertir una entrada desde **Configurar → Usar ubicación de Home Assistant**.
-
-Identificación de municipios limitada a los polígonos de Euskadi incluidos; fuera de cobertura o en un límite ambiguo se ofrece la selección manual. Fuente cartográfica: **Eusko Jaurlaritza / Gobierno Vasco. geoEuskadi.** [Límites administrativos](https://www.geo.euskadi.eus/limites-administrativos-del-pais-vasco/webgeo00-dataset/es/), descargados el 13 de noviembre de 2026. Se distribuyen en su formato comprimido sin enviar ninguna ubicación personal al proveedor.
-
-
-### Humedad y marcador de ubicación
-
-La tarjeta muestra el valor original de humedad publicado por Euskalmet, incluso cuando supera el 100 %, sin avisos explicativos debajo. Los sensores mantienen sus atributos de calidad y valor original. El radar señala la ubicación configurada con un punto y una etiqueta permanente con el nombre de la localidad; ambos siguen los cambios de ubicación.
-
-En el radar, **Mi ubicación** recupera el centro y el zoom cercano de la ubicación seleccionada después de mover el mapa o pulsar **Ver cobertura**, sin reiniciar la animación.
+[Licencia](LICENSE) · [Avisos de terceros](THIRD_PARTY_NOTICES.md) · [Contribuir](CONTRIBUTING.md)

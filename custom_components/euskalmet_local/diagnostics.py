@@ -2,6 +2,8 @@
 
 from homeassistant.components.diagnostics import async_redact_data
 
+from .dashboard import VERSION
+
 TO_REDACT = {
     "email",
     "private_key",
@@ -11,12 +13,20 @@ TO_REDACT = {
     "locality_id",
     "locality_province",
     "municipality",
+    "municipality_code",
+    "location",
+    "region",
+    "zone",
+    "alert_zone",
 }
 
 
 async def async_get_config_entry_diagnostics(hass, entry):
     return {
         "entry": async_redact_data(dict(entry.data), TO_REDACT),
-        "version": entry.version,
-        "last_update_success": entry.runtime_data.last_update_success,
+        "config_entry_version": entry.version,
+        "integration_version": VERSION,
+        "last_update_success": getattr(
+            getattr(entry, "runtime_data", None), "last_update_success", None
+        ),
     }

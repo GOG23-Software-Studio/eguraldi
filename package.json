@@ -1,6 +1,6 @@
 {
-  "name": "euskalmet-local",
-  "version": "0.1.0-beta.1",
+  "name": "eguraldi",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {"test": "node --test tests/frontend.test.mjs"},

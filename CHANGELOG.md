@@ -1,5 +1,12 @@
 # Cambios
 
+## 0.1.0
+
+- Primera versión pública para instalar mediante repositorio personalizado de HACS.
+- Editor visual con selección de localidad, tipo de tarjeta, zoom del radar y sensor de comparación.
+- Guía de instalación, plantillas de ayuda y publicación automática del paquete con suma SHA-256.
+- Licencias incluidas también dentro del componente y diagnósticos más seguros.
+
 ## 0.1.0b15
 
 - BotÃ³n Mi ubicaciÃ³n en el radar para recuperar el centro y zoom local tras desplazar el mapa o ver la cobertura, sin reiniciar la animaciÃ³n.

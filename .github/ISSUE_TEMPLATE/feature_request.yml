@@ -1,0 +1,10 @@
+name: Proponer una mejora
+description: Una idea para mejorar Eguraldi.
+title: "[Mejora] "
+body:
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Qué necesitas resolver y cómo te gustaría que funcionase
+    validations:
+      required: true

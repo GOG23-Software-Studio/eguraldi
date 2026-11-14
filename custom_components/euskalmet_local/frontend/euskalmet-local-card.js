@@ -68,7 +68,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       const locations=await this._hass.callWS({type:'euskalmet_local/locations'});
       if(generation!==this._generation)return;
       this._locations=locations;
-      const selected=locations.find(l=>l.entry_id===this._config.entry_id||l.entities.weather===this._config.entity) || (!this._config.entry_id&&!this._config.entity&&locations.length===1?locations[0]:null);
+      const selected=locations.find(l=>this._config.entry_id?l.entry_id===this._config.entry_id:this._config.entity?l.entities.weather===this._config.entity:false) || (!this._config.entry_id&&!this._config.entity&&locations.length===1?locations[0]:null);
       if(this._location&&(selected?.locality_id!==this._location.locality_id||selected?.station_id!==this._location.station_id||selected?.locality!==this._location.locality))this._forecasts={};
       this._location=selected;
       this._render();
@@ -192,9 +192,47 @@ export class EuskalmetLocalCard extends HTMLElement {
 }
 
 class EuskalmetLocalEditor extends HTMLElement {
-  setConfig(config){this._config=config;this._render();}
-  set hass(hass){this._hass=hass;this._render();}
-  _render(){if(!this._config)return;this.innerHTML='<label>Vista <select><option value="dashboard">Panel completo</option><option value="overview">Tiempo actual</option><option value="hourly">Próximas 24 horas</option><option value="daily">Próximos días</option><option value="summaries">Resumen de hoy</option><option value="history">Histórico mensual</option><option value="radar">Radar</option><option value="alerts">Avisos</option><option value="comparison">Comparación de temperatura</option><option value="environment">Costa y ambiente</option></select></label>';const select=this.querySelector('select');select.value=this._config.mode||'dashboard';select.addEventListener('change',()=>this.dispatchEvent(new CustomEvent('config-changed',{detail:{config:{...this._config,mode:select.value}},bubbles:true,composed:true})));}
+  constructor(){super();this._generation=0;}
+  setConfig(config){this._config={...config};this._render();}
+  set hass(hass){const first=!this._hass,changed=this._hass?.connection!==hass.connection;this._hass=hass;if(changed){this._generation++;this._loading=false;this._locations=undefined;}if(first||changed)this._render();if(changed)this._loadLocations();}
+  connectedCallback(){this._loadLocations();}
+  disconnectedCallback(){this._generation++;this._loading=false;}
+  async _loadLocations(){
+    if(!this.isConnected||!this._hass||this._loading)return;
+    this._loading=true;const generation=this._generation;
+    try{
+      const locations=await this._hass.callWS({type:'euskalmet_local/locations'});
+      if(generation!==this._generation)return;
+      this._locations=locations;this._loadError=false;this._render();
+    }catch(error){if(generation===this._generation){this._loadError=true;this._render();}}
+    finally{if(generation===this._generation)this._loading=false;}
+  }
+  _save(changes,remove=[]){
+    this._config={...this._config,...changes};for(const key of remove)delete this._config[key];
+    this.dispatchEvent(new CustomEvent('config-changed',{detail:{config:{...this._config}},bubbles:true,composed:true}));
+    this._render();
+  }
+  _render(){
+    if(!this._config)return;
+    const modes=[['dashboard','Panel completo'],['overview','Tiempo actual'],['hourly','Próximas 24 horas'],['daily','Próximos días'],['summaries','Resumen de hoy'],['history','Histórico mensual'],['radar','Radar'],['alerts','Avisos'],['comparison','Comparación de temperatura'],['environment','Costa y ambiente']];
+    const locations=this._locations||[];
+    this.innerHTML=`<style>.eg-editor{display:grid;gap:16px;padding:8px 0}.eg-editor label{display:grid;gap:7px;font-size:14px}.eg-editor select,.eg-editor input{font:inherit;padding:10px;border:1px solid var(--divider-color,#888);border-radius:10px;background:var(--card-background-color,#fff);color:var(--primary-text-color,#111);width:100%;box-sizing:border-box}.eg-editor p{font-size:12px;color:var(--secondary-text-color);margin:0}</style><div class="eg-editor"><label>Vista<select id="eg-mode">${modes.map(([id,label])=>`<option value="${id}">${label}</option>`).join('')}</select></label><label>Ubicación<select id="eg-location"><option value="">${locations.length===1?'Automática · única ubicación':'Elegir en la tarjeta'}</option>${locations.map(loc=>`<option value="${escapeHTML(loc.entry_id)}">${escapeHTML(loc.locality)}${loc.location_source==='home_assistant'?' · ubicación de HA':''}</option>`).join('')}</select></label><p>${this._loadError?'No se han podido cargar las ubicaciones. Vuelve a abrir el editor.':this._locations?(locations.length?'La ubicación elegida se guardará con esta tarjeta.':'Añade una ubicación en la integración Eguraldi.'):'Cargando ubicaciones…'}</p><div id="eg-extra"></div></div>`;
+    const mode=this.querySelector('#eg-mode');mode.value=this._config.mode||'dashboard';mode.addEventListener('change',()=>this._save({mode:mode.value}));
+    const locality=this.querySelector('#eg-location');locality.value=this._config.entry_id||locations.find(loc=>loc.entities.weather===this._config.entity)?.entry_id||'';
+    if(this._config.entry_id&&!locations.some(loc=>loc.entry_id===this._config.entry_id)){const option=document.createElement('option');option.value=this._config.entry_id;option.textContent='Ubicación configurada · no disponible';locality.append(option);locality.value=this._config.entry_id;}
+    locality.addEventListener('change',()=>locality.value?this._save({entry_id:locality.value},['entity']):this._save({},['entry_id','entity']));
+    const extra=this.querySelector('#eg-extra');
+    if(this._config.mode==='radar'){
+      extra.innerHTML='<label>Zoom del mapa<input id="eg-zoom" type="number" min="3" max="16" step="1"></label><p>Un número mayor acerca la vista a tu ubicación.</p>';
+      const zoom=extra.querySelector('input');zoom.value=String(this._config.zoom??10);zoom.addEventListener('change',()=>{const value=Number(zoom.value);if(Number.isFinite(value)&&value>=3&&value<=16)this._save({zoom:value});});
+    }
+    if(this._config.mode==='comparison'){
+      const sensors=Object.entries(this._hass?.states||{}).filter(([id,state])=>id.startsWith('sensor.')&&(state.attributes?.device_class==='temperature'||['°C','°F'].includes(state.attributes?.unit_of_measurement))).sort((a,b)=>(a[1].attributes.friendly_name||a[0]).localeCompare(b[1].attributes.friendly_name||b[0]));
+      extra.innerHTML=`<label>Sensor de temperatura para comparar<select id="eg-comparison"><option value="">Solo la estación</option>${sensors.map(([id,state])=>`<option value="${escapeHTML(id)}">${escapeHTML(state.attributes.friendly_name||id)}</option>`).join('')}</select></label><label>Nombre en el gráfico<input id="eg-comparison-name" type="text" placeholder="Por ejemplo, Balcón"></label>`;
+      const sensor=extra.querySelector('select');sensor.value=this._config.comparison_entity||'';sensor.addEventListener('change',()=>sensor.value?this._save({comparison_entity:sensor.value,comparison_name:this._config.comparison_name||this._hass.states[sensor.value]?.attributes.friendly_name||'Comparación'}):this._save({},['comparison_entity','comparison_name']));
+      const name=extra.querySelector('input');name.value=this._config.comparison_name||'';name.addEventListener('change',()=>this._save({comparison_name:name.value.trim()||'Comparación'}));
+    }
+  }
 }
 if(!customElements.get('euskalmet-local-card'))customElements.define('euskalmet-local-card',EuskalmetLocalCard);
 if(!customElements.get('euskalmet-local-editor'))customElements.define('euskalmet-local-editor',EuskalmetLocalEditor);

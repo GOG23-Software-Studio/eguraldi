@@ -232,3 +232,31 @@ test('Mi ubicación returns from coverage and manual navigation without resettin
   radar.setConfig({entity:'camera.test',latitude:null,longitude:null});assert.equal(button.disabled,true);
   const count=views.length;button.click();assert.equal(views.length,count);dom.window.close();
 });
+
+
+test('visual editor persists locality and removes conflicting legacy entity',async()=>{
+  const dom=setup(),editor=dom.window.document.createElement('euskalmet-local-editor'),h=hass();
+  h.callWS=async()=>[location,{...location,entry_id:'other',locality:'Bilbao'}];
+  editor.setConfig({type:'custom:euskalmet-local-card',mode:'hourly',entity:'weather.test'});editor.hass=h;
+  dom.window.document.body.append(editor);await flush();
+  let saved;editor.addEventListener('config-changed',e=>saved=e.detail.config);
+  const select=editor.querySelector('#eg-location');select.value='other';select.dispatchEvent(new dom.window.Event('change'));
+  assert.equal(saved.entry_id,'other');assert.equal(saved.entity,undefined);assert.equal(saved.mode,'hourly');
+  assert.equal(editor.querySelector('#eg-location').value,'other');dom.window.close();
+});
+test('visual radar editor validates zoom and does not interrupt typing on state updates',async()=>{
+  const dom=setup(),editor=dom.window.document.createElement('euskalmet-local-editor'),h=hass();
+  editor.setConfig({mode:'radar'});editor.hass=h;dom.window.document.body.append(editor);await flush();
+  let saved;editor.addEventListener('config-changed',e=>saved=e.detail.config);
+  const input=editor.querySelector('#eg-zoom');input.value='12';editor.hass={...h};assert.equal(editor.querySelector('#eg-zoom'),input);
+  input.dispatchEvent(new dom.window.Event('change'));assert.equal(saved.zoom,12);
+  const invalid=editor.querySelector('#eg-zoom');invalid.value='99';invalid.dispatchEvent(new dom.window.Event('change'));assert.equal(saved.zoom,12);
+  dom.window.close();
+});
+test('explicit locality takes priority over legacy weather entity',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass();
+  h.callWS=async()=>[location,{...location,entry_id:'other',locality:'Bilbao',entities:{...location.entities,weather:'weather.other'}}];
+  h.states['weather.other']=h.states['weather.test'];
+  card.setConfig({mode:'overview',entry_id:'other',entity:'weather.test'});card.hass=h;dom.window.document.body.append(card);await flush();
+  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Bilbao');dom.window.close();
+});
