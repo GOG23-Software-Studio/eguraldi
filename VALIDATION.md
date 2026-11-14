@@ -33,7 +33,6 @@ npm ci
 npm test
 ```
 
-
 ## Cambio de estación en tarjetas abiertas · beta 0.1.0b10
 
 - Prueba real en HA: Arboleda (1,9 km) → Galindo (4,7 km) → selección automática de Arboleda, sin recargar la pestaña durante los cambios.
@@ -41,16 +40,14 @@ npm test
 - El histórico mensual conserva octubre de 2026 y sus tres curvas cambian al consultar Galindo. Al terminar se restaura el mes actual.
 - Pruebas de tarjetas: cambio en una tarjeta montada, resúmenes, histórico con respuesta anterior pendiente, conservación del mes, leyenda y reconexión durante carga de recursos.
 
-
 ## Cambio de localidad · beta 0.1.0b11
 
-- Prueba real con la misma entrada y las tarjetas abiertas: Ortuella → Bilbao → Ortuella, sin recargar el panel durante los cambios.
+- Prueba real con la misma entrada y las tarjetas abiertas: Ortuella â†’ Bilbao â†’ Ortuella, sin recargar el panel durante los cambios.
 - Bilbao selecciona automáticamente Zorrotza (4,3 km) y actualiza los títulos, las observaciones y la previsión oficial a Bilbao.
 - Elección manual verificada en Bilbao: Arboleda (12,1 km), manteniendo Bilbao como localidad y previsión.
 - La vuelta a Ortuella restablece automáticamente Arboleda (1,8 km, calculados sin redondeo intermedio), conserva los identificadores de entidades y actualiza todas las tarjetas.
 - Pruebas de protección frente a localidad duplicada y localidad sin previsión; la configuración anterior no se modifica antes de confirmar ni en caso de error.
 - Selección por distancia sin redondear: una estación más cercana no pierde por tener menos magnitudes; la cobertura solo desempata distancias iguales.
-
 
 ## Ubicación de HA y localidades adicionales · beta 0.1.0b12
 
@@ -60,11 +57,10 @@ npm test
 - Seguimiento de cambios de la ubicación de HA verificado con eventos simulados, sin modificar la ubicación global real de HA; las entradas manuales no se recargan por ese evento.
 - 71 pruebas Python locales, 14 de tarjetas, pruebas de flujo con HA 2026.11.1 y HACS/hassfest superadas.
 
-
-## Preparaci�n p�blica � 0.1.0
+## Preparación pública · 0.1.0
 
 - 73 pruebas Python locales y 21 de tarjetas superadas. La prueba de flujos con HA real se ejecuta en Linux en CI; se omite en el entorno Windows local.
 - Editor visual: guarda la localidad elegida, elimina referencias heredadas contradictorias y valida el zoom sin interrumpir cambios en curso.
-- Paquete: verifica archivos de ejecuci�n, licencias, exclusi�n de cach� y suma SHA-256; rechaza claves PEM antes de crear el ZIP.
-- CI valida HA 2026.11.1, HACS y hassfest. La versi�n m�nima declarada no tiene una matriz de compatibilidad completa.
-- La disponibilidad mediante repositorio personalizado no implica aprobaci�n en el cat�logo general de HACS.
+- Paquete: verifica archivos de ejecución, licencias, exclusión de caché y suma SHA-256; rechaza claves PEM antes de crear el ZIP.
+- CI valida HA 2026.11.1, HACS y hassfest. La versión mínima declarada no tiene una matriz de compatibilidad completa.
+- La disponibilidad mediante repositorio personalizado no implica aprobación en el catálogo general de HACS.

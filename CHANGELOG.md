@@ -1,11 +1,20 @@
 # Cambios
 
+## 0.1.1
+
+- Capturas actuales de escritorio, m贸vil y editor visual con datos simulados.
+- Descripci贸n m谩s precisa del proyecto, documentaci贸n con codificaci贸n UTF-8 y enlace de apoyo voluntario Buy Me a Coffee.
+- Publicaci贸n preparada para solicitar inclusi贸n en el cat谩logo general de HACS.
+
 ## 0.1.0
 
-- Primera versi髇 p鷅lica para instalar mediante repositorio personalizado de HACS.
-- Editor visual con selecci髇 de localidad, tipo de tarjeta, zoom del radar y sensor de comparaci髇.
-- Gu韆 de instalaci髇, plantillas de ayuda y publicaci髇 autom醫ica del paquete con suma SHA-256.
-- Licencias incluidas tambi閚 dentro del componente y diagn髎ticos m醩 seguros.
+- Primera versi贸n p煤blica para instalar mediante repositorio personalizado de HACS.
+
+- Editor visual con selecci贸n de localidad, tipo de tarjeta, zoom del radar y sensor de comparaci贸n.
+
+- Gu铆a de instalaci贸n, plantillas de ayuda y publicaci贸n autom谩tica del paquete con suma SHA-256.
+
+- Licencias incluidas tambi茅n dentro del componente y diagn贸sticos m谩s seguros.
 
 ## 0.1.0b15
 
@@ -14,30 +23,39 @@
 ## 0.1.0b14
 
 - El radar se centra autom谩ticamente en la ubicaci贸n elegida con zoom local 10. Se actualiza al cambiar de localidad y respeta el desplazamiento o zoom manual entre actualizaciones.
+
 - Ver cobertura mantiene disponible la vista regional.
 
 ## 0.1.0b13
 
 - La tarjeta muestra la humedad original de Euskalmet, incluso fuera del rango habitual, sin el bloque de aviso ni los textos explicativos inferiores. Los atributos de calidad del sensor se conservan.
+
 - El radar marca la ubicaci贸n seleccionada con un punto y su nombre permanente; el marcador se actualiza al cambiar de localidad.
 
 ## 0.1.0b12
 
 - Ubicaci贸n de Home Assistant como opci贸n predeterminada; municipio detectado localmente con geoEuskadi, sin enviar coordenadas a un geocodificador.
+
 - La entrada vinculada a HA sigue sus cambios de ubicaci贸n y mantiene la elecci贸n manual de estaci贸n.
+
 - A帽adir otras localidades reutilizando en HA una cuenta guardada, sin volver a introducir ni mostrar la clave.
 
 ## 0.1.0b11
 
 - Cambio de localidad desde opciones: confirma el municipio y actualiza la misma entrada, las tarjetas, previsi贸n y avisos.
+
 - Al guardar una localidad se elige la estaci贸n compatible geogr谩ficamente m谩s cercana; se mantiene el cambio manual y el retorno a autom谩tica.
+
 - Conserva los IDs de entidades y rechaza localidades duplicadas sin modificar la configuraci贸n actual.
+
 - La tarjeta de ambiente usa la captadora de polen activa de la nueva localidad.
 
 ## 0.1.0b10
 
 - Modos de tarjeta por localidad para hist贸rico, res煤menes, comparaci贸n, radar, avisos y ambiente; refrescan su fuente al cambiar de estaci贸n.
+
 - El hist贸rico invalida la cach茅 al cambiar de estaci贸n y descarta respuestas antiguas pendientes, conservando el mes seleccionado.
+
 - Encabezados por localidad y origen de los datos indicado por separado.
 
 ## 0.1.0b9

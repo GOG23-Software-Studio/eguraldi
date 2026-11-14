@@ -30,7 +30,12 @@ def build(output_dir: Path | None = None):
             archive.write(path, path.relative_to(ROOT).as_posix())
         for name in ("LICENSE", "THIRD_PARTY_NOTICES.md", "README.md"):
             archive.write(ROOT / name, name)
-        for name in ("INSTALLATION.md", "preview.jpg"):
+        for name in (
+            "INSTALLATION.md",
+            "preview.jpg",
+            "preview-mobile.jpg",
+            "preview-editor.jpg",
+        ):
             path = ROOT / "docs" / name
             if path.is_file():
                 archive.write(path, f"docs/{name}")
