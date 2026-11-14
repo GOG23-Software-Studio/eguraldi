@@ -28,11 +28,13 @@ def build(output_dir: Path | None = None):
     with ZipFile(output, "w", ZIP_DEFLATED) as archive:
         for path in files:
             archive.write(path, path.relative_to(ROOT).as_posix())
-        for name in ("LICENSE", "THIRD_PARTY_NOTICES.md", "README.md"):
+        for name in ("LICENSE", "THIRD_PARTY_NOTICES.md", "README.md", "README.eu.md"):
             archive.write(ROOT / name, name)
         for name in (
             "INSTALLATION.md",
+            "studio-banner.svg",
             "preview.jpg",
+            "preview-eu.jpg",
             "preview-mobile.jpg",
             "preview-editor.jpg",
         ):

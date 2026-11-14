@@ -1,4 +1,10 @@
+![Eguraldi · GOG23 Software Studio](docs/studio-banner.svg)
+
 # Eguraldi
+
+**Castellano** · [Euskaraz irakurri](README.eu.md)
+
+Un proyecto de [GOG23 Software Studio](https://github.com/GOG23-Software-Studio) · Mantenido por [@oyogor1985](https://github.com/oyogor1985)
 
 El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, previsión por horas y días, avisos, radar y tarjetas incluidas.
 
@@ -6,7 +12,7 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 [![Versión](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**Versión 0.1.1.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
+**Versión 0.1.2.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
 ![Tarjetas actuales de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
 
@@ -27,7 +33,6 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 Si el enlace no funciona, añade este repositorio en **HACS / Marketplace**, como **Integración**:
 
 ```text
-
 https://github.com/GOG23-Software-Studio/eguraldi
 
 ```
@@ -72,6 +77,10 @@ Desde **Configurar** puedes cambiar de localidad o estación. Los títulos, dist
 
 Para añadir otra localidad, pulsa **Añadir servicio** y reutiliza la cuenta guardada en HA, sin introducir de nuevo la clave. Añade sus tarjetas y selecciona esa ubicación en el editor visual.
 
+## Idioma
+
+La configuración y las tarjetas están disponibles en **castellano y euskera**. Las tarjetas siguen el idioma del perfil de Home Assistant y se actualizan al cambiarlo. Los nombres de localidades y estaciones se conservan; los textos oficiales del proveedor mantienen su idioma de origen.
+
 ## Tarjetas
 
 En **Añadir tarjeta → Eguraldi**, el editor permite elegir vista y ubicación, ajustar el zoom del radar y seleccionar un sensor para comparar. No hace falta escribir identificadores.
@@ -79,35 +88,21 @@ En **Añadir tarjeta → Eguraldi**, el editor permite elegir vista y ubicación
 También puedes usar YAML:
 
 ```yaml
-
 type: custom:euskalmet-local-card
-
 mode: dashboard
 
 ```
-
 | Vista | `mode` |
-
 | --- | --- |
-
 | Panel completo | `dashboard` |
-
 | Tiempo actual | `overview` |
-
 | Próximas 24 horas | `hourly` |
-
 | Próximos días | `daily` |
-
 | Resumen de hoy | `summaries` |
-
 | Histórico mensual | `history` |
-
 | Radar | `radar` |
-
 | Avisos | `alerts` |
-
 | Comparación de temperatura | `comparison` |
-
 | Costa y ambiente | `environment` |
 
 Con una sola ubicación se detecta automáticamente. Con varias, guarda la ubicación desde el editor; en YAML se puede fijar con `entry_id`. Los recursos se registran automáticamente. La instalación no modifica ni crea paneles personales.

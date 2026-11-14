@@ -20,7 +20,9 @@ class EuskalmetHistoryCard extends HTMLElement {
 
   set hass(hass) {
     const oldKey = this._sourceKey();
+    const oldLocale = this.text().locale;
     this._hass = hass;
+    if (oldLocale !== this.text().locale) this.render();
     if (oldKey !== this._sourceKey()) this._invalidateSource();
     this.scheduleLoad();
   }

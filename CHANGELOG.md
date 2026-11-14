@@ -1,5 +1,13 @@
 # Cambios
 
+## 0.1.2
+
+- Banner propio de Eguraldi con la identidad de GOG23 Software Studio.
+- README completo en castellano y euskera, con enlaces para cambiar de idioma.
+- Tarjetas y editor visual en euskera según el perfil de HA, con actualización al cambiar el idioma.
+- Completadas las traducciones de localidad, recomendaciones, estaciones y errores; controles históricos y marcador del radar coherentes con el idioma.
+- Los nombres de localidades, estaciones y textos oficiales del proveedor se mantienen.
+
 ## 0.1.1
 
 - Capturas actuales de escritorio, móvil y editor visual con datos simulados.

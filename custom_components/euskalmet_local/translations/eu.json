@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configurar Eguraldi",
+        "title": "Eguraldi konfiguratu",
         "description": "Sartu **Open Data Euskadin erregistratutako helbide elektronikoa** eta **privatekey.pem** fitxategiaren eduki osoa.\n\n[Eskatu edo deskargatu Open Data Euskadiko gakoak]({api_keys_url})\n\n**Oraindik konturik ez?** **Google bidez sartzea** gomendatzen dugu (adibidez, Gmail kontuarekin). Posta bidezko erregistroan aktibazio-mezua ez iristeko arazoak egon daitezke. Kontua aktibatzeko zain badago, erabili aktibatzeko zain ez dagoen beste Google kontu bat. Begiratu spam karpeta ere.\n\nDeskargatu gakoen ZIPa, ireki privatekey.pem eta kopiatu edukia. Gakoa zure Home Assistanten bakarrik gordetzen da.",
         "data": {
           "email": "Helbide elektronikoa",
@@ -30,24 +30,24 @@
         }
       },
       "locality": {
-        "title": "Tu localidad",
-        "description": "Escribe el municipio. Se consulta Open-Meteo / GeoNames solo con ese nombre para obtener sus coordenadas; tus credenciales no se comparten. La previsión y los avisos serán los de la localidad, aunque cambies de estación.",
+        "title": "Zure herria",
+        "description": "Idatzi udalerriaren izena. Open-Meteo / GeoNames zerbitzuari izen hori soilik bidaltzen zaio koordenatuak eskuratzeko; zure egiaztagiriak ez dira partekatzen. Iragarpena eta abisuak herri horri dagozkio, estazioa aldatu arren.",
         "data": {
-          "locality": "Localidad"
+          "locality": "Herria"
         }
       },
       "place": {
-        "title": "Confirma la localidad",
-        "description": "Elige el municipio correcto para evitar confundir localidades con el mismo nombre.",
+        "title": "Berretsi herria",
+        "description": "Aukeratu udalerri zuzena, izen bereko herriak ez nahasteko.",
         "data": {
-          "place": "Localidad"
+          "place": "Herria"
         }
       },
       "recommendation": {
-        "title": "Estación recomendada para {locality}",
-        "description": "Recomendamos **{station}**, a **{distance} km** en línea recta. Publica: {available}. No publica: {missing}. Se priorizan cercanía, temperatura, humedad y lluvia. La altitud y el entorno pueden producir diferencias respecto a tu localidad. Puedes aceptar o elegir otra estación cercana.\n\n{origin}",
+        "title": "{locality}: gomendatutako estazioa",
+        "description": "**{station}** gomendatzen dugu, lerro zuzenean **{distance} km**-ra. Argitaratzen du: {available}. Ez du argitaratzen: {missing}. Hurbiltasuna, tenperatura, hezetasuna eta euria lehenesten dira. Altitudeak eta inguruak zure herriarekiko aldeak eragin ditzakete. Onartu edo aukeratu hurbileko beste estazio bat.\n\n{origin}",
         "data": {
-          "station_id": "Estación (puedes modificarla después)"
+          "station_id": "Estazioa (gero alda dezakezu)"
         }
       },
       "account": {
@@ -72,17 +72,17 @@
       "cannot_determine_location": "Ezin izan da aukeratutako estazioa Euskalmeteko iragarpen-kokaleku batekin lotu.",
       "cannot_load_stations": "Ezin izan da estazioen katalogo ofiziala kargatu.",
       "no_compatible_stations": "Ez da magnitude bateragarriren bat argitaratzen duen estazio meteorologikorik aurkitu.",
-      "station_not_available": "La estación no está disponible.",
-      "locality_not_found": "No se encontró la localidad. Prueba el nombre oficial del municipio.",
-      "cannot_geocode": "No se pudo consultar el catálogo de localidades.",
-      "no_nearby_station": "No hay estaciones compatibles a menos de 120 km.",
-      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial.",
+      "station_not_available": "Estazioa ez dago eskuragarri.",
+      "locality_not_found": "Ez da herria aurkitu. Saiatu udalerriaren izen ofizialarekin.",
+      "cannot_geocode": "Ezin izan da herrien katalogoa kontsultatu.",
+      "no_nearby_station": "Ez dago estazio bateragarririk 120 km baino gutxiagora.",
+      "forecast_locality_not_found": "Herriak ez du iragarpen argirik Euskalmeteko katalogoan. Saiatu izen ofizialarekin.",
       "home_location_unavailable": "Ez da Euskalmeteko udalerri egokirik aurkitu HAren kokapenean. Berrikusi Home Assistant-en kokapena edo aukeratu beste herri bat eskuz."
     },
     "abort": {
       "already_configured": "Integrazioa dagoeneko konfiguratuta dago.",
       "reauth_successful": "Egiaztagiriak eguneratu dira.",
-      "no_nearby_station": "No hay estaciones meteorológicas cercanas disponibles."
+      "no_nearby_station": "Ez dago hurbileko estazio meteorologikorik eskuragarri."
     }
   },
   "device": {
@@ -360,10 +360,10 @@
   "options": {
     "step": {
       "station": {
-        "title": "Estación de observación",
-        "description": "Cambia la estación o vuelve a la más cercana. La previsión y los avisos permanecen ligados a tu localidad.",
+        "title": "Behaketa-estazioa",
+        "description": "Aldatu estazioa edo itzuli hurbilenera. Iragarpenak eta abisuek zure herriari lotuta jarraitzen dute.",
         "data": {
-          "station_id": "Estación"
+          "station_id": "Estazioa"
         }
       },
       "init": {
@@ -405,15 +405,15 @@
       "cannot_determine_location": "Ezin izan da aukeratutako estazioa Euskalmeteko iragarpen-kokaleku batekin lotu.",
       "cannot_load_stations": "Ezin izan da estazioen katalogo ofiziala kargatu.",
       "no_compatible_stations": "Ez da magnitude bateragarriren bat argitaratzen duen estazio meteorologikorik aurkitu.",
-      "station_not_available": "La estación no está disponible.",
-      "locality_not_found": "No se encontró la localidad. Prueba el nombre oficial del municipio.",
-      "cannot_geocode": "No se pudo consultar el catálogo de localidades.",
-      "no_nearby_station": "No hay estaciones compatibles a menos de 120 km.",
-      "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial.",
+      "station_not_available": "Estazioa ez dago eskuragarri.",
+      "locality_not_found": "Ez da herria aurkitu. Saiatu udalerriaren izen ofizialarekin.",
+      "cannot_geocode": "Ezin izan da herrien katalogoa kontsultatu.",
+      "no_nearby_station": "Ez dago estazio bateragarririk 120 km baino gutxiagora.",
+      "forecast_locality_not_found": "Herriak ez du iragarpen argirik Euskalmeteko katalogoan. Saiatu izen ofizialarekin.",
       "home_location_unavailable": "Ez da Euskalmeteko udalerri egokirik aurkitu HAren kokapenean. Berrikusi Home Assistant-en kokapena edo aukeratu beste herri bat eskuz."
     },
     "abort": {
-      "no_nearby_station": "No hay estaciones cercanas disponibles.",
+      "no_nearby_station": "Ez dago hurbileko estaziorik eskuragarri.",
       "already_configured": "Herri hau Eguraldiren beste sarrera batean konfiguratuta dago."
     }
   }

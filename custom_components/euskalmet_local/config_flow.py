@@ -31,6 +31,16 @@ from .home_location import home_entry_data, resolve_home
 from .locality import rank_stations, resolve_forecast, search_localities
 from .pem import normalize_pem
 
+
+def _use_eu(flow) -> bool:
+    language = getattr(flow, "context", {}).get("language") or flow.hass.config.language
+    return str(language).lower().startswith("eu")
+
+
+def _flow_text(flow, spanish: str, basque: str) -> str:
+    return basque if _use_eu(flow) else spanish
+
+
 EMAIL_SELECTOR = TextSelector(TextSelectorConfig(type=TextSelectorType.EMAIL))
 PRIVATE_KEY_SELECTOR = TextSelector(TextSelectorConfig(multiline=True))
 
@@ -87,7 +97,7 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def _measure_names(self, keys: list[str]) -> str:
         """Mostrar nombres legibles de una lista de magnitudes."""
 
-        use_eu = str(self.hass.config.language).lower().startswith("eu")
+        use_eu = _use_eu(self)
         return ", ".join(
             EU_MEASURE_NAMES[key] if use_eu else str(MEASURES[key]["name"])
             for key in keys
@@ -99,7 +109,7 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         available = station["available_measures"]
         missing = station["missing_measures"]
         count = f"{len(available)}/{len(MEASURES)}"
-        use_eu = str(self.hass.config.language).lower().startswith("eu")
+        use_eu = _use_eu(self)
 
         if not missing:
             return f"{count} osoa" if use_eu else f"{count} completa"
@@ -392,7 +402,11 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 ],
                                 SelectOptionDict(
                                     value="new",
-                                    label="Otra cuenta de Open Data Euskadi",
+                                    label=_flow_text(
+                                        self,
+                                        "Otra cuenta de Open Data Euskadi",
+                                        "Open Data Euskadiko beste kontu bat",
+                                    ),
                                 ),
                             ]
                         )
@@ -417,11 +431,19 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             options=[
                                 SelectOptionDict(
                                     value="home_assistant",
-                                    label="Ubicación de Home Assistant · recomendada",
+                                    label=_flow_text(
+                                        self,
+                                        "Ubicación de Home Assistant · recomendada",
+                                        "Home Assistant-en kokapena · gomendatua",
+                                    ),
                                 ),
                                 SelectOptionDict(
                                     value="manual",
-                                    label="Otra localidad · elegir por nombre",
+                                    label=_flow_text(
+                                        self,
+                                        "Otra localidad · elegir por nombre",
+                                        "Beste herri bat · izenaren bidez aukeratu",
+                                    ),
                                 ),
                             ]
                         )
@@ -453,11 +475,19 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             options=[
                                 SelectOptionDict(
                                     value="home_assistant",
-                                    label="Ubicación de Home Assistant",
+                                    label=_flow_text(
+                                        self,
+                                        "Ubicación de Home Assistant",
+                                        "Home Assistant-en kokapena",
+                                    ),
                                 ),
                                 SelectOptionDict(
                                     value="manual",
-                                    label="Otra localidad · elegir por nombre",
+                                    label=_flow_text(
+                                        self,
+                                        "Otra localidad · elegir por nombre",
+                                        "Beste herri bat · izenaren bidez aukeratu",
+                                    ),
                                 ),
                             ]
                         )
@@ -576,11 +606,19 @@ class EuskalmetConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "available": self._measure_names(station["available_measures"]),
                 "missing": self._measure_names(station["missing_measures"]) or "—",
                 "origin": (
-                    "Ubicación de Home Assistant · geoEuskadi · "
-                    "Eusko Jaurlaritza / Gobierno Vasco"
+                    (
+                        "Home Assistant-en kokapena · geoEuskadi · "
+                        if _use_eu(self)
+                        else "Ubicación de Home Assistant · geoEuskadi · "
+                    )
+                    + "Eusko Jaurlaritza / Gobierno Vasco"
                 )
                 if self._place.get("location_source") == "home_assistant"
-                else "Localidad elegida manualmente",
+                else (
+                    "Eskuz aukeratutako herria"
+                    if _use_eu(self)
+                    else "Localidad elegida manualmente"
+                ),
             },
             data_schema=vol.Schema(
                 {
@@ -786,12 +824,16 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
                 "locality": data["locality"],
                 "station": data["station_name"],
                 "distance": f"{data['distance_km']:.1f}",
-                "reference": "la ubicación de HA"
+                "reference": _flow_text(self, "la ubicación de HA", "HAren kokapenetik")
                 if data.get("location_source") == "home_assistant"
-                else "el municipio",
+                else _flow_text(self, "el municipio", "udalerritik"),
                 "origin": "geoEuskadi · Eusko Jaurlaritza / Gobierno Vasco"
                 if data.get("location_source") == "home_assistant"
-                else "Localidad elegida manualmente",
+                else (
+                    "Eskuz aukeratutako herria"
+                    if _use_eu(self)
+                    else "Localidad elegida manualmente"
+                ),
             },
         )
 
@@ -850,7 +892,12 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
             stations = []
         options = [
             SelectOptionDict(
-                value="automatic", label="Automática · más cercana a tu localidad"
+                value="automatic",
+                label=_flow_text(
+                    self,
+                    "Automática · más cercana a tu localidad",
+                    "Automatikoa · zure herritik hurbilena",
+                ),
             )
         ]
         options += [

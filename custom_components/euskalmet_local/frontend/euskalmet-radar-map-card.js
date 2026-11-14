@@ -528,7 +528,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
       this._locationMarker?.remove(); this._locationMarker = undefined; return;
     }
     const label = document.createElement('span');
-    label.textContent = this._config.locality || 'Tu ubicación';
+    label.textContent = this._config.locality || this._text().recenter;
     if (!this._locationMarker) {
       this._locationMarker = window.L.circleMarker([latitude, longitude], {
         radius: 6, color: '#ffffff', weight: 2, fillColor: '#53d8ce',
@@ -542,7 +542,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
     }
     const element = this._locationMarker.getElement();
     element?.setAttribute('role', 'img');
-    element?.setAttribute('aria-label', `Ubicación: ${label.textContent}`);
+    element?.setAttribute('aria-label', `${this._text().recenter}: ${label.textContent}`);
   }
 
   _addBasemap(L) {

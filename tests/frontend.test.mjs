@@ -260,3 +260,40 @@ test('explicit locality takes priority over legacy weather entity',async()=>{
   card.setConfig({mode:'overview',entry_id:'other',entity:'weather.test'});card.hass=h;dom.window.document.body.append(card);await flush();
   assert.equal(card.shadowRoot.querySelector('.place').textContent,'Bilbao');dom.window.close();
 });
+
+
+test('Basque cards follow the profile language without resubscribing or translating locality names',async()=>{
+  const dom=setup(),h=hass(),count={subscriptions:0,unsubscribed:0};
+  const current=hass(count);current.locale={language:'es'};
+  const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'overview',entry_id:'test'});card.hass=current;dom.window.document.body.append(card);await flush();
+  const before=count.subscriptions;card.hass={...current,locale:{language:'eu'}};await flush();
+  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella');
+  assert.match(card.shadowRoot.querySelector('.metrics').textContent,/Haizea.*Gaurko euria.*Hezetasuna/);
+  assert.match(card.shadowRoot.querySelector('.measurement-source').textContent,/Neurketak: Arboleda/);
+  assert.equal(count.subscriptions,before);
+  for(const [mode,label] of [['hourly','hurrengo 24 orduak'],['daily','hurrengo egunak'],['summaries','gaurko laburpena'],['environment','kostaldea eta ingurumena']]){
+    card.setConfig({mode,entry_id:'test'});await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,new RegExp(label));
+    if(mode==='hourly')assert.equal(card.shadowRoot.querySelectorAll('.hour').length,24);
+    if(mode==='daily')assert.equal(card.shadowRoot.querySelector('.day strong').textContent,'Gaur');
+  }
+  card.hass={...current,locale:{language:'es'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/costa y ambiente/);
+  dom.window.close();
+});
+test('Basque visual editor and historical controls update when profile language changes',async()=>{
+  const dom=setup(),h=hass(),editor=dom.window.document.createElement('euskalmet-local-editor');
+  editor.setConfig({mode:'radar',entry_id:'test'});editor.hass=h;dom.window.document.body.append(editor);await flush();
+  editor.hass={...h,locale:{language:'eu-ES'}};assert.match(editor.textContent,/Ikuspegia.*Kokapena.*Maparen zooma/s);assert.equal(editor.querySelector('#eg-location').value,'test');
+  const history=dom.window.document.createElement('euskalmet-local-history-card');history.setConfig({entity:'sensor.temp'});history.hass={...h,locale:{language:'eu'}};
+  assert.match(history.shadowRoot.textContent,/Tenperatura/);
+  dom.window.close();
+});
+
+
+test('Basque short dates work even when the browser lacks Basque locale data',()=>{
+  const dom=setup(),Native=dom.window.Intl.DateTimeFormat;
+  dom.window.Intl.DateTimeFormat=function(locale,options){return new Native(locale==='eu-ES'?'es-ES':locale,options);};
+  const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'daily'});card.hass={...hass(),locale:{language:'eu'}};
+  assert.equal(card._time('2026-11-15T12:00:00Z',{weekday:'short'}),'ig.');
+  assert.match(card._time('2026-11-15T12:00:00Z',{day:'numeric',month:'short'}),/aza\./);
+  dom.window.close();
+});

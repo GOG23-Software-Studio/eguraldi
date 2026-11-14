@@ -2,11 +2,11 @@
 
 <style>body{background:#0b121d;color:#eef8ff;font-family:system-ui;margin:0;padding:20px}header{max-width:1100px;margin:auto auto 20px}header p{color:#9bb7cc;font-size:13px}.grid{max-width:1100px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px;align-items:start}h1{font-size:24px}euskalmet-local-card{display:block;min-width:0}mark{background:#283e42;color:#a6e6ce;padding:5px 9px;border-radius:6px}</style>
 
-<header><h1>Eguraldi</h1><p><mark>VISTA PREVIA · DATOS SIMULADOS</mark></p><p>Proyecto independiente para Home Assistant · localidad, estación cercana y tarjetas incluidas</p></header><main class="grid" id="cards"></main>
+<header><img src="studio-banner.svg" alt="Eguraldi · GOG23 Software Studio" style="display:block;width:100%;margin-bottom:20px"><h1>Eguraldi</h1><p><mark>VISTA PREVIA · DATOS SIMULADOS</mark></p><p>Proyecto independiente para Home Assistant · localidad, estación cercana y tarjetas incluidas</p></header><main class="grid" id="cards"></main>
 
 <script type="module">
 
-import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js';
+import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.1.2';
 
 const now=new Date().setMinutes(0,0,0),loc={entry_id:'demo',locality:'Ortuella',station:'Arboleda',location_source:'home_assistant',distance_km:1.8,latitude:43.31,longitude:-3.05,entities:{weather:'weather.demo',temperature:'sensor.demo_temperature',humidity:'sensor.demo_humidity',precipitation_today:'sensor.demo_rain',temperature_min_today:'sensor.demo_min',temperature_max_today:'sensor.demo_max',wind_gust_max_today:'sensor.demo_gust',irradiance:'sensor.demo_irradiance'}};
 
@@ -14,8 +14,9 @@ const hourly=Array.from({length:24},(_,i)=>({datetime:new Date(now+i*3600000).to
 
 const daily=Array.from({length:7},(_,i)=>({datetime:new Date(now+i*86400000).toISOString(),temperature:[15,18,16,21,22,18,17][i],templow:[10,11,9,9,13,11,10][i],condition:['rainy','partlycloudy','rainy','sunny','rainy','partlycloudy','rainy'][i]}));
 
-const hass={config:{time_zone:'Europe/Madrid'},states:{'weather.demo':{state:'partlycloudy',attributes:{temperature:11.2,temperature_unit:'°C',wind_speed:8,wind_speed_unit:'km/h',humidity:null}},'sensor.demo_temperature':{state:'11.2',attributes:{observed_at:new Date().toISOString()}},'sensor.demo_humidity':{state:'84.6',attributes:{}},'sensor.demo_rain':{state:'3.2',attributes:{unit_of_measurement:'mm'}},'sensor.demo_min':{state:'10.4',attributes:{unit_of_measurement:'°C'}},'sensor.demo_max':{state:'16.6',attributes:{unit_of_measurement:'°C'}},'sensor.demo_gust':{state:'22.8',attributes:{unit_of_measurement:'km/h'}},'sensor.demo_irradiance':{state:'132',attributes:{unit_of_measurement:'W/m²'}}},callWS:async()=>[loc],connection:{subscribeMessage:async(cb,msg)=>{if(msg.type==='subscribe_events')return ()=>{};cb({forecast:msg.forecast_type==='daily'?daily:hourly});return ()=>{};}}};
+const hass={locale:{language:new URLSearchParams(location.search).get('lang')||'es'},config:{time_zone:'Europe/Madrid'},states:{'weather.demo':{state:'partlycloudy',attributes:{temperature:11.2,temperature_unit:'°C',wind_speed:8,wind_speed_unit:'km/h',humidity:null}},'sensor.demo_temperature':{state:'11.2',attributes:{observed_at:new Date().toISOString()}},'sensor.demo_humidity':{state:'84.6',attributes:{}},'sensor.demo_rain':{state:'3.2',attributes:{unit_of_measurement:'mm'}},'sensor.demo_min':{state:'10.4',attributes:{unit_of_measurement:'°C'}},'sensor.demo_max':{state:'16.6',attributes:{unit_of_measurement:'°C'}},'sensor.demo_gust':{state:'22.8',attributes:{unit_of_measurement:'km/h'}},'sensor.demo_irradiance':{state:'132',attributes:{unit_of_measurement:'W/m²'}}},callWS:async()=>[loc],connection:{subscribeMessage:async(cb,msg)=>{if(msg.type==='subscribe_events')return ()=>{};cb({forecast:msg.forecast_type==='daily'?daily:hourly});return ()=>{};}}};
 
+if(new URLSearchParams(location.search).get('lang')==='eu'){document.querySelector('mark').textContent='AURREBISTA · SIMULATUTAKO DATUAK';document.querySelector('header p:last-child').textContent='Home Assistanterako proiektu independentea · herria, hurbileko estazioa eta txartel integratuak';}
 for(const mode of (new URLSearchParams(location.search).get('view')==='editor'?[]:['overview','hourly','daily'])){const card=document.createElement('euskalmet-local-card');card.setConfig({mode});card.hass=hass;document.querySelector('#cards').append(card);}
 
 if(new URLSearchParams(location.search).get('view')==='editor'){
