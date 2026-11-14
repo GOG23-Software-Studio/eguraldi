@@ -33,7 +33,9 @@ from .pem import normalize_pem
 
 
 def _use_eu(flow) -> bool:
-    language = getattr(flow, "context", {}).get("language") or flow.hass.config.language
+    language = (getattr(flow, "context", None) or {}).get("language") or getattr(
+        getattr(getattr(flow, "hass", None), "config", None), "language", "es"
+    )
     return str(language).lower().startswith("eu")
 
 
