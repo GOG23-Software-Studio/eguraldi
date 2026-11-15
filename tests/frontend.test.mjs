@@ -320,7 +320,10 @@ test('weekly tiles show missing daily rain honestly and all new modes update in 
   assert.equal(card.shadowRoot.querySelector('.week-day').textContent,'Gaur');
   assert.match(card.shadowRoot.querySelector('h2').textContent,/Hurrengo egunak/);
   card._forecasts.daily=card._forecasts.daily.map(({precipitation,...f})=>f);card._render();
-  assert.equal(card.shadowRoot.querySelector('.week-rain').textContent.trim(),'💧 —');
+  assert.equal(card.shadowRoot.querySelectorAll('.week-rain').length,0);
+  card._forecasts.daily[0].precipitation=0;card._render();
+  assert.equal(card.shadowRoot.querySelectorAll('.week-rain').length,1);
+  assert.match(card.shadowRoot.querySelector('.week-rain').textContent,/0 mm/);
   card.setConfig({mode:'planning'});await flush();assert.equal(card.shadowRoot.querySelectorAll('.planning-hour').length,8);assert.match(card.shadowRoot.querySelector('h2').textContent,/Aterkia ala jaka/);
   dom.window.close();
 });

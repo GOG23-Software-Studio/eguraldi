@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.1.5
+
+- La previsión diaria oculta la fila de lluvia en los días sin datos publicados, sin mostrar gotas ni rayas. Los valores publicados de cero se conservan.
+
 ## 0.1.4
 
 - Carga versionada de los componentes de avisos, histórico y radar para evitar conservar componentes anteriores tras actualizar.
