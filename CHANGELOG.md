@@ -1,5 +1,10 @@
 # Cambios
 
+## 0.1.9
+
+- Resumen de hoy con temperatura mínima azul y máxima naranja, igual que la semana visual.
+- Capturas del resumen en ambos README.
+
 ## 0.1.8
 
 - Máximas y mínimas de la semana visual al mismo tamaño y peso, también en móvil. Máximas en naranja y mínimas en azul.

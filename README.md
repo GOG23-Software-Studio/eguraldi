@@ -12,7 +12,7 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 [![Versión](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**Versión 0.1.8.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
+**Versión 0.1.9.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
 ![Tarjetas actuales de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
 
@@ -117,6 +117,8 @@ El gráfico separa temperatura y lluvia horaria (mm). La semana visual muestra l
 ![Comparación de temperaturas e histórico mensual](docs/history-comparison.jpg)
 
 ![Eguraldi · radar · demo](docs/radar.jpg)
+
+![Eguraldi · resumen / laburpena · demo](docs/summary.jpg)
 
 El radar comparte el fondo y los controles de las demás tarjetas. Las barras diarias representan la mínima y la máxima sobre una escala común de la semana. Las capturas usan datos de demostración y la ubicación pública de la localidad.
 

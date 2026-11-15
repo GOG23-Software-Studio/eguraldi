@@ -1,8 +1,8 @@
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.1.8';
-import './eguraldi-comparison-card.js?v=0.1.8';
-import './euskalmet-history-card.js?v=0.1.8';
-import './euskalmet-radar-map-card.js?v=0.1.8';
+import './euskalmet-alert-card.js?v=0.1.9';
+import './eguraldi-comparison-card.js?v=0.1.9';
+import './euskalmet-history-card.js?v=0.1.9';
+import './euskalmet-radar-map-card.js?v=0.1.9';
 
 const EU_TEXT = {
   "Despejado": "Oskarbi",
@@ -317,7 +317,7 @@ export class EuskalmetLocalCard extends HTMLElement {
     const mode=this._config.mode,loc=this._location;
     const labels={history:'histórico de temperatura',radar:'radar de precipitación',alerts:'avisos',summaries:'resumen de hoy',comparison:'temperatura · últimas 24 horas',environment:'costa y ambiente'};
     if(!this.shadowRoot.querySelector('#extra-content')){
-      this.shadowRoot.innerHTML=`<style>${CSS}${FORECAST_CSS}.rows{padding:0 20px 18px}.row{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid #ffffff15;font-size:13px}.row span{color:#b5d2e4}.row strong{text-align:right;font-weight:500}#extra-content>p{padding:0 20px 20px;color:#a9becf;font-size:12px}</style><ha-card><section id="extra-heading"><h2 id="extra-title"></h2><div class="muted measurement-source" id="extra-source"></div></section><div id="extra-content"></div></ha-card>`;
+      this.shadowRoot.innerHTML=`<style>${CSS}${FORECAST_CSS}.rows{padding:0 20px 18px}.row{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid #ffffff15;font-size:13px}.row span{color:#b5d2e4}.row strong{text-align:right;font-weight:500}.row.minimum strong{color:#68cef3}.row.maximum strong{color:#ffbf83}#extra-content>p{padding:0 20px 20px;color:#a9becf;font-size:12px}</style><ha-card><section id="extra-heading"><h2 id="extra-title"></h2><div class="muted measurement-source" id="extra-source"></div></section><div id="extra-content"></div></ha-card>`;
     }
     this.shadowRoot.querySelector('#extra-heading').hidden=mode==='radar'&&this._config.show_title!==true;
     this.shadowRoot.querySelector('#extra-source').hidden=mode==='alerts';
@@ -331,7 +331,7 @@ export class EuskalmetLocalCard extends HTMLElement {
         const state=this._state(key),a=state?.attributes||{},n=numeric(state?.state);
         const value=a.device_class==='timestamp'&&Number.isFinite(Date.parse(state?.state))?this._time(state.state,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):n===null?this._t('No disponible'):`${fmt(n)} ${a.unit_of_measurement||''}`;
         const source=mode==='environment'&&key===pollen?(a.municipality_name||a.municipality||''):'';
-        return `<div class="row"><span>${escapeHTML(this._t(label))}${source?` · ${escapeHTML(source)}`:''}</span><strong>${escapeHTML(value)}</strong></div>`;
+        return `<div class="row${key==='temperature_min_today'?' minimum':key==='temperature_max_today'?' maximum':''}"><span>${escapeHTML(this._t(label))}${source?` · ${escapeHTML(source)}`:''}</span><strong>${escapeHTML(value)}</strong></div>`;
       }).join('')+'</div>';return;
     }
     let tag,config;

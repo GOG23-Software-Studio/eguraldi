@@ -41,6 +41,8 @@ def build(output_dir: Path | None = None):
             "history-comparison-eu.jpg",
             "radar.jpg",
             "radar-eu.jpg",
+            "summary.jpg",
+            "summary-eu.jpg",
             "preview-mobile.jpg",
             "preview-editor.jpg",
         ):
