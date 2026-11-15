@@ -1,5 +1,14 @@
 # Cambios
 
+## 0.1.6
+
+- El punto y el nombre de la ubicación del radar forman un único marcador, para que permanezcan unidos al mover, ampliar o redimensionar el mapa.
+
+- Comparación de temperaturas propia: gráfico integrado, valores actuales, mínima/media/máxima y diferencia media de intervalos coincidentes. Estadísticas de HA cada cinco minutos, con unidades unificadas.
+- Histórico mensual integrado con tarjetas de resumen, controles más claros y etiquetas legibles. El mes actual termina en el día de hoy.
+- Los valores ausentes no se convierten en cero ni se conectan líneas a través de huecos.
+- Documentación y capturas en castellano y euskera.
+
 ## 0.1.5
 
 - La previsión diaria oculta la fila de lluvia en los días sin datos publicados, sin mostrar gotas ni rayas. Los valores publicados de cero se conservan.

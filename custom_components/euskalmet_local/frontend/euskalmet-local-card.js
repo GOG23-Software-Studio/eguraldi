@@ -1,7 +1,8 @@
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.1.4';
-import './euskalmet-history-card.js?v=0.1.4';
-import './euskalmet-radar-map-card.js?v=0.1.4';
+import './euskalmet-alert-card.js?v=0.1.6';
+import './eguraldi-comparison-card.js?v=0.1.6';
+import './euskalmet-history-card.js?v=0.1.6';
+import './euskalmet-radar-map-card.js?v=0.1.6';
 
 const EU_TEXT = {
   "Despejado": "Oskarbi",
@@ -341,14 +342,14 @@ export class EuskalmetLocalCard extends HTMLElement {
     }
     let tag,config;
     if(mode==='comparison'){
-      tag='hui-history-graph-card';
-      config={type:'history-graph',hours_to_show:24,entities:[{entity:loc.entities.temperature,name:`${loc.locality} · ${this._t('estación')} ${loc.station}`},...(this._config.comparison_entity?[{entity:this._config.comparison_entity,name:this._config.comparison_name||this._t('Comparación')}]:[])]};
+      tag='eguraldi-comparison-card';
+      config={entity:loc.entities.temperature,station_id:loc.station_id,station_name:loc.station||this._t('estación'),comparison_entity:this._config.comparison_entity,comparison_name:this._config.comparison_name||this._t('Comparación')};
     }else{
-      tag=mode==='history'?'euskalmet-local-history-card':mode==='radar'?'euskalmet-local-radar-map-card':'eguraldi-alert-card';
+      tag=mode==='history'?'eguraldi-history-card':mode==='radar'?'eguraldi-radar-map-card':'eguraldi-alert-card';
       const entity=loc.entities[mode==='history'?'temperature':mode==='radar'?'radar':'alert_level'];
       config={entity,entry_id:loc.entry_id,title:`${loc.locality} · ${this._t(labels[mode])}`};
       if(mode==='alerts'){config.embedded=true;config.show_title=false;}
-      if(mode==='history'){config.station_id=loc.station_id;config.show_title=false;if(this._config.measure)config.measure=this._config.measure;}
+      if(mode==='history'){config.station_id=loc.station_id;config.show_title=false;config.embedded=true;if(this._config.measure)config.measure=this._config.measure;}
       if(mode==='radar'){config.show_header=false;config.map_style=this._config.map_style||'satellite';config.latitude=loc.latitude;config.longitude=loc.longitude;config.locality=loc.locality;config.zoom=this._config.zoom??10;}
     }
     const key=JSON.stringify([mode,config]);
@@ -356,10 +357,7 @@ export class EuskalmetLocalCard extends HTMLElement {
     if(this._extraPending===key)return;
     const revision=this._extraRevision=(this._extraRevision||0)+1;
     const apply=card=>{if(!this.isConnected||revision!==this._extraRevision)return;card.dataset.extraKey=key;card.hass=this._hass;content.replaceChildren(card);this._extraPending=null;};
-    if(mode==='comparison'&&window.loadCardHelpers){
-      this._extraPending=key;
-      window.loadCardHelpers().then(helpers=>helpers.createCardElement(config)).then(apply).catch(()=>{if(revision===this._extraRevision){content.innerHTML=`<p>${escapeHTML(this._t("No se ha podido cargar la comparación."))}</p>`;this._extraPending=null;}});
-    }else if(customElements.get(tag)){
+    if(customElements.get(tag)){
       const existing=content.firstElementChild;
       if(existing?.tagName.toLowerCase()===tag){existing.setConfig(config);existing.dataset.extraKey=key;existing.hass=this._hass;return;}
       const card=document.createElement(tag);card.setConfig(config);apply(card);

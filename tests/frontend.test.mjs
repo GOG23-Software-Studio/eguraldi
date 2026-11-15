@@ -10,6 +10,7 @@ function setup(){
   const dom=new JSDOM('<body></body>',{url:'http://localhost',runScripts:'outside-only'});
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-history-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-alert-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
+  vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-comparison-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(source+'\nwindow.logic={forecastRows,iconName,isNight,numeric,escapeHTML};',dom.getInternalVMContext());
   return dom;
 }
@@ -79,12 +80,12 @@ test('mounted monthly history switches station, retains month and ignores the ol
     return {station:'C038',items:[]};
   };
   card.setConfig({mode:'history',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
-  const history=card.shadowRoot.querySelector('euskalmet-local-history-card');
+  const history=card.shadowRoot.querySelector('eguraldi-history-card');
   assert.ok(history);assert.equal(requests.length,1);
   history.date=new Date(2025,3,1);
   current={...current,station:'Galindo',station_id:'C038',distance_km:4.7};
   count.events({data:{entry_id:'test'}});await flush();
-  assert.equal(card.shadowRoot.querySelector('euskalmet-local-history-card'),history);
+  assert.equal(card.shadowRoot.querySelector('eguraldi-history-card'),history);
   assert.equal(history.data.station,'C038');assert.equal(requests.at(-1).month,4);assert.equal(requests.at(-1).year,2025);
   assert.match(card.shadowRoot.querySelector('#extra-title').textContent,/Ortuella/);
   assert.match(card.shadowRoot.querySelector('#extra-source').textContent,/Galindo.*4,7 km/);
@@ -93,36 +94,26 @@ test('mounted monthly history switches station, retains month and ignores the ol
   card.remove();assert.equal(count.eventSubscriptions,count.eventUnsubscribed);dom.window.close();
 });
 
-test('comparison legend and environmental source follow the selected entry',async()=>{
-  const dom=setup(),count={subscriptions:0,unsubscribed:0},h=hass(count),configs=[];
-  class Graph extends dom.window.HTMLElement{setConfig(config){this.config=config;}set hass(value){this._hass=value;}}
-  dom.window.customElements.define('test-history-graph',Graph);
-  dom.window.loadCardHelpers=async()=>({createCardElement:config=>{configs.push(config);return dom.window.document.createElement('test-history-graph');}});
-  let current={...location,station_id:'C061'};h.callWS=async()=>[current];
-  const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'comparison',entry_id:'test',comparison_entity:'sensor.balcony',comparison_name:'Balcón'});card.hass=h;dom.window.document.body.append(card);await flush();await flush();
-  assert.equal(configs.at(-1).entities[0].name,'Ortuella · estación Arboleda');
-  current={...current,station:'Galindo',station_id:'C038',distance_km:4.7};count.events({data:{entry_id:'test'}});await flush();await flush();
-  assert.equal(configs.at(-1).entities[0].name,'Ortuella · estación Galindo');assert.equal(configs.at(-1).entities[1].entity,'sensor.balcony');
+test('comparison labels and requested station update with the selected entry',async()=>{
+  const dom=setup(),count={subscriptions:0,unsubscribed:0},h=hass(count);let current={...location,station_id:'C061'};
+  h.callWS=async msg=>msg.type==='euskalmet_local/locations'?[current]:{};
+  const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'comparison',entry_id:'test',comparison_entity:'sensor.balcony',comparison_name:'Balcón'});card.hass=h;dom.window.document.body.append(card);await flush();
+  assert.equal(card.shadowRoot.querySelector('eguraldi-comparison-card').config.station_name,'Arboleda');
+  current={...current,station:'Galindo',station_id:'C038',distance_km:4.7};count.events({data:{entry_id:'test'}});await flush();
+  const comparison=card.shadowRoot.querySelector('eguraldi-comparison-card');assert.equal(comparison.config.station_name,'Galindo');assert.equal(comparison.config.comparison_entity,'sensor.balcony');
   card.remove();dom.window.close();
 });
 
-
-test('comparison can reconnect while its lazy card helper is pending',async()=>{
-  const dom=setup(),h=hass(),card=dom.window.document.createElement('euskalmet-local-card');
-  let finish;const pending=new Promise(resolve=>{finish=resolve;});
-  dom.window.loadCardHelpers=()=>pending;
-  card.setConfig({mode:'comparison',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
-  card.remove();dom.window.document.body.append(card);await flush();
-  class Graph extends dom.window.HTMLElement{set hass(value){this._hass=value;}}
-  dom.window.customElements.define('test-reconnected-graph',Graph);
-  finish({createCardElement:()=>dom.window.document.createElement('test-reconnected-graph')});await flush();await flush();
-  assert.ok(card.shadowRoot.querySelector('test-reconnected-graph'));card.remove();dom.window.close();
+test('comparison ignores a response from before disconnection and reconnects',async()=>{
+  const dom=setup(),h=hass(),card=dom.window.document.createElement('eguraldi-comparison-card');let finishOld,requests=0;
+  h.callWS=async()=>{requests++;if(requests===1)return new Promise(resolve=>{finishOld=resolve;});return {'sensor.temp':[]};};
+  card.setConfig({entity:'sensor.temp'});card.hass=h;dom.window.document.body.append(card);await flush();card.remove();dom.window.document.body.append(card);await flush();
+  assert.equal(requests,2);finishOld({'sensor.temp':[{start:0,mean:999}]});await flush();assert.equal(card._data.series[0].length,0);card.remove();dom.window.close();
 });
-
 
 test('all mounted card modes adopt the new locality and nearest station on the same entry',async()=>{
   const dom=setup();
-  for(const tag of ['euskalmet-local-radar-map-card','euskalmet-local-alert-card']){
+  for(const tag of ['eguraldi-radar-map-card','euskalmet-local-alert-card']){
     if(!dom.window.customElements.get(tag))dom.window.customElements.define(tag,class extends dom.window.HTMLElement{setConfig(value){this.config=value;}set hass(value){this._hass=value;}});
   }
   class Graph extends dom.window.HTMLElement{set hass(value){this._hass=value;}}
@@ -143,7 +134,7 @@ test('all mounted card modes adopt the new locality and nearest station on the s
     assert.match(card.shadowRoot.querySelector('h2').textContent,/Bilbao/,mode);
     assert.doesNotMatch(card.shadowRoot.textContent,/Ortuella/,mode);
     if(['overview','summaries','history','comparison','dashboard'].includes(mode))assert.match(card.shadowRoot.querySelector('.measurement-source').textContent,/Nueva estación.*2,4 km/);
-    if(mode==='history')assert.equal(card.shadowRoot.querySelector('euskalmet-local-history-card').data.station,'C058');
+    if(mode==='history')assert.equal(card.shadowRoot.querySelector('eguraldi-history-card').data.station,'C058');
     card.remove();
   }
   dom.window.close();
@@ -171,10 +162,10 @@ test('HA source labels distance from HA while manual localities remain independe
 
 test('radar passes the selected locality coordinates to its marker',async()=>{
   const dom=setup(),h=hass();
-  dom.window.customElements.define('euskalmet-local-radar-map-card',class extends dom.window.HTMLElement{setConfig(value){this.config=value;}set hass(value){this._hass=value;}});
+  dom.window.customElements.define('eguraldi-radar-map-card',class extends dom.window.HTMLElement{setConfig(value){this.config=value;}set hass(value){this._hass=value;}});
   h.callWS=async()=>[{...location,entities:{...location.entities,radar:'camera.test'}}];
   const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'radar',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
-  const radar=card.shadowRoot.querySelector('euskalmet-local-radar-map-card');
+  const radar=card.shadowRoot.querySelector('eguraldi-radar-map-card');
   assert.equal(radar.config.locality,'Ortuella');assert.equal(radar.config.latitude,43.3);assert.equal(radar.config.longitude,-3.05);
   card.remove();dom.window.close();
 });
@@ -183,16 +174,16 @@ test('radar marker moves with locality, keeps one marker and ignores invalid coo
   const dom=setup();
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-radar-map-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   const radar=dom.window.document.createElement('euskalmet-local-radar-map-card'),markers=[];
-  dom.window.L={circleMarker:(point,options)=>{
-    const marker={point,options,element:dom.window.document.createElement('span'),addTo(){return this;},bindTooltip(label,settings){this.label=label;this.settings=settings;return this;},setLatLng(value){this.point=value;},setTooltipContent(value){this.label=value;},getElement(){return this.element;},remove(){this.removed=true;}};
+  dom.window.L={divIcon:options=>options,marker:(point,options)=>{
+    const marker={point,options,icon:options.icon,element:dom.window.document.createElement('div'),addTo(){return this;},setLatLng(value){this.point=value;},setIcon(value){this.icon=value;},getElement(){return this.element;},remove(){this.removed=true;}};
     markers.push(marker);return marker;
   }};
   radar._map={setView(){},fitBounds(){}};
   radar.setConfig({entity:'camera.test',locality:'Ortuella',latitude:43.3,longitude:-3.05});
-  assert.equal(markers.length,1);assert.equal(markers[0].label.textContent,'Ortuella');assert.equal(markers[0].settings.permanent,true);
+  assert.equal(markers.length,1);assert.equal(markers[0].icon.html.querySelector('.eguraldi-marker-label').textContent,'Ortuella');assert.ok(markers[0].icon.html.querySelector('.eguraldi-marker-dot'));assert.deepEqual(Array.from(markers[0].icon.iconAnchor),[8,8]);
   radar.setConfig({entity:'camera.test',locality:'Bilbao',latitude:43.26,longitude:-2.93});
-  assert.equal(markers.length,1);assert.equal(markers[0].label.textContent,'Bilbao');assert.deepEqual(Array.from(markers[0].point),[43.26,-2.93]);
-  radar.setConfig({entity:'camera.test',locality:'<img onerror=alert(1)>',latitude:43.26,longitude:-2.93});assert.equal(markers[0].label.querySelector('img'),null);
+  assert.equal(markers.length,1);assert.equal(markers[0].icon.html.querySelector('.eguraldi-marker-label').textContent,'Bilbao');assert.deepEqual(Array.from(markers[0].point),[43.26,-2.93]);
+  radar.setConfig({entity:'camera.test',locality:'<img onerror=alert(1)>',latitude:43.26,longitude:-2.93});assert.equal(markers[0].icon.html.querySelector('img'),null);
   radar.setConfig({entity:'camera.test',latitude:null,longitude:null});assert.equal(markers[0].removed,true);dom.window.close();
 });
 
@@ -344,4 +335,27 @@ test('embedded alerts have one visible title and the radar defaults to satellite
   const alerts=card.shadowRoot.querySelector('eguraldi-alert-card');assert.ok(alerts);assert.equal(alerts.shadowRoot.querySelector('.title').hidden,true);assert.equal(card.shadowRoot.querySelector('#extra-source').hidden,true);assert.ok(alerts.shadowRoot.querySelector('.card.embedded'));
   card.setConfig({mode:'radar'});await flush();assert.equal(card.shadowRoot.querySelector('#extra-heading').hidden,true);
   dom.window.close();
+});
+
+
+test('comparison uses matching completed intervals, units and gaps instead of fabricated values',async()=>{
+  const dom=setup(),h=hass(),card=dom.window.document.createElement('eguraldi-comparison-card'),end=Math.floor(Date.now()/300000)*300000;
+  const row=(offset,mean,min=mean,max=mean)=>({start:end-offset*300000,mean,min,max});let request;
+  h.states['sensor.temp'].attributes.unit_of_measurement='°C';h.states['sensor.balcony']={state:'68',attributes:{unit_of_measurement:'°F'}};
+  h.callWS=async msg=>{request=msg;return {'sensor.temp':[row(4,10),row(3,null),row(2,12),row(1,14)],'sensor.balcony':[row(4,12),row(2,15),row(0,100)]};};
+  card.setConfig({entity:'sensor.temp',comparison_entity:'sensor.balcony',comparison_name:'Balcón',station_name:'Arboleda'});card.hass=h;dom.window.document.body.append(card);await flush();
+  assert.deepEqual(JSON.parse(JSON.stringify(request.units)),{temperature:'°C'});
+  assert.equal(card.current('sensor.balcony'),20);assert.equal(card.pairs().length,2);assert.equal(card.pairs().reduce((a,b)=>a+b,0)/2,2.5);
+  assert.equal(card._data.series[1].length,2);assert.equal(card.shadowRoot.querySelectorAll('svg path').length,4);
+  assert.match(card.shadowRoot.querySelector('.difference').textContent,/2 intervalos coincidentes.*\+2,5/s);
+  card.hass={...h,locale:{language:'eu'}};assert.match(card.shadowRoot.querySelector('.difference').textContent,/Batez besteko aldea/);
+  card.remove();dom.window.close();
+});
+test('monthly history rejects missing readings and splits lines at missing days',()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-history-card');card.setConfig({entity:'sensor.temp',embedded:true,show_title:false});card.date=new Date(2025,0,1);
+  card.data={items:[{measureId:'temperature',dailySummaries:[{min:1,mean:2,max:3},{min:null,mean:null,max:null},{min:3,mean:4,max:5}]}]};card.loaded=true;card.render();
+  assert.equal(card.value({mean:null},'mean'),null);assert.equal(card.value({mean:''},'mean'),null);assert.equal(card.value({mean:0},'mean'),0);
+  assert.equal(card.shadowRoot.querySelectorAll('path.line').length,6);
+  assert.equal(card.shadowRoot.querySelectorAll('.history-metrics>div').length,3);assert.ok(card.shadowRoot.querySelector('ha-card.embedded'));
+  card.date=new Date();assert.equal(card.plotDays(),new Date().getDate());dom.window.close();
 });

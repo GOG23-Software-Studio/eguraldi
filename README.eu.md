@@ -11,7 +11,7 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 [![Egiaztapenak](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 [![Bertsioa](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**0.1.5 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
+**0.1.6 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
@@ -89,6 +89,10 @@ Kokapen bakarra badago, automatikoki hautematen da. Hainbat badaude, gorde kokap
 ![Grafikoa, asteko ikuspegia eta planifikatzailea](docs/forecast-cards-eu.jpg)
 
 Grafikoak tenperatura eta orduko euria (mm) bereizten ditu. Asteko ikuspegiak hornitzaileak argitaratutako euri-datuak soilik erakusten ditu. Planifikatzaileak haize-boladak eta aurreikusitako haize maximoa bereizten ditu, eta radarra zabaltzeko botoia du. Radarrak satelite-mapa erabiltzen du lehenespenez, goiko izenbururik gabe; editorean beste mapa bat hauta daiteke. Abisuek goiburu bakarra dute.
+
+![Tenperaturen konparazioa eta hileko historikoa](docs/history-comparison-eu.jpg)
+
+Konparazioak HAko bost minutuko tarte osatuen estatistikak erabiltzen ditu: serie bakoitzaren minimoak, maximoak eta batezbestekoak. Batez besteko aldea tarte komunekin soilik kalkulatzen da, unitate berean. Hileko historikoak eguneko laburpen ofizialak erakusten ditu, daturik gabeko egunetan hutsuneak utziz eta uneko hilabeteko etorkizuneko egunak marraztu gabe.
 
 ## Datuen esanahia eta mugak
 

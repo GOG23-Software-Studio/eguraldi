@@ -206,6 +206,10 @@ class EuskalmetRadarMapCard extends HTMLElement {
       .leaflet-pane.basemap-labels { pointer-events: none; }
       .eguraldi-location-label { background:#132b3d; color:#effaff; border:1px solid #7dd3cb; border-radius:8px; font-size:12px; font-weight:600; padding:4px 8px; box-shadow:0 2px 8px #0006; }
       .eguraldi-location-label::before { border-top-color:#7dd3cb; }
+      .eguraldi-location-marker {background:none;border:0;overflow:visible}
+      .eguraldi-marker-anchor {position:relative;width:16px;height:16px;overflow:visible;pointer-events:none}
+      .eguraldi-marker-dot {position:absolute;left:1px;top:1px;width:14px;height:14px;border:2px solid white;box-sizing:border-box;border-radius:50%;background:#53d8ce;box-shadow:0 1px 5px #0006}
+      .eguraldi-marker-label {position:absolute;left:8px;bottom:22px;transform:translateX(-50%);width:max-content;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#132b3d;color:#effaff;border:1px solid #7dd3cb;border-radius:8px;font-size:12px;font-weight:600;padding:4px 8px;box-shadow:0 2px 8px #0006}
       .map-controls {
         position: absolute;
         z-index: 600;
@@ -527,18 +531,18 @@ class EuskalmetRadarMapCard extends HTMLElement {
         latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
       this._locationMarker?.remove(); this._locationMarker = undefined; return;
     }
-    const label = document.createElement('span');
+    const anchor = document.createElement('div');
+    anchor.className = 'eguraldi-marker-anchor';
+    const dot = document.createElement('span');dot.className = 'eguraldi-marker-dot';
+    const label = document.createElement('span');label.className = 'eguraldi-marker-label';
     label.textContent = this._config.locality || this._text().recenter;
+    anchor.append(dot, label);
+    const icon = window.L.divIcon({html:anchor,className:'eguraldi-location-marker',iconSize:[16,16],iconAnchor:[8,8]});
     if (!this._locationMarker) {
-      this._locationMarker = window.L.circleMarker([latitude, longitude], {
-        radius: 6, color: '#ffffff', weight: 2, fillColor: '#53d8ce',
-        fillOpacity: 1, pane: 'markerPane',
-      }).addTo(this._map).bindTooltip(label, {
-        permanent: true, direction: 'top', offset: [0, -8], className: 'eguraldi-location-label',
-      });
+      this._locationMarker = window.L.marker([latitude, longitude], {icon,keyboard:false,interactive:false}).addTo(this._map);
     } else {
       this._locationMarker.setLatLng([latitude, longitude]);
-      this._locationMarker.setTooltipContent(label);
+      this._locationMarker.setIcon(icon);
     }
     const element = this._locationMarker.getElement();
     element?.setAttribute('role', 'img');
@@ -925,6 +929,10 @@ class EuskalmetRadarMapCard extends HTMLElement {
     message.textContent = text;
     message.classList.toggle("visible", Boolean(text));
   }
+}
+
+if (!customElements.get("eguraldi-radar-map-card")) {
+  customElements.define("eguraldi-radar-map-card", class extends EuskalmetRadarMapCard {});
 }
 
 if (!customElements.get("euskalmet-local-radar-map-card")) {
