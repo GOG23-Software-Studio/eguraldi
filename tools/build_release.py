@@ -35,6 +35,8 @@ def build(output_dir: Path | None = None):
             "studio-banner.svg",
             "preview.jpg",
             "preview-eu.jpg",
+            "forecast-cards.jpg",
+            "forecast-cards-eu.jpg",
             "preview-mobile.jpg",
             "preview-editor.jpg",
         ):

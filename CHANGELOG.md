@@ -1,5 +1,13 @@
 # Cambios
 
+## 0.1.3
+
+- Tres vistas independientes nuevas: gráfico de temperatura/lluvia de 24 horas, semana visual y planificador con radar desplegable.
+- Datos ausentes sin interpolaciones ni probabilidades inventadas; viento y rachas diferenciados.
+- Radar con satélite predeterminado y sin título superior; estilo seleccionable en el editor.
+- Avisos integrados con una sola cabecera y sin tarjeta anidada.
+- Diseño adaptable a móvil, textos en castellano/euskera y documentación actualizada.
+
 ## 0.1.2
 
 - Banner propio de Eguraldi con la identidad de GOG23 Software Studio.

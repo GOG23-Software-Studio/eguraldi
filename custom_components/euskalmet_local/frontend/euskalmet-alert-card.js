@@ -130,8 +130,9 @@ class EuskalmetAlertCard extends HTMLElement {
         .orange { --alert-color: #ef6c00; --badge-text: white; }
         .red { --alert-color: var(--error-color, #d32f2f); --badge-text: white; }
         .unknown, .unavailable { --alert-color: var(--disabled-text-color, #888); --badge-text: white; }
+        .embedded {background:transparent;border:0;border-radius:0;box-shadow:none;color:#edf8ff}.embedded .summary{color:#a9becf}.embedded .risk{border-color:#ffffff20}
       </style>
-      <section class="card ${["none", "yellow", "orange", "red", "unknown", "unavailable"].includes(severity) ? severity : "unknown"}">
+      <section class="card ${this._config.embedded?"embedded":""} ${["none", "yellow", "orange", "red", "unknown", "unavailable"].includes(severity) ? severity : "unknown"}">
         <div class="header">
           <div class="badge" aria-hidden="true">${severity === "none" ? "✓" : "!"}</div>
           <div>
@@ -145,6 +146,7 @@ class EuskalmetAlertCard extends HTMLElement {
 
     this.shadowRoot.querySelector(".title").textContent =
       this._config.title || text.labels[severity] || text.defaultTitle;
+    this.shadowRoot.querySelector(".title").hidden = this._config.show_title === false;
     this.shadowRoot.querySelector(".summary").textContent = alerts.length
       ? text.activeRisk(alerts.length)
       : (severity === "none" ? text.noRisks : text.noDetails);

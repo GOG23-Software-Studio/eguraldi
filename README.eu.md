@@ -11,7 +11,7 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 [![Egiaztapenak](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 [![Bertsioa](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**0.1.2 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
+**0.1.3 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
@@ -74,6 +74,9 @@ mode: dashboard
 | Uneko eguraldia | `overview` |
 | Hurrengo 24 orduak | `hourly` |
 | Hurrengo egunak | `daily` |
+| Tenperaturaren eta euriaren grafikoa · 24 ordu | `hourly_chart` |
+| Asteko ikuspegia, maximo eta minimoekin | `daily_tiles` |
+| Hurrengo orduak planifikatu | `planning` |
 | Gaurko laburpena | `summaries` |
 | Hileko historikoa | `history` |
 | Radarra | `radar` |
@@ -82,6 +85,10 @@ mode: dashboard
 | Kostaldea eta ingurumena | `environment` |
 
 Kokapen bakarra badago, automatikoki hautematen da. Hainbat badaude, gorde kokapena editorearen bidez; YAMLen `entry_id` erabil daiteke. Baliabideak automatikoki erregistratzen dira. Instalazioak ez ditu panel pertsonalak sortzen edo aldatzen.
+
+![Grafikoa, asteko ikuspegia eta planifikatzailea](docs/forecast-cards-eu.jpg)
+
+Grafikoak tenperatura eta orduko euria (mm) bereizten ditu. Asteko ikuspegiak hornitzaileak argitaratutako euri-datuak soilik erakusten ditu. Planifikatzaileak haize-boladak eta aurreikusitako haize maximoa bereizten ditu, eta radarra zabaltzeko botoia du. Radarrak satelite-mapa erabiltzen du lehenespenez, goiko izenbururik gabe; editorean beste mapa bat hauta daiteke. Abisuek goiburu bakarra dute.
 
 ## Datuen esanahia eta mugak
 

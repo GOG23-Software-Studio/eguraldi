@@ -96,6 +96,7 @@ const EU_TEXT = {
   "Nombre en el gráfico": "Grafikoko izena",
   "Por ejemplo, Balcón": "Adibidez, Balkoia"
 };
+Object.assign(EU_TEXT,{"Máxima / mínima":"Maximoa / minimoa","Gráfico de próximas 24 horas": "Hurrengo 24 orduen grafikoa", "Semana visual": "Asteko ikuspegia", "Planifica las próximas horas": "Planifikatu hurrengo orduak", "Una mirada a la semana": "Asteari begirada bat", "¿Paraguas o chaqueta?": "Aterkia ala jaka?", "Mañana": "Bihar", "Temperatura": "Tenperatura", "Lluvia prevista": "Aurreikusitako euria", "Probabilidad de lluvia": "Euri-probabilitatea", "Previsión de Euskalmet": "Euskalmeten iragarpena", "Los datos ausentes dejan huecos": "Falta diren datuek hutsuneak uzten dituzte", "Previsión recibida": "Jasotako iragarpena", "Lluvia sin datos publicados": "Ez dago euri-datu argitaraturik", "Desde las {time}": "{time} ordutik aurrera", "Sin lluvia en las horas con datos": "Euririk ez datuak dituzten orduetan", "Viento máximo previsto · próximas 12 h": "Aurreikusitako haize maximoa · hurrengo 12 orduak", "Racha máxima · próximas 12 h": "Haize-bolada maximoa · hurrengo 12 orduak", "Lluvia prevista · próximas 24 h": "Aurreikusitako euria · hurrengo 24 orduak", "Cerrar radar": "Itxi radarra", "Próximo amanecer": "Hurrengo egunsentia", "Próxima puesta": "Hurrengo ilunabarra", "Mapa satélite": "Satelite-mapa", "Mapa oscuro": "Mapa iluna", "Mapa claro": "Mapa argia", "Estilo del mapa": "Maparen estiloa"});
 const egLocale = hass => String(hass?.locale?.language || hass?.language || navigator.language || 'es').toLowerCase().startsWith('eu') ? 'eu-ES' : 'es-ES';
 const egText = (hass, text, values={}) => {
   const translated=egLocale(hass)==='eu-ES'?(EU_TEXT[text]||text):text;
@@ -142,10 +143,16 @@ const CSS = `
 :host{display:block;min-width:0}*{box-sizing:border-box}ha-card{display:block;border-radius:24px;background:linear-gradient(145deg,#1b3246,#101e30);border:1px solid #9acdd926;box-shadow:0 12px 32px #0002;color:#edf8ff;font-family:var(--primary-font-family,system-ui);overflow:hidden}section{padding:20px}h2{font-size:21px;font-weight:550;margin:0 0 14px}h3{font-size:16px;margin:0}.eyebrow{font-size:10px;letter-spacing:2.5px;color:#91d9d1}.muted,.source{color:#a9becf;font-size:11px}.measurement-source{font-size:11px;line-height:1.5;font-weight:400}.source{margin:12px 0 0;line-height:1.4}.hero{background:radial-gradient(ellipse at top right,#326e8370,transparent 70%)}.place{font-size:27px;letter-spacing:-.5px;margin:8px 0 4px}.current{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:15px 0}.big{font-size:68px;letter-spacing:-3px;font-weight:300}.big small{font-size:23px;letter-spacing:0}.hero img{width:132px;height:116px}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;border-top:1px solid #ffffff20;padding-top:14px;margin-top:18px;font-size:14px}.metrics small{display:block;color:#a9becf;font-size:10px;margin-top:4px}.warning{background:#efbc7b15;border-left:3px solid #efbc7b;color:#efca95;padding:10px 12px;border-radius:10px;font-size:12px;margin-top:12px}.hour-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px 0}.hour{min-width:0;text-align:center;border-bottom:1px solid #8db8d016;padding:0 1px 8px;line-height:1.25}.hour time{display:block;font-size:11px;color:#bbd0df}.hour .date{font-size:9px;color:#9cb2c4;min-height:12px}.hour .sky{height:53px;display:flex;align-items:center;justify-content:center;background:#87b5d00b}.sky img{width:59px;height:59px;max-width:100%;object-fit:contain}.temp{font-size:16px;font-weight:650;margin:3px 0}.wind,.rain{font-size:10px;color:#a8dce9;white-space:nowrap}.rain{min-height:12px}.days{display:grid;gap:6px}.day{display:grid;grid-template-columns:46px 48px 44px minmax(30px,1fr) 44px;align-items:center;gap:5px;min-height:45px;font-size:12px}.day img{width:48px;height:48px}.day strong:last-child{text-align:right}.track{height:7px;border-radius:8px;background:#94b9d017;position:relative}.range{position:absolute;height:100%;border-radius:8px;background:linear-gradient(90deg,#79d0c1,#ffdf85)}.low{color:#b5d2e4}.message{padding:24px;color:#a9becf;font-size:13px}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}button,select{font:inherit;color:#d9edf6;background:#7dbbcc12;border:1px solid #b5ddeb28;border-radius:12px;padding:9px 12px;cursor:pointer}button.active{background:#62baa72b;border-color:#8ed9d1}button:focus-visible,select:focus-visible{outline:2px solid #8ed9d1;outline-offset:2px}.extras{display:grid;gap:12px;margin-top:15px}img{display:block}.divider{border-top:1px solid #ffffff16}select{max-width:100%;margin-bottom:14px}.error{color:#efca95} @media(max-width:380px){section{padding:15px 12px}.sky img{width:48px;height:48px}.hour .sky{height:47px}.wind,.rain{font-size:9px}.day{grid-template-columns:39px 38px 39px minmax(20px,1fr) 39px;gap:3px}.day img{width:38px;height:38px}.big{font-size:58px}.hero img{width:108px}.place{font-size:23px}}
 `;
 
+
+const FORECAST_CSS=`
+.forecast-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}.forecast-top h2{margin:6px 0 0}.forecast-kicker{text-transform:uppercase;letter-spacing:2px;font-size:10px;color:#a9cbe4}.forecast-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;margin-bottom:12px}.forecast-legend .temperature{color:#ffbf83}.forecast-legend .precipitation{color:#68cef3}.forecast-chart{display:block;width:100%;height:auto;overflow:visible}.chart-grid{stroke:#a9cbe414;stroke-width:1}.chart-temp{stroke:#ffbf83;stroke-width:2.5;fill:none}.chart-bar{fill:#68cef3;fill-opacity:.35}.forecast-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:18px;font-size:10px;color:#a9becf}.week-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:10px}.week-tile{display:flex;flex-direction:column;align-items:center;min-width:0;padding:16px 10px;border:1px solid #9acdd91c;border-radius:16px;background:#ffffff02}.week-tile:first-child{background:#8ecade0a;border-color:#78c9ec40}.week-day{font-size:12px;font-weight:600}.week-tile img{width:80px;height:80px;margin:12px 0}.week-values{display:flex;align-items:baseline;gap:8px}.week-values strong{font-size:25px}.week-values span{font-size:14px;color:#a9cbe4}.week-track{height:4px;width:100%;border-radius:4px;background:linear-gradient(90deg,#68cef3,#ffbf83);margin:14px 0 10px}.week-rain{font-size:11px;color:#68cef3}.planning-hours{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}.planning-hour{text-align:center;padding:10px 2px;border-radius:14px;font-size:11px;color:#a9cbe4}.planning-hour:first-child{background:#8ecade0d}.planning-hour img{height:58px;width:100%;object-fit:contain;margin:9px 0}.planning-hour strong{display:block;color:#edf8ff;font-size:18px;margin:5px 0 12px}.planning-hour .planning-rain{color:#68cef3;margin-bottom:8px}.planning-hour small{font-size:10px}.planning-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.planning-summary div{border:1px solid #9acdd926;border-radius:14px;padding:14px;font-size:11px;color:#a9cbe4}.planning-summary strong{display:block;margin-top:5px;font-size:15px;color:#edf8ff}#planning-radar:empty{display:none}#planning-radar{margin-top:16px}.chart-point:focus-visible{outline:none;stroke:#fff;stroke-width:3}
+@media(max-width:550px){.week-tiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.week-tile{padding:12px 6px}.week-tile img{width:62px;height:62px}.week-values strong{font-size:22px}.planning-hours{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:12px}.planning-summary{grid-template-columns:1fr}.forecast-top h2{font-size:19px}.forecast-chart text{font-size:18px}}
+`;
+
 export class EuskalmetLocalCard extends HTMLElement {
   constructor(){super();this.attachShadow({mode:'open'});this._generation=0;this._forecasts={};this._unsubs=[];this._tab='hourly';}
   setConfig(config){
-    if(!['dashboard','overview','hourly','daily',...EXTRA_MODES].includes(config.mode||'dashboard'))throw Error(this._t('Modo no válido'));
+    if(!['dashboard','overview','hourly','daily','hourly_chart','daily_tiles','planning',...EXTRA_MODES].includes(config.mode||'dashboard'))throw Error(this._t('Modo no válido'));
     this._stop();this._config={...config,mode:config.mode||'dashboard'};this._location=null;this._locations=null;this._forecasts={};this._error=null;this._start();this._render();
   }
   set hass(value){const previous=this._hass;this._hass=value;this._start();const changed=!previous||!this._location||Object.values(this._location.entities).some(id=>previous.states[id]!==value.states[id])||previous.config?.time_zone!==value.config?.time_zone||egLocale(previous)!==egLocale(value);if(changed&&!this._renderScheduled){this._renderScheduled=true;queueMicrotask(()=>{this._renderScheduled=false;this._render();});}}
@@ -178,7 +185,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       for(const type of ['hourly','daily']){
         const unsubscribe=await this._hass.connection.subscribeMessage(event=>{
           if(generation!==this._generation)return;
-          this._forecasts[type]=event.forecast||[];this._forecastErrors??={};delete this._forecastErrors[type];this._render();
+          this._forecasts[type]=event.forecast||[];this._receivedAt??={};this._receivedAt[type]=Date.now();this._forecastErrors??={};delete this._forecastErrors[type];this._render();
         },{type:'weather/subscribe_forecast',forecast_type:type,entity_id:weather});
         if(generation!==this._generation){unsubscribe();return;}this._unsubs.push(unsubscribe);
       }
@@ -222,9 +229,63 @@ export class EuskalmetLocalCard extends HTMLElement {
       return `<div class="day"><strong>${dayKey(f.datetime)===today?this._t('Hoy'):escapeHTML(this._time(f.datetime,{weekday:'short'}))}</strong><img src="${BASE}icons/${iconName(f.condition,false)}.svg" alt="${escapeHTML(this._t(CONDITIONS[f.condition]||'Sin datos'))}"><span class="low">${fmt(low)}°</span><div class="track" aria-label="${escapeHTML(this._t('Rango de temperatura'))}"><div class="range" style="left:${left}%;width:${width}%"></div></div><strong>${fmt(high)}°</strong></div>`;
     }).join('')}</div>`:`<div class="message">${escapeHTML(this._t("Esperando previsión diaria…"))}</div>`}<div class="source">${escapeHTML(this._t('Mínima / máxima'))} · ${escapeHTML(this._weather().temperature_unit||'°C')} · ${escapeHTML(this._t('previsión para'))} ${escapeHTML(this._location.locality)}</div></section>`;
   }
+  _forecastHeader(title,kicker='Previsión de Euskalmet',action=''){
+    return `<div class="forecast-top"><div><div class="forecast-kicker">${escapeHTML(this._t(kicker))} · ${escapeHTML(this._location.locality)}</div><h2>${escapeHTML(this._t(title))}</h2></div>${action}</div>`;
+  }
+  _forecastFoot(type){
+    const received=this._receivedAt?.[type];
+    return `<div class="forecast-foot"><span>${received?`${escapeHTML(this._t('Previsión recibida'))} · ${escapeHTML(this._time(received,{hour:'2-digit',minute:'2-digit'}))}`:''}</span><span>${escapeHTML(this._t('Los datos ausentes dejan huecos'))}</span></div>`;
+  }
+  _rainMetric(rows){
+    const amount=rows.some(f=>numeric(f.precipitation)!==null&&numeric(f.precipitation)>=0);
+    const hasProbability=rows.some(f=>numeric(f.precipitation_probability)!==null&&numeric(f.precipitation_probability)>=0&&numeric(f.precipitation_probability)<=100);
+    const useAmount=amount||!hasProbability,key=useAmount?'precipitation':'precipitation_probability';
+    return {unit:useAmount?(this._weather().precipitation_unit||'mm'):'%',label:useAmount?'Lluvia prevista':'Probabilidad de lluvia',value:f=>{const n=numeric(f?.[key]);return n!==null&&n>=0&&(useAmount||n<=100)?n:null;}};
+  }
+  _hourlyChart(){
+    const raw=forecastRows(this._forecasts.hourly),anchor=Math.ceil(Date.now()/3600000)*3600000;
+    const indexed=new Map(raw.map(f=>[Math.floor(Date.parse(f.datetime)/3600000)*3600000,f]));
+    const slots=Array.from({length:24},(_,i)=>({datetime:anchor+i*3600000,forecast:indexed.get(anchor+i*3600000)}));
+    const rain=this._rainMetric(raw),temps=slots.map(s=>numeric(s.forecast?.temperature)).filter(n=>n!==null);
+    const low=temps.length?Math.floor(Math.min(...temps)-1):0,high=temps.length?Math.ceil(Math.max(...temps)+1):1;
+    const rainfall=slots.map(s=>rain.value(s.forecast)).filter(n=>n!==null),rainMax=rain.unit==='%'?100:Math.max(1,Math.ceil(Math.max(0,...rainfall)*1.2));
+    const left=52,right=668,top=28,bottom=220,width=right-left,step=width/24;
+    const x=i=>left+step*(i+.5),y=n=>bottom-(n-low)/Math.max(high-low,1)*(bottom-top);
+    const unit=this._weather().temperature_unit||'°C';
+    let grid='',bars='',paths='',dots='',axis='',segment=[];
+    const flush=()=>{if(segment.length)paths+=`<path class="chart-temp" d="${segment.join(' ')}"/>`;segment=[];};
+    for(let i=0;i<=4;i++){const py=bottom-i*(bottom-top)/4;grid+=`<line class="chart-grid" x1="${left}" x2="${right}" y1="${py}" y2="${py}"/><text x="${left-9}" y="${py+4}" text-anchor="end" fill="#ffbf83" font-size="12">${fmt(low+(high-low)*i/4,1)}°</text><text x="${right+9}" y="${py+4}" fill="#68cef3" font-size="12">${fmt(rainMax*i/4,1)}${rain.unit==='%'?'%':''}</text>`;}
+    slots.forEach((slot,i)=>{
+      const f=slot.forecast,t=numeric(f?.temperature),r=rain.value(f),time=this._time(slot.datetime,{hour:'2-digit',minute:'2-digit'});
+      if(r!==null){const h=r/rainMax*(bottom-top);bars+=`<rect class="chart-bar" x="${x(i)-step*.32}" y="${bottom-h}" width="${step*.64}" height="${h}" rx="2"><title>${escapeHTML(time)} · ${escapeHTML(this._t(rain.label))}: ${fmt(r)} ${escapeHTML(rain.unit)}</title></rect>`;}
+      if(t===null)flush();else{segment.push(`${segment.length?'L':'M'}${x(i)},${y(t)}`);dots+=`<circle class="chart-point" cx="${x(i)}" cy="${y(t)}" r="3" fill="#ffbf83" tabindex="0"><title>${escapeHTML(time)} · ${fmt(t)} ${escapeHTML(unit)}</title></circle>`;}
+      if(i%4===0||i===23)axis+=`<text x="${x(i)}" y="245" text-anchor="middle" fill="#a9cbe4" font-size="12">${escapeHTML(time)}</text>`;
+    });flush();
+    return `<section>${this._forecastHeader('Próximas 24 horas')}<div class="forecast-legend"><span class="temperature">— ${escapeHTML(this._t('Temperatura'))} · ${escapeHTML(unit)}</span><span class="precipitation">▥ ${escapeHTML(this._t(rain.label))} · ${escapeHTML(rain.unit)}</span></div>${raw.length?`<svg class="forecast-chart" viewBox="0 0 720 260" role="img" aria-label="${escapeHTML(this._t('Gráfico de próximas 24 horas'))}"><text x="${left}" y="14" fill="#ffbf83" font-size="12">${escapeHTML(unit)}</text><text x="${right}" y="14" text-anchor="end" fill="#68cef3" font-size="12">${escapeHTML(rain.unit)}</text>${grid}${bars}${paths}${dots}${axis}</svg>`:`<div class="message">${escapeHTML(this._t('Esperando previsión horaria…'))}</div>`}${this._forecastFoot('hourly')}</section>`;
+  }
+  _forecastDays(){
+    const zone=this._hass?.config?.time_zone||'Europe/Madrid',key=value=>new Intl.DateTimeFormat('sv-SE',{timeZone:zone}).format(new Date(value));
+    const today=key(Date.now());return (this._forecasts.daily||[]).filter(f=>Number.isFinite(Date.parse(f.datetime))&&key(f.datetime)>=today).sort((a,b)=>Date.parse(a.datetime)-Date.parse(b.datetime)).slice(0,7);
+  }
+  _dailyTiles(){
+    const days=this._forecastDays(),rain=this._rainMetric(days),zone=this._hass?.config?.time_zone||'Europe/Madrid';
+    const dayKey=value=>new Intl.DateTimeFormat('sv-SE',{timeZone:zone}).format(new Date(value));
+    const today=dayKey(Date.now()),tomorrowDate=new Date();tomorrowDate.setDate(tomorrowDate.getDate()+1);const tomorrow=dayKey(tomorrowDate);
+    const sun=[['astro_sunrise','Próximo amanecer'],['astro_sunset','Próxima puesta']].map(([id,label])=>{const date=this._state(id)?.state;return Number.isFinite(Date.parse(date))&&Date.parse(date)>Date.now()?`${escapeHTML(this._t(label))} ${escapeHTML(this._time(date,{hour:'2-digit',minute:'2-digit'}))}`:'';}).filter(Boolean).join(' · ');
+    return `<section>${this._forecastHeader('Próximos días','Una mirada a la semana')}<div class="week-tiles">${days.map(f=>{const key=dayKey(f.datetime),label=key===today?this._t('Hoy'):key===tomorrow?this._t('Mañana'):this._time(f.datetime,{weekday:'short',day:'numeric'}),value=rain.value(f);return `<article class="week-tile"><div class="week-day">${escapeHTML(label)}</div><img src="${BASE}icons/${iconName(f.condition,false)}.svg" alt="${escapeHTML(this._t(CONDITIONS[f.condition]||'Sin datos'))}"><div class="week-values"><strong>${fmt(f.temperature,0)}°</strong><span>${fmt(f.templow,0)}°</span></div><div class="week-track" aria-hidden="true"></div><div class="week-rain" title="${escapeHTML(this._t(rain.label))}">💧 ${value===null?'—':`${fmt(value)} ${escapeHTML(rain.unit)}`}</div></article>`;}).join('')}</div>${!days.length?`<div class="message">${escapeHTML(this._t('Esperando previsión diaria…'))}</div>`:''}<div class="forecast-foot"><span>${escapeHTML(this._t('Máxima / mínima'))} · ${escapeHTML(this._weather().temperature_unit||'°C')}</span><span>${sun}</span></div>${this._forecastFoot('daily')}</section>`;
+  }
+  _planning(){
+    const rows=forecastRows(this._forecasts.hourly).filter(f=>Date.parse(f.datetime)<=Date.now()+24*3600000),hours=rows.slice(0,8),rain=this._rainMetric(rows),wet=rows.find(f=>(rain.value(f)??0)>0);
+    const rainText=wet?this._t('Desde las {time}',{time:this._time(wet.datetime,{hour:'2-digit',minute:'2-digit'})}):rows.some(f=>rain.value(f)!==null)?this._t('Sin lluvia en las horas con datos'):this._t('Lluvia sin datos publicados');
+    const next12=rows.filter(f=>Date.parse(f.datetime)<=Date.now()+12*3600000),gusts=next12.map(f=>numeric(f.wind_gust_speed)).filter(n=>n!==null&&n>=0),winds=next12.map(f=>numeric(f.wind_speed)).filter(n=>n!==null&&n>=0);
+    const values=gusts.length?gusts:winds,windLabel=gusts.length?'Racha máxima · próximas 12 h':'Viento máximo previsto · próximas 12 h',windUnit=this._weather().wind_speed_unit||'km/h';
+    const action=`<button data-planning-radar aria-expanded="${Boolean(this._planningRadar)}">${escapeHTML(this._t(this._planningRadar?'Cerrar radar':'Radar'))} ↗</button>`;
+    return `<section>${this._forecastHeader('¿Paraguas o chaqueta?','Planifica las próximas horas',action)}<div class="planning-hours">${hours.map(f=>`<div class="planning-hour"><time>${escapeHTML(this._time(f.datetime,{hour:'2-digit',minute:'2-digit'}))}</time>${this._icon(f.condition,f.datetime)}<strong>${fmt(f.temperature,0)}°</strong><div class="planning-rain" title="${escapeHTML(this._t(rain.label))}">${rain.value(f)===null?'—':`${fmt(rain.value(f))} ${escapeHTML(rain.unit)}`}</div><small>${fmt(f.wind_speed,0)} ${escapeHTML(windUnit)}</small></div>`).join('')}</div>${!hours.length?`<div class="message">${escapeHTML(this._t('Esperando previsión horaria…'))}</div>`:''}<div class="planning-summary"><div>${escapeHTML(this._t('Lluvia prevista · próximas 24 h'))}<strong>${escapeHTML(rainText)}</strong></div><div>${escapeHTML(this._t(windLabel))}<strong>${values.length?`${fmt(Math.max(...values),0)} ${escapeHTML(windUnit)}`:'—'}</strong></div></div>${this._forecastFoot('hourly')}<div id="planning-radar"></div></section>`;
+  }
   _render(){
     if(!this.shadowRoot||!this._config)return;
     if(this._location&&EXTRA_MODES.includes(this._config.mode)){this._renderExtra();return;}
+    const previousPlanningRadar=this.shadowRoot.querySelector('#planning-radar > euskalmet-local-card');
     const previousExtra=this.shadowRoot.querySelector('#content > euskalmet-local-card');
     const extraMode=this._tab==='history'?'history':this._tab==='radar'?'radar':'alerts';
     const reusableExtra=previousExtra?._config?.mode===extraMode&&previousExtra?._config?.entry_id===this._location?.entry_id?previousExtra:null;
@@ -234,9 +295,11 @@ export class EuskalmetLocalCard extends HTMLElement {
       html=`<section><h2>Eguraldi</h2>${locations.length?`<label>${this._t('Selecciona localidad')} <select id="locality"><option value="">${escapeHTML(this._t("Elegir…"))}</option>${locations.map(l=>`<option value="${escapeHTML(l.entry_id)}">${escapeHTML(l.locality)}</option>`).join('')}</select></label>`:`<div class="message">${escapeHTML(this._t(this._error||(this._locations?'Añade una localidad desde la integración Eguraldi.':'Cargando localidades…')))}</div>`}</section>`;
     }else{
       const mode=this._config.mode;
-      html=mode==='overview'?this._overview():mode==='hourly'?this._hourly():mode==='daily'?this._daily():this._overview()+`<section class="divider"><nav class="tabs" aria-label="${this._t('Vista del tiempo')}">${[['hourly','24 horas'],['daily','Próximos días'],['radar','Radar'],['history','Histórico'],['alerts','Avisos']].map(([id,label])=>`<button data-tab="${id}" class="${this._tab===id?'active':''}" aria-pressed="${this._tab===id}">${escapeHTML(this._t(label))}</button>`).join('')}</nav><div id="content"></div></section>`;
+      html=mode==='overview'?this._overview():mode==='hourly'?this._hourly():mode==='daily'?this._daily():mode==='hourly_chart'?this._hourlyChart():mode==='daily_tiles'?this._dailyTiles():mode==='planning'?this._planning():this._overview()+`<section class="divider"><nav class="tabs" aria-label="${this._t('Vista del tiempo')}">${[['hourly','24 horas'],['daily','Próximos días'],['radar','Radar'],['history','Histórico'],['alerts','Avisos']].map(([id,label])=>`<button data-tab="${id}" class="${this._tab===id?'active':''}" aria-pressed="${this._tab===id}">${escapeHTML(this._t(label))}</button>`).join('')}</nav><div id="content"></div></section>`;
     }
-    this.shadowRoot.innerHTML=`<style>${CSS}</style><ha-card>${html}${this._error?`<div class="message error">${escapeHTML(this._t(this._error))}</div>`:''}</ha-card>`;
+    this.shadowRoot.innerHTML=`<style>${CSS}${FORECAST_CSS}</style><ha-card>${html}${this._error?`<div class="message error">${escapeHTML(this._t(this._error))}</div>`:''}</ha-card>`;
+    this.shadowRoot.querySelector('[data-planning-radar]')?.addEventListener('click',()=>{this._planningRadar=!this._planningRadar;this._render();});
+    if(this._config.mode==='planning'&&this._planningRadar&&this._location){const radar=previousPlanningRadar||document.createElement('euskalmet-local-card');if(!previousPlanningRadar)radar.setConfig({mode:'radar',entry_id:this._location.entry_id});radar.hass=this._hass;this.shadowRoot.querySelector('#planning-radar').append(radar);}
     this.shadowRoot.querySelector('#locality')?.addEventListener('change',e=>{if(e.target.value)this.setConfig({...this._config,entry_id:e.target.value});});
     for(const button of this.shadowRoot.querySelectorAll('[data-tab]'))button.addEventListener('click',()=>{this._tab=button.dataset.tab;this._render();});
     if(this._location&&this._config.mode==='dashboard'){
@@ -259,8 +322,10 @@ export class EuskalmetLocalCard extends HTMLElement {
     const mode=this._config.mode,loc=this._location;
     const labels={history:'histórico de temperatura',radar:'radar de precipitación',alerts:'avisos',summaries:'resumen de hoy',comparison:'temperatura · últimas 24 horas',environment:'costa y ambiente'};
     if(!this.shadowRoot.querySelector('#extra-content')){
-      this.shadowRoot.innerHTML=`<style>${CSS}.rows{padding:0 20px 18px}.row{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid #ffffff15;font-size:13px}.row span{color:#b5d2e4}.row strong{text-align:right;font-weight:500}#extra-content>p{padding:0 20px 20px;color:#a9becf;font-size:12px}</style><ha-card><section><h2 id="extra-title"></h2><div class="muted measurement-source" id="extra-source"></div></section><div id="extra-content"></div></ha-card>`;
+      this.shadowRoot.innerHTML=`<style>${CSS}${FORECAST_CSS}.rows{padding:0 20px 18px}.row{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid #ffffff15;font-size:13px}.row span{color:#b5d2e4}.row strong{text-align:right;font-weight:500}#extra-content>p{padding:0 20px 20px;color:#a9becf;font-size:12px}</style><ha-card><section id="extra-heading"><h2 id="extra-title"></h2><div class="muted measurement-source" id="extra-source"></div></section><div id="extra-content"></div></ha-card>`;
     }
+    this.shadowRoot.querySelector('#extra-heading').hidden=mode==='radar'&&this._config.show_title!==true;
+    this.shadowRoot.querySelector('#extra-source').hidden=mode==='alerts';
     this.shadowRoot.querySelector('#extra-title').textContent=`${loc.locality} · ${this._t(labels[mode])}`;
     this.shadowRoot.querySelector('#extra-source').textContent=['radar','alerts','environment'].includes(mode)?this._t(mode==='radar'?'Radar regional · Euskalmet':mode==='alerts'?'Avisos para la zona de tu localidad':'Cantábrico · mareas de Pasaia · captadora de polen de referencia'):this._measurementSource();
     const content=this.shadowRoot.querySelector('#extra-content');
@@ -282,8 +347,9 @@ export class EuskalmetLocalCard extends HTMLElement {
       tag=mode==='history'?'euskalmet-local-history-card':mode==='radar'?'euskalmet-local-radar-map-card':'euskalmet-local-alert-card';
       const entity=loc.entities[mode==='history'?'temperature':mode==='radar'?'radar':'alert_level'];
       config={entity,entry_id:loc.entry_id,title:`${loc.locality} · ${this._t(labels[mode])}`};
+      if(mode==='alerts'){config.embedded=true;config.show_title=false;}
       if(mode==='history'){config.station_id=loc.station_id;config.show_title=false;if(this._config.measure)config.measure=this._config.measure;}
-      if(mode==='radar'){config.show_header=false;config.map_style=this._config.map_style||'dark';config.latitude=loc.latitude;config.longitude=loc.longitude;config.locality=loc.locality;config.zoom=this._config.zoom??10;}
+      if(mode==='radar'){config.show_header=false;config.map_style=this._config.map_style||'satellite';config.latitude=loc.latitude;config.longitude=loc.longitude;config.locality=loc.locality;config.zoom=this._config.zoom??10;}
     }
     const key=JSON.stringify([mode,config]);
     if(content.firstElementChild?.dataset.extraKey===key){content.firstElementChild.hass=this._hass;return;}
@@ -299,7 +365,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       const card=document.createElement(tag);card.setConfig(config);apply(card);
     }else content.innerHTML=`<p>${escapeHTML(this._t("Esta tarjeta todavía no está disponible."))}</p>`;
   }
-  getCardSize(){return this._config?.mode==='hourly'?9:6;}
+  getCardSize(){return ['hourly','planning'].includes(this._config?.mode)?9:6;}
   static getStubConfig(){return {mode:'dashboard'};}
   static getConfigElement(){return document.createElement('euskalmet-local-editor');}
 }
@@ -328,7 +394,7 @@ class EuskalmetLocalEditor extends HTMLElement {
   }
   _render(){
     if(!this._config)return;
-    const modes=[['dashboard','Panel completo'],['overview','Tiempo actual'],['hourly','Próximas 24 horas'],['daily','Próximos días'],['summaries','Resumen de hoy'],['history','Histórico mensual'],['radar','Radar'],['alerts','Avisos'],['comparison','Comparación de temperatura'],['environment','Costa y ambiente']];
+    const modes=[['dashboard','Panel completo'],['overview','Tiempo actual'],['hourly','Próximas 24 horas'],['daily','Próximos días'],['hourly_chart','Gráfico de próximas 24 horas'],['daily_tiles','Semana visual'],['planning','Planifica las próximas horas'],['summaries','Resumen de hoy'],['history','Histórico mensual'],['radar','Radar'],['alerts','Avisos'],['comparison','Comparación de temperatura'],['environment','Costa y ambiente']];
     const locations=this._locations||[];
     this.innerHTML=`<style>.eg-editor{display:grid;gap:16px;padding:8px 0}.eg-editor label{display:grid;gap:7px;font-size:14px}.eg-editor select,.eg-editor input{font:inherit;padding:10px;border:1px solid var(--divider-color,#888);border-radius:10px;background:var(--card-background-color,#fff);color:var(--primary-text-color,#111);width:100%;box-sizing:border-box}.eg-editor p{font-size:12px;color:var(--secondary-text-color);margin:0}</style><div class="eg-editor"><label>${escapeHTML(this._t("Vista"))}<select id="eg-mode">${modes.map(([id,label])=>`<option value="${id}">${escapeHTML(this._t(label))}</option>`).join('')}</select></label><label>${escapeHTML(this._t("Ubicación"))}<select id="eg-location"><option value="">${this._t(locations.length===1?'Automática · única ubicación':'Elegir en la tarjeta')}</option>${locations.map(loc=>`<option value="${escapeHTML(loc.entry_id)}">${escapeHTML(loc.locality)}${loc.location_source==='home_assistant'?this._t(' · ubicación de HA'):''}</option>`).join('')}</select></label><p>${this._t(this._loadError?'No se han podido cargar las ubicaciones. Vuelve a abrir el editor.':this._locations?(locations.length?'La ubicación elegida se guardará con esta tarjeta.':'Añade una ubicación en la integración Eguraldi.'):'Cargando ubicaciones…')}</p><div id="eg-extra"></div></div>`;
     const mode=this.querySelector('#eg-mode');mode.value=this._config.mode||'dashboard';mode.addEventListener('change',()=>this._save({mode:mode.value}));
@@ -338,6 +404,11 @@ class EuskalmetLocalEditor extends HTMLElement {
     const extra=this.querySelector('#eg-extra');
     if(this._config.mode==='radar'){
       extra.innerHTML=`<label>${escapeHTML(this._t("Zoom del mapa"))}<input id="eg-zoom" type="number" min="3" max="16" step="1"></label><p>${escapeHTML(this._t("Un número mayor acerca la vista a tu ubicación."))}</p>`;
+      const mapLabel=document.createElement('label');mapLabel.textContent=this._t('Estilo del mapa');
+      const mapStyle=document.createElement('select');mapStyle.id='eg-map-style';
+      for(const [value,label] of [['satellite','Mapa satélite'],['dark','Mapa oscuro'],['light','Mapa claro']]){const option=document.createElement('option');option.value=value;option.textContent=this._t(label);mapStyle.append(option);}
+      if(this._config.map_style&&!['satellite','dark','light'].includes(this._config.map_style)){const option=document.createElement('option');option.value=this._config.map_style;option.textContent=this._config.map_style;mapStyle.append(option);}
+      mapStyle.value=this._config.map_style||'satellite';mapStyle.addEventListener('change',()=>this._save({map_style:mapStyle.value}));mapLabel.append(mapStyle);extra.append(mapLabel);
       const zoom=extra.querySelector('input');zoom.value=String(this._config.zoom??10);zoom.addEventListener('change',()=>{const value=Number(zoom.value);if(Number.isFinite(value)&&value>=3&&value<=16)this._save({zoom:value});});
     }
     if(this._config.mode==='comparison'){

@@ -9,6 +9,7 @@ const source=readFileSync(sourcePath,'utf8').replace(/^import .*;$/gm,'').replac
 function setup(){
   const dom=new JSDOM('<body></body>',{url:'http://localhost',runScripts:'outside-only'});
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-history-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
+  vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-alert-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(source+'\nwindow.logic={forecastRows,iconName,isNight,numeric,escapeHTML};',dom.getInternalVMContext());
   return dom;
 }
@@ -122,7 +123,7 @@ test('comparison can reconnect while its lazy card helper is pending',async()=>{
 test('all mounted card modes adopt the new locality and nearest station on the same entry',async()=>{
   const dom=setup();
   for(const tag of ['euskalmet-local-radar-map-card','euskalmet-local-alert-card']){
-    dom.window.customElements.define(tag,class extends dom.window.HTMLElement{setConfig(value){this.config=value;}set hass(value){this._hass=value;}});
+    if(!dom.window.customElements.get(tag))dom.window.customElements.define(tag,class extends dom.window.HTMLElement{setConfig(value){this.config=value;}set hass(value){this._hass=value;}});
   }
   class Graph extends dom.window.HTMLElement{set hass(value){this._hass=value;}}
   dom.window.customElements.define('test-locality-graph',Graph);
@@ -295,5 +296,49 @@ test('Basque short dates work even when the browser lacks Basque locale data',()
   const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'daily'});card.hass={...hass(),locale:{language:'eu'}};
   assert.equal(card._time('2026-11-15T12:00:00Z',{weekday:'short'}),'ig.');
   assert.match(card._time('2026-11-15T12:00:00Z',{day:'numeric',month:'short'}),/aza\./);
+  dom.window.close();
+});
+
+
+test('hourly chart preserves missing slots and separates temperature and rainfall units',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass();
+  const anchor=Math.ceil(Date.now()/3600000)*3600000;
+  const rows=[0,1,3].map((i)=>({datetime:new Date(anchor+i*3600000).toISOString(),temperature:10+i,precipitation:i===1?null:.2,condition:'rainy'}));
+  h.connection.subscribeMessage=async(cb,msg)=>{if(msg.type==='weather/subscribe_forecast')cb({forecast:msg.forecast_type==='hourly'?rows:[]});return()=>{};};
+  card.setConfig({mode:'hourly_chart'});card.hass=h;dom.window.document.body.append(card);await flush();
+  const root=card.shadowRoot;
+  assert.equal(root.querySelectorAll('.chart-point').length,3);assert.equal(root.querySelectorAll('.chart-bar').length,2);assert.equal(root.querySelectorAll('.chart-temp').length,2);
+  assert.match(root.querySelector('.forecast-legend').textContent,/mm/);assert.doesNotMatch(root.querySelector('.forecast-legend').textContent,/Probabilidad|%/);
+  assert.doesNotMatch(root.querySelector('svg').outerHTML,/NaN|Infinity/);
+  assert.equal(card._rainMetric([{precipitation_probability:40}]).unit,'%');assert.equal(card._rainMetric([{precipitation:null}]).value({precipitation:null}),null);
+  dom.window.close();
+});
+test('weekly tiles show missing daily rain honestly and all new modes update in Basque',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h={...hass(),locale:{language:'eu'}};
+  card.setConfig({mode:'daily_tiles'});card.hass=h;dom.window.document.body.append(card);await flush();
+  assert.equal(card.shadowRoot.querySelectorAll('.week-tile').length,7);
+  assert.equal(card.shadowRoot.querySelector('.week-day').textContent,'Gaur');
+  assert.match(card.shadowRoot.querySelector('h2').textContent,/Hurrengo egunak/);
+  card._forecasts.daily=card._forecasts.daily.map(({precipitation,...f})=>f);card._render();
+  assert.equal(card.shadowRoot.querySelector('.week-rain').textContent.trim(),'💧 —');
+  card.setConfig({mode:'planning'});await flush();assert.equal(card.shadowRoot.querySelectorAll('.planning-hour').length,8);assert.match(card.shadowRoot.querySelector('h2').textContent,/Aterkia ala jaka/);
+  dom.window.close();
+});
+test('planning labels maximum wind honestly and excludes gusts beyond twelve hours',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'planning'});card.hass=hass();dom.window.document.body.append(card);await flush();
+  card._forecasts.hourly=forecasts.map((f,i)=>({...f,precipitation:null,wind_gust_speed:i===20?99:null}));card._render();
+  assert.match(card.shadowRoot.querySelector('.planning-summary').textContent,/Lluvia sin datos publicados.*Viento máximo previsto/s);
+  assert.doesNotMatch(card.shadowRoot.querySelector('.planning-summary').textContent,/99|Racha máxima/);
+  const button=card.shadowRoot.querySelector('[data-planning-radar]');button.click();
+  assert.equal(card.shadowRoot.querySelector('#planning-radar euskalmet-local-card')._config.entry_id,'test');
+  assert.equal(card.shadowRoot.querySelector('[data-planning-radar]').getAttribute('aria-expanded'),'true');
+  dom.window.close();
+});
+test('embedded alerts have one visible title and the radar defaults to satellite without heading',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass();
+  const loc={...location,entities:{...location.entities,alert_level:'sensor.alert'}};h.callWS=async()=>[loc];h.states['sensor.alert']={state:'none',attributes:{alerts:[]}};
+  card.setConfig({mode:'alerts'});card.hass=h;dom.window.document.body.append(card);await flush();
+  const alerts=card.shadowRoot.querySelector('euskalmet-local-alert-card');assert.ok(alerts);assert.equal(alerts.shadowRoot.querySelector('.title').hidden,true);assert.equal(card.shadowRoot.querySelector('#extra-source').hidden,true);assert.ok(alerts.shadowRoot.querySelector('.card.embedded'));
+  card.setConfig({mode:'radar'});await flush();assert.equal(card.shadowRoot.querySelector('#extra-heading').hidden,true);
   dom.window.close();
 });
