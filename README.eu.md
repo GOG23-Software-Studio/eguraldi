@@ -11,7 +11,7 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 [![Egiaztapenak](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 [![Bertsioa](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**0.1.6 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
+**0.1.7 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
@@ -92,6 +92,10 @@ Grafikoak tenperatura eta orduko euria (mm) bereizten ditu. Asteko ikuspegiak ho
 
 ![Tenperaturen konparazioa eta hileko historikoa](docs/history-comparison-eu.jpg)
 
+![Eguraldi · radar · demo](docs/radar-eu.jpg)
+
+Radarrak gainerako txartelen atzeko planoa eta kontrolen estiloa erabiltzen ditu. Eguneko barrek minimoa eta maximoa erakusten dituzte asteko eskala komun batean. Irudiek erakustaldiko datuak eta herriaren kokapen publikoa erabiltzen dituzte.
+
 Konparazioak HAko bost minutuko tarte osatuen estatistikak erabiltzen ditu: serie bakoitzaren minimoak, maximoak eta batezbestekoak. Batez besteko aldea tarte komunekin soilik kalkulatzen da, unitate berean. Hileko historikoak eguneko laburpen ofizialak erakusten ditu, daturik gabeko egunetan hutsuneak utziz eta uneko hilabeteko etorkizuneko egunak marraztu gabe.
 
 ## Datuen esanahia eta mugak
@@ -106,7 +110,7 @@ Tokiko udalerri-detekzioak integratutako Euskadiko poligonoak hartzen ditu. Esta
 
 ## Pribatutasuna eta laguntza
 
-Helbide elektronikoa eta gakoa HAn gordetzen dira; Euskalmetera sartzeko eskaerak bertan sinatzen dira. Txartelek eta editoreak ez dute gakoa jasotzen. Eskuzko bilaketak udalerriaren izena soilik bidaltzen dio Open-Meteo / GeoNames zerbitzuari. Mapak Esriren teselak erabiltzen ditu lehenetsitako estilo ilunean, edo OpenStreetMapenak dagozkien estiloetan. Proiektuak ez du telemetriarik.
+Helbide elektronikoa eta gakoa HAn gordetzen dira; Euskalmetera sartzeko eskaerak bertan sinatzen dira. Txartelek eta editoreak ez dute gakoa jasotzen. Eskuzko bilaketak udalerriaren izena soilik bidaltzen dio Open-Meteo / GeoNames zerbitzuari. Mapak Esriren teselak erabiltzen ditu lehenetsitako satelite-estiloan, edo OpenStreetMapenak dagozkien estiloetan. Proiektuak ez du telemetriarik.
 
 [Ireki arazo bat](https://github.com/GOG23-Software-Studio/eguraldi/issues/new/choose), bertsioak eta urratsak adieraziz. Ez argitaratu gakorik, helbide elektronikorik edo koordenaturik. [VALIDATION.md](VALIDATION.md) fitxategiak probak eta haien mugak azaltzen ditu (gaztelaniaz).
 

@@ -71,6 +71,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    this._translateShell();
     this._syncFromState();
   }
 
@@ -80,6 +81,8 @@ class EuskalmetRadarMapCard extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = undefined;
     this._stopPlayback();
     this._preloadGeneration += 1;
     this._revokeFrameUrls();
@@ -103,7 +106,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
     return eu ? {
       missingEntity: "Euskalmeteko radar-kameraren entitatea adierazi behar duzu",
       title: "Prezipitazio-radarra", waiting: "Datuen zain…",
-      mapLabel: "Euskalmeteko radarra OpenStreetMapen", controls: "Animazio-kontrolak",
+      zoomIn:"Hurbildu", zoomOut:"Urrundu", mapLabel: "Euskalmeteko radarra", controls: "Animazio-kontrolak",
       previous: "Aurreko fotograma", play: "Animazioa erreproduzitu",
       pause: "Animazioa pausatu", next: "Hurrengo fotograma",
       latest: "Eskuragarri dagoen azken irudia", frame: "Radar-fotograma",
@@ -123,7 +126,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
     } : {
       missingEntity: "Debes indicar la entidad camera del radar de Euskalmet",
       title: "Radar de precipitación", waiting: "Esperando datos…",
-      mapLabel: "Radar de Euskalmet sobre OpenStreetMap", controls: "Controles de animación",
+      zoomIn:"Acercar", zoomOut:"Alejar", mapLabel: "Radar de Euskalmet", controls: "Controles de animación",
       previous: "Fotograma anterior", play: "Reproducir animación", pause: "Pausar animación",
       next: "Fotograma siguiente", latest: "Última captura disponible",
       frame: "Fotograma del radar", speed: "Velocidad de reproducción",
@@ -139,6 +142,19 @@ class EuskalmetRadarMapCard extends HTMLElement {
       playing: "Reproduciendo", preparing: "Preparando", animationReady: "Animación lista",
       updateError: "No se pudo actualizar el radar",
     };
+  }
+
+  _translateShell() {
+    if (!this.shadowRoot.querySelector('.radar-card')) return;
+    const t=this._text();
+    for(const [selector,key] of Object.entries({'.legend-title':'precipitation','.recenter':'recenter','.fit':'coverage','.refresh':'reload'}))this.shadowRoot.querySelector(selector).textContent=t[key];
+    ['weak','moderate','strong','veryStrong','torrential'].forEach((key,index)=>{this.shadowRoot.querySelectorAll('.legend-label')[index].textContent=t[key];});
+    const opacity=this.shadowRoot.querySelector('.opacity-label');opacity.firstChild.textContent=t.opacity+' ';
+    for(const [selector,key] of Object.entries({'.map':'mapLabel','.map-controls':'controls','.previous':'previous','.next':'next','.timeline':'frame','.speed':'speed','.legend':'legend','.opacity':'opacity','.leaflet-control-zoom-in':'zoomIn','.leaflet-control-zoom-out':'zoomOut'})){
+      const element=this.shadowRoot.querySelector(selector);element?.setAttribute('aria-label',t[key]);if(selector.startsWith('.leaflet'))element?.setAttribute('title',t[key]);
+    }
+    this._updatePlayButton();
+    if(this._timeline[this._activeIndex])this.shadowRoot.querySelector('.frame-time').textContent=this._formatTimestamp(this._timeline[this._activeIndex]);
   }
 
   getGridOptions() {
@@ -165,14 +181,14 @@ class EuskalmetRadarMapCard extends HTMLElement {
 
     const style = document.createElement("style");
     style.textContent = `
-      :host { display: block; }
+      :host { display:block;min-width:0;container-type:inline-size;font-family:var(--primary-font-family,system-ui);--radar-text:#edf8ff;--radar-muted:#a9becf;--radar-line:#9acdd926;--radar-accent:#8ed9d1; }
       * { box-sizing: border-box; }
       .radar-card {
         overflow: hidden;
-        color: var(--primary-text-color);
-        background: var(--ha-card-background, var(--card-background-color));
-        border: var(--ha-card-border-width, 1px) solid var(--ha-card-border-color, var(--divider-color));
-        border-radius: var(--ha-card-border-radius, 12px);
+        color: var(--radar-text);
+        background:linear-gradient(145deg,#1b3246,#101e30);
+        border:1px solid var(--radar-line);
+        border-radius:24px;
         box-shadow: var(--ha-card-box-shadow, none);
       }
       .header {
@@ -186,18 +202,18 @@ class EuskalmetRadarMapCard extends HTMLElement {
       .title { font-size: 18px; font-weight: 500; }
       .summary {
         margin-top: 3px;
-        color: var(--secondary-text-color);
+        color: var(--radar-muted);
         font-size: 13px;
       }
       .loading {
         flex: 0 0 auto;
-        color: var(--secondary-text-color);
+        color: var(--radar-muted);
         font-size: 12px;
       }
       .map {
         height: 460px;
         min-height: 320px;
-        background: var(--secondary-background-color);
+        background: #8ecade0d;
       }
       .map-shell { position: relative; }
       .basemap-gray {
@@ -221,11 +237,10 @@ class EuskalmetRadarMapCard extends HTMLElement {
         gap: 0;
         min-height: 38px;
         padding: 3px;
-        color: var(--primary-text-color);
-        background: var(--card-background-color);
-        background: color-mix(in srgb, var(--card-background-color) 92%, transparent);
-        border: 1px solid color-mix(in srgb, var(--divider-color) 75%, transparent);
-        border-radius: 7px;
+        color: var(--radar-text);
+        background:#102235ed;
+        border: 1px solid color-mix(in srgb, var(--radar-line) 75%, transparent);
+        border-radius:12px;
         box-shadow: 0 1px 5px rgba(0, 0, 0, 0.24);
         backdrop-filter: blur(5px);
       }
@@ -235,17 +250,17 @@ class EuskalmetRadarMapCard extends HTMLElement {
         height: 32px;
         padding: 0;
         border: 0;
-        border-right: 1px solid var(--divider-color);
+        border-right: 1px solid var(--radar-line);
         border-radius: 0;
-        color: var(--primary-text-color);
+        color: var(--radar-text);
         background: transparent;
         font: inherit;
         font-size: 14px;
         cursor: pointer;
       }
-      .transport-button:hover { background: var(--secondary-background-color); }
+      .transport-button:hover { background: #8ecade0d; }
       .transport-button:disabled { cursor: default; opacity: 0.45; }
-      .play { color: var(--primary-color); font-size: 16px; }
+      .play { color: var(--radar-accent); font-size: 16px; }
       .frame-time {
         flex: 0 1 205px;
         min-width: 145px;
@@ -267,23 +282,23 @@ class EuskalmetRadarMapCard extends HTMLElement {
         height: 30px;
         padding: 0 8px;
         border: 0;
-        border-left: 1px solid var(--divider-color);
-        color: var(--secondary-text-color);
+        border-left: 1px solid var(--radar-line);
+        color: var(--radar-muted);
         background: transparent;
         font: inherit;
-        color: var(--secondary-text-color);
+        color: var(--radar-muted);
         font-size: 12px;
         cursor: pointer;
       }
       input[type="range"] {
-        accent-color: var(--primary-color);
+        accent-color: var(--radar-accent);
       }
       .legend {
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 8px;
         padding: 15px 18px 13px;
-        color: var(--secondary-text-color);
+        color: var(--radar-muted);
       }
       .legend-title {
         grid-column: 1 / -1;
@@ -309,30 +324,30 @@ class EuskalmetRadarMapCard extends HTMLElement {
         display: flex;
         align-items: center;
         gap: 8px;
-        color: var(--secondary-text-color);
+        color: var(--radar-muted);
         font-size: 13px;
       }
       .opacity-label input { width: 100px; margin: 0; }
       .text-button {
         min-height: 34px;
         padding: 0 11px;
-        border: 1px solid var(--divider-color);
+        border: 1px solid var(--radar-line);
         border-radius: 9px;
-        color: var(--primary-text-color);
-        background: transparent;
+        color: var(--radar-text);
+        background:#7dbbcc12;
         font: inherit;
-        font-size: 13px;
+        font-size:13px;
         cursor: pointer;
       }
-      .text-button:hover { background: var(--secondary-background-color); }
+      .text-button:hover { background: #8ecade0d; }
       button:focus-visible, input:focus-visible {
-        outline: 2px solid var(--primary-color);
+        outline: 2px solid var(--radar-accent);
         outline-offset: 2px;
       }
       .message {
         display: none;
         padding: 0 18px 14px;
-        color: var(--error-color, var(--secondary-text-color));
+        color: var(--error-color, var(--radar-muted));
         font-size: 13px;
       }
       .message.visible { display: block; }
@@ -352,6 +367,28 @@ class EuskalmetRadarMapCard extends HTMLElement {
         .opacity-label { flex: 1 1 160px; }
         .opacity-label input { flex: 1 1 auto; }
       }
+      .radar-card.embedded {background:transparent;border:0;border-radius:0;box-shadow:none}
+      .legend-title {color:#91d9d1;font-size:10px;letter-spacing:2px}
+      .legend-ramp {height:5px;border-radius:4px;overflow:hidden}
+      .legend-label {font-size:10px;line-height:1.4}
+      .options {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:4px 18px 18px}
+      .opacity-label {grid-column:1 / -1;padding:4px 0 8px;font-size:11px}
+      .opacity-label input {width:auto;flex:1;min-width:0;margin-left:12px}
+      .text-button {border-radius:12px;min-height:40px;padding:8px 6px;font-size:11px;background:#7dbbcc12}
+      .text-button:disabled {opacity:.45;cursor:default}
+      .leaflet-bar {border:1px solid #9acdd94d!important;border-radius:11px!important;overflow:hidden;box-shadow:0 3px 12px #0003}
+      .leaflet-bar a,.leaflet-bar a:hover {background:#132b3d;color:#edf8ff;border-color:#9acdd926}
+      .leaflet-container .leaflet-control-attribution {background:#102235dd;color:#a9becf;font-size:9px}
+      .leaflet-container .leaflet-control-attribution a {color:#8ed9d1}
+      @container(max-width:480px){
+        .map{height:370px}
+        .map-controls{display:grid;grid-template-columns:34px minmax(0,1fr);gap:2px 6px;padding:5px 8px}
+        .step,.speed{display:none}
+        .play{grid-column:1;grid-row:1;width:32px;border:0}
+        .frame-time{grid-column:2;grid-row:1;min-width:0;padding:0 4px;font-size:11px}
+        .timeline{grid-column:1 / -1;grid-row:2;width:100%;min-width:0;margin:2px 0 3px}
+      }
+      @media(max-width:560px){.options{padding:4px 14px 16px}.legend-label{font-size:10px}.text-button{font-size:11px}.frame-time{font-size:11px}}
     `;
 
     const t = this._text();
@@ -445,6 +482,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
     if (!this.shadowRoot || !this._config) {
       return;
     }
+    this.shadowRoot.querySelector(".radar-card")?.classList.toggle("embedded", this._config.embedded === true);
     const visibility = {
       ".header": this._config.show_header !== false,
       ".map-controls": this._config.show_controls !== false,
@@ -497,6 +535,11 @@ class EuskalmetRadarMapCard extends HTMLElement {
         scrollWheelZoom: true,
       });
 
+      if (typeof ResizeObserver !== "undefined") {
+        this._resizeObserver = new ResizeObserver(() => this._map?.invalidateSize({animate:false}));
+        this._resizeObserver.observe(this.shadowRoot.querySelector(".map"));
+      }
+      this._translateShell();
       this._addBasemap(L);
       this._syncLocationMarker();
 
@@ -520,6 +563,7 @@ class EuskalmetRadarMapCard extends HTMLElement {
     // Preserve a user's pan/zoom and the coverage button until the location changes.
     if (!force && key === this._viewKey) return;
     this._viewKey = key;
+    this._map.invalidateSize?.({animate:false});
     if (valid) this._map.setView([latitude, longitude], zoom, { animate: false });
     else this._map.fitBounds(this._currentBounds(), { padding: [8, 8] });
   }
@@ -762,14 +806,20 @@ class EuskalmetRadarMapCard extends HTMLElement {
       const date = new Date(frame.timestamp);
       if (!Number.isNaN(date.getTime())) {
         const language = this._hass?.locale?.language || navigator.language;
-        return new Intl.DateTimeFormat(language, {
+        const formatter = new Intl.DateTimeFormat(language, {
           weekday: "short",
           day: "2-digit",
           month: "short",
           hour: "2-digit",
           minute: "2-digit",
           timeZoneName: "short",
-        }).format(date);
+        });
+        if(!String(language).startsWith('eu')||formatter.resolvedOptions().locale.startsWith('eu'))return formatter.format(date);
+        const timeZone=this._hass?.config?.time_zone||'Europe/Madrid';
+        const weekday=new Intl.DateTimeFormat('en-US',{timeZone,weekday:'short'}).format(date);
+        const month=Number(new Intl.DateTimeFormat('en-US',{timeZone,month:'numeric'}).format(date))-1;
+        const weekdays={Mon:'al.',Tue:'ar.',Wed:'az.',Thu:'og.',Fri:'or.',Sat:'lr.',Sun:'ig.'},months=['urt.','ots.','mar.','api.','mai.','eka.','uzt.','abu.','ira.','urr.','aza.','abe.'];
+        return formatter.formatToParts(date).map(part=>part.type==='weekday'?weekdays[weekday]:part.type==='month'?months[month]:part.value).join('');
       }
     }
     return frame?.range || this._text().timeUnavailable;

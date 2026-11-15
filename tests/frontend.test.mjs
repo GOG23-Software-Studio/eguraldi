@@ -359,3 +359,27 @@ test('monthly history rejects missing readings and splits lines at missing days'
   assert.equal(card.shadowRoot.querySelectorAll('.history-metrics>div').length,3);assert.ok(card.shadowRoot.querySelector('ha-card.embedded'));
   card.date=new Date();assert.equal(card.plotDays(),new Date().getDate());dom.window.close();
 });
+
+test('weekly ranges use a shared temperature scale and omit missing pairs',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card');
+  card.setConfig({mode:'daily_tiles'});card.hass=hass();dom.window.document.body.append(card);await flush();
+  const anchor=Date.now();
+  card._forecasts.daily=[[0,10],[5,20],[null,15],[10,10]].map(([templow,temperature],i)=>({datetime:new Date(anchor+i*86400000).toISOString(),templow,temperature,condition:'sunny'}));card._render();
+  const tiles=card.shadowRoot.querySelectorAll('.week-tile');
+  assert.equal(tiles[0].querySelector('.week-range').style.left,'0%');assert.equal(tiles[0].querySelector('.week-range').style.width,'50%');
+  assert.equal(tiles[1].querySelector('.week-range').style.left,'25%');assert.equal(tiles[1].querySelector('.week-range').style.width,'75%');
+  assert.equal(tiles[2].querySelector('.week-track'),null);assert.equal(tiles[3].querySelector('.week-range').style.width,'0%');
+  assert.match(tiles[0].querySelector('.week-values').textContent,/Máxima.*Mínima/);
+  for(const mode of ['overview','hourly','daily','hourly_chart','daily_tiles','planning']){card.setConfig({mode});await flush();assert.equal(card.shadowRoot.querySelector('.forecast-foot,.source'),null);}
+  dom.window.close();
+});
+
+test('radar translates existing controls without rebuilding its map',()=>{
+  const dom=new JSDOM('<body></body>',{url:'http://localhost',runScripts:'outside-only'});
+  vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-radar-map-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
+  const radar=dom.window.document.createElement('eguraldi-radar-map-card');radar.setConfig({entity:'camera.test',embedded:true,show_header:false});
+  const shell=radar.shadowRoot.querySelector('.map');radar.hass={locale:{language:'eu'},states:{}};
+  assert.equal(radar.shadowRoot.querySelector('.recenter').textContent,'Nire kokapena');assert.equal(radar.shadowRoot.querySelector('.opacity').getAttribute('aria-label'),'Opakutasuna');
+  assert.equal(radar.shadowRoot.querySelector('.map'),shell);assert.equal(radar.shadowRoot.querySelector('.radar-card').classList.contains('embedded'),true);
+  radar.hass={locale:{language:'es'},states:{}};assert.equal(radar.shadowRoot.querySelector('.recenter').textContent,'Mi ubicación');assert.equal(radar.shadowRoot.querySelector('.map'),shell);dom.window.close();
+});

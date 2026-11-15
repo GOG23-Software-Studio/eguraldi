@@ -1,5 +1,13 @@
 # Cambios
 
+## 0.1.7
+
+- Radar integrado con el fondo azul, tipografía y controles del resto de Eguraldi, sin panel negro interior ni cabecera añadida.
+- El mapa reajusta su tamaño al cambiar de columna o pantalla; el botón de ubicación vuelve a centrarlo correctamente.
+- Tarjetas sin comentarios inferiores. Se mantiene la atribución de Leaflet y del mapa.
+- Previsión diaria con máxima y mínima identificadas y barras que representan cada rango sobre una escala común de la semana.
+- Capturas del radar, comparación, histórico y previsiones actualizadas en castellano y euskera, con datos de demostración.
+
 ## 0.1.6
 
 - El punto y el nombre de la ubicación del radar forman un único marcador, para que permanezcan unidos al mover, ampliar o redimensionar el mapa.

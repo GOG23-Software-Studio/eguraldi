@@ -437,7 +437,6 @@ class EuskalmetHistoryCard extends HTMLElement {
       </div>
       ${graph && !this.loading && !this.error ? this.summary(text) : ''}
       ${body}
-      <div class="history-foot">${text.locale === 'eu-ES' ? 'Eguneko laburpenak · Euskalmet. Falta diren datuek hutsuneak uzten dituzte.' : 'Resúmenes diarios · Euskalmet. Los datos ausentes dejan huecos.'}</div>
     </ha-card>`;
 
     this.shadowRoot.querySelector("#prev")?.addEventListener("click", () => this.shift(-1));
