@@ -7,6 +7,9 @@ class EuskalmetHistoryCard extends HTMLElement {
     this.date.setDate(1);
     this.retries = 0;
     this.hiddenSeries = new Set();
+    this._outsidePicker = event => {
+      if (!event.composedPath().includes(this)) this.closePickers();
+    };
   }
 
   setConfig(config) {
@@ -39,8 +42,8 @@ class EuskalmetHistoryCard extends HTMLElement {
     this.error = null; this.retries = 0;
   }
 
-  connectedCallback() { this.scheduleLoad(); }
-  disconnectedCallback() { clearTimeout(this.retryTimer); }
+  connectedCallback() { document.addEventListener('pointerdown',this._outsidePicker);this.scheduleLoad(); }
+  disconnectedCallback() { document.removeEventListener('pointerdown',this._outsidePicker);clearTimeout(this.retryTimer); }
   getCardSize() { return 7; }
   static getStubConfig() { return { measure: "temperature" }; }
 
@@ -54,7 +57,7 @@ class EuskalmetHistoryCard extends HTMLElement {
       loadError: "Ezin izan da historikoa kargatu.",
       retry: "Saiatu berriro",
       noData: "Ez dago hilabete honetako daturik.",
-      selectDate: "Aukeratu hilabetea",
+      selectDate: "Aukeratu hilabetea", selectMeasure:"Aukeratu neurria",previousYear:"Aurreko urtea",nextYear:"Hurrengo urtea",
       previous: "Aurreko hilabetea",
       next: "Hurrengo hilabetea",
       showSeries: "Erakutsi seriea",
@@ -74,7 +77,7 @@ class EuskalmetHistoryCard extends HTMLElement {
       loadError: "No se pudo cargar el histórico.",
       retry: "Reintentar",
       noData: "No hay datos para este mes.",
-      selectDate: "Seleccionar mes",
+      selectDate: "Seleccionar mes", selectMeasure:"Seleccionar medida",previousYear:"Año anterior",nextYear:"Año siguiente",
       previous: "Mes anterior",
       next: "Mes siguiente",
       showSeries: "Mostrar serie",
@@ -177,15 +180,56 @@ class EuskalmetHistoryCard extends HTMLElement {
   }
 
   changeDate(year, month) {
-    const next = new Date(year, month - 1, 1);
+    const next = new Date();next.setFullYear(year,month-1,1);next.setHours(0,0,0,0);
+    if (!Number.isFinite(next.getTime())) return;
     const now = new Date();
     const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     if (next > currentMonth) return;
     this.date = next;
-    this.data = null;
-    this.loaded = false;
-    this.retries = 0;
+    this._picker=null;this._pickerYear=next.getFullYear();
+    this._invalidateSource();
+    this.render();
     this.scheduleLoad(true);
+  }
+
+  monthLabel(index,short=false) {
+    const names=this.text().locale==='eu-ES'
+      ? ['urtarrila','otsaila','martxoa','apirila','maiatza','ekaina','uztaila','abuztua','iraila','urria','azaroa','abendua']
+      : ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return short?names[index].slice(0,3):names[index];
+  }
+
+  closePickers() {
+    this._picker=null;
+    this.shadowRoot.querySelectorAll('details.picker').forEach(picker=>{picker.open=false;});
+  }
+
+  bindPickers() {
+    const root=this.shadowRoot;
+    root.querySelectorAll('details.picker').forEach(picker=>{
+      picker.addEventListener('toggle',()=>{
+        if(picker.open){this._picker=picker.dataset.picker;root.querySelectorAll('details.picker').forEach(other=>{if(other!==picker)other.open=false;});}
+        else if(this._picker===picker.dataset.picker)this._picker=null;
+      });
+      picker.addEventListener('keydown',event=>{
+        if(event.key==='Escape'){event.preventDefault();this.closePickers();picker.querySelector('summary').focus();}
+        if(['ArrowDown','ArrowUp','Home','End'].includes(event.key)){
+          event.preventDefault();picker.open=true;
+          const buttons=Array.from(picker.querySelectorAll('.picker-panel button:not(:disabled)'));
+          const current=buttons.indexOf(root.activeElement),next=event.key==='Home'?0:event.key==='End'?buttons.length-1:current<0?(event.key==='ArrowUp'?buttons.length-1:0):(current+(event.key==='ArrowUp'?-1:1)+buttons.length)%buttons.length;
+          buttons[next]?.focus();
+        }
+      });
+    });
+    root.querySelectorAll('[data-measure]').forEach(button=>button.addEventListener('click',()=>{
+      this.config.measure=button.dataset.measure;this.hiddenSeries.clear();this.closePickers();this.render();root.querySelector('#measure').focus();
+    }));
+    root.querySelectorAll('[data-year-step]').forEach(button=>button.addEventListener('click',()=>{
+      this._pickerYear+=Number(button.dataset.yearStep);this._picker='date';this.render();root.querySelector(`[data-year-step="${button.dataset.yearStep}"]`).focus();
+    }));
+    root.querySelectorAll('[data-month]').forEach(button=>button.addEventListener('click',()=>{
+      this.changeDate(this._pickerYear,Number(button.dataset.month));root.querySelector('#month').focus();
+    }));
   }
 
   shift(delta) {
@@ -279,7 +323,8 @@ class EuskalmetHistoryCard extends HTMLElement {
         return `<path class="line" data-field="${series.field}" stroke="${series.color}" d="${path}"/>${dots}`;
       }).join('');
     }).join("");
-    const month = this.date.toLocaleDateString(text.locale, { month: "long", year: "numeric" });
+    const month = `${this.monthLabel(this.date.getMonth())} ${this.date.getFullYear()}`;
+    const pickerYear=this._pickerYear??this.date.getFullYear();this._pickerYear=pickerYear;
 
     return `<div class="legend">${allSeries.map((series) => {
       const hidden = this.hiddenSeries.has(series.field);
@@ -383,7 +428,8 @@ class EuskalmetHistoryCard extends HTMLElement {
     const monthValue = `${this.date.getFullYear()}-${String(this.date.getMonth() + 1).padStart(2, "0")}`;
     const now = new Date();
     const maximumMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    const month = this.date.toLocaleDateString(text.locale, { month: "long", year: "numeric" });
+    const month = `${this.monthLabel(this.date.getMonth())} ${this.date.getFullYear()}`;
+    const pickerYear=this._pickerYear??this.date.getFullYear();this._pickerYear=pickerYear;
     const graph = this.graph(text);
     const body = this.loading ? `<div class="message">${text.loading}</div>`
       : this.error
@@ -394,12 +440,19 @@ class EuskalmetHistoryCard extends HTMLElement {
       :host{display:block}*{box-sizing:border-box}ha-card{display:block;padding:18px;overflow:hidden;background:linear-gradient(145deg,#1b3246,#101e30);border:1px solid #9acdd926;border-radius:22px;color:#edf8ff;font-family:var(--primary-font-family,system-ui)}ha-card.embedded{padding:0 20px 18px;border:0;border-radius:0;background:transparent;box-shadow:none}
       header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
       h2{font-size:20px;margin:0 0 3px}header small{color:#a9becf;text-transform:capitalize}
-      .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0 4px}
-      .date-tools{display:flex;gap:6px;margin-left:auto}
+      .controls{position:relative;z-index:3;display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0 4px}
+      .date-tools{display:flex;gap:6px;margin-left:auto;min-width:0}
       button,select,input{font:inherit;color:#edf8ff;background:#87b5d00b;
         border:1px solid #9acdd926;border-radius:9px;padding:8px 10px}
       button{cursor:pointer}button:hover{background:#87b5d022}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #68cef3;outline-offset:2px}
-      input[type="month"]{color-scheme:light dark;min-width:145px}
+      .picker{position:relative;min-width:0}.picker summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;font-size:12px;min-height:42px;cursor:pointer;color:#edf8ff;background:#87b5d00b;border:1px solid #9acdd926;border-radius:12px;padding:10px 12px}
+      .picker summary::-webkit-details-marker{display:none}.picker summary::after{content:'⌄';color:#8ed9d1;font-size:16px}.picker[open] summary{border-color:#8ed9d1;background:#8ecade12}.picker summary:focus-visible{outline:2px solid #8ed9d1;outline-offset:2px}
+      .measure-picker{flex:1 1 170px;max-width:250px}.date-picker{flex:1;min-width:0}.date-picker summary{text-transform:capitalize;white-space:nowrap}
+      .picker-panel{position:absolute;top:calc(100% + 8px);left:0;z-index:10;min-width:100%;max-width:calc(100vw - 48px);padding:6px;background:#142a3b;border:1px solid #8ed9d14d;border-radius:14px;box-shadow:0 12px 28px #0005}
+      .measure-picker .picker-panel{width:260px}.picker-panel button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;border:0;border-radius:8px;padding:10px;font-size:12px;line-height:1.4;text-align:left;background:transparent}
+      .picker-panel button[aria-pressed="true"]{color:#8ed9d1;background:#8ed9d118}.picker-panel button:disabled,.nav:disabled{opacity:.3;cursor:default}.picker-panel button:hover:not(:disabled){background:#8ed9d122}.picker-panel .check{color:#8ed9d1}
+      .date-picker .picker-panel{left:auto;right:0;width:260px}.year-nav{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;gap:8px;margin-bottom:6px}.year-nav strong{text-align:center;font-size:15px;font-weight:550}.year-nav button{justify-content:center;padding:6px;font-size:20px}.month-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.month-grid button{justify-content:center;text-transform:capitalize}
+
       .nav{font-size:20px;line-height:18px;padding:7px 11px}
       .legend{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:13px 0 2px}
       .legend-item{border:0;padding:5px 8px;font-size:12px;background:transparent}
@@ -419,19 +472,26 @@ class EuskalmetHistoryCard extends HTMLElement {
       .tooltip .max{background:#ffbf83}.tooltip .total{background:#68cef3}
       .message{min-height:280px;display:flex;gap:12px;flex-direction:column;align-items:center;justify-content:center;text-align:center}
       .history-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}.history-metrics div{border:1px solid #9acdd926;border-radius:12px;background:#ffffff03;padding:11px 9px;min-width:0}.history-metrics span{display:block;color:#a9becf;font-size:10px;min-height:25px}.history-metrics strong{display:block;margin-top:6px;font-weight:550;font-size:19px}.history-metrics small{font-size:11px;font-weight:400}.history-foot{font-size:10px;color:#a9becf;margin-top:12px;line-height:1.5}
-      @media(max-width:600px){ha-card{padding:14px}.controls{align-items:stretch}.controls select{width:100%}
-        .date-tools{margin-left:0;width:100%}.date-tools input{flex:1}.chart-wrap{margin:0 -8px}.axis,.unit{font-size:20px}ha-card.embedded{padding:0 12px 16px}
+      @media(max-width:600px){ha-card{padding:14px}.controls{align-items:stretch}.controls .measure-picker{width:100%;max-width:none;flex-basis:100%}
+        .date-tools{margin-left:0;width:100%}.date-tools .date-picker{flex:1}.chart-wrap{margin:0 -8px}.axis,.unit{font-size:20px}ha-card.embedded{padding:0 12px 16px}
         .legend{gap:2px}.legend-item{padding:5px 6px}}
     </style>
     <ha-card class="${this.config.embedded ? "embedded" : ""}">
       <header><div>${this.config.show_title === false ? "" : `<h2>${historyEscape(this.config.title || text.title)}</h2>`}${this.config.show_title === false ? "" : `<small>${month}</small>`}</div></header>
       <div class="controls">
-        <select id="measure">${Object.entries(text.measures).map(([key, label]) =>
-          `<option value="${key}" ${key === this.config.measure ? "selected" : ""}>${label}</option>`).join("")}</select>
+        <details class="picker measure-picker" data-picker="measure" ${this._picker==='measure'?'open':''}>
+          <summary id="measure" aria-label="${text.selectMeasure}">${historyEscape(text.measures[this.config.measure]||this.config.measure)}</summary>
+          <div class="picker-panel" role="group" aria-label="${text.selectMeasure}">${Object.entries(text.measures).map(([key,label])=>`<button type="button" data-measure="${key}" aria-label="${historyEscape(label)}" aria-pressed="${key===this.config.measure}">${label}<span class="check" aria-hidden="true">${key===this.config.measure?'✓':''}</span></button>`).join('')}</div>
+        </details>
         <div class="date-tools">
           <button class="nav" id="prev" title="${text.previous}" aria-label="${text.previous}">‹</button>
-          <input id="month" type="month" value="${monthValue}" max="${maximumMonth}"
-            title="${text.selectDate}" aria-label="${text.selectDate}">
+          <details class="picker date-picker" data-picker="date" ${this._picker==='date'?'open':''}>
+            <summary id="month" aria-label="${text.selectDate}">${month}</summary>
+            <div class="picker-panel" role="group" aria-label="${text.selectDate}">
+              <div class="year-nav"><button type="button" data-year-step="-1" ${pickerYear<=1?'disabled':''} aria-label="${text.previousYear}">‹</button><strong>${pickerYear}</strong><button type="button" data-year-step="1" ${pickerYear>=now.getFullYear()?'disabled':''} aria-label="${text.nextYear}">›</button></div>
+              <div class="month-grid">${Array.from({length:12},(_,index)=>`<button type="button" data-month="${index+1}" aria-label="${this.monthLabel(index)} ${pickerYear}" aria-pressed="${pickerYear===this.date.getFullYear()&&index===this.date.getMonth()}" ${pickerYear===now.getFullYear()&&index>now.getMonth()?'disabled':''}>${this.monthLabel(index,true)}</button>`).join('')}</div>
+            </div>
+          </details>
           <button class="nav" id="next" ${monthValue === maximumMonth ? "disabled" : ""} title="${text.next}" aria-label="${text.next}">›</button>
         </div>
       </div>
@@ -441,19 +501,11 @@ class EuskalmetHistoryCard extends HTMLElement {
 
     this.shadowRoot.querySelector("#prev")?.addEventListener("click", () => this.shift(-1));
     this.shadowRoot.querySelector("#next")?.addEventListener("click", () => this.shift(1));
-    this.shadowRoot.querySelector("#month")?.addEventListener("change", (event) => {
-      const [year, monthNumber] = event.target.value.split("-").map(Number);
-      if (year && monthNumber) this.changeDate(year, monthNumber);
-    });
     this.shadowRoot.querySelector("#retry")?.addEventListener("click", () => {
       this.retries = 0;
       this.scheduleLoad(true);
     });
-    this.shadowRoot.querySelector("#measure")?.addEventListener("change", (event) => {
-      this.config.measure = event.target.value;
-      this.hiddenSeries.clear();
-      this.render();
-    });
+    this.bindPickers();
     this.bindGraph(text);
   }
 }

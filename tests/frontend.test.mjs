@@ -383,3 +383,22 @@ test('radar translates existing controls without rebuilding its map',()=>{
   assert.equal(radar.shadowRoot.querySelector('.map'),shell);assert.equal(radar.shadowRoot.querySelector('.radar-card').classList.contains('embedded'),true);
   radar.hass={locale:{language:'es'},states:{}};assert.equal(radar.shadowRoot.querySelector('.recenter').textContent,'Mi ubicación');assert.equal(radar.shadowRoot.querySelector('.map'),shell);dom.window.close();
 });
+
+test('history pickers select measures, navigate years and block future months',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('eguraldi-history-card');card.setConfig({entity:'sensor.temp'});card.hass=hass();dom.window.document.body.append(card);await flush();
+  let root=card.shadowRoot;assert.equal(root.querySelector('select,input[type="month"]'),null);
+  root.querySelector('[data-measure="humidity"]').click();assert.equal(card.config.measure,'humidity');assert.match(root.querySelector('#measure').textContent,/Humedad/);
+  card._picker='date';card.render();root.querySelector('[data-year-step="-1"]').click();assert.equal(card._pickerYear,new Date().getFullYear()-1);assert.equal(root.querySelector('[data-picker="date"]').open,true);
+  root.querySelector('[data-month="2"]').click();await flush();assert.equal(card.date.getMonth(),1);assert.equal(card.date.getFullYear(),new Date().getFullYear()-1);
+  card.changeDate(new Date().getFullYear(),new Date().getMonth()+1);await flush();
+  for(const button of root.querySelectorAll('[data-month]'))assert.equal(button.disabled,Number(button.dataset.month)>new Date().getMonth()+1);
+  root.querySelector('#month').dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(root.querySelector('[data-picker="date"]').open,false);
+  card.hass={...hass(),locale:{language:'eu'}};assert.match(root.querySelector('#month').textContent,new RegExp(card.monthLabel(new Date().getMonth())));dom.window.close();
+});
+
+test('history ignores old month responses after a fast date change',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('eguraldi-history-card'),pending=[];
+  card.setConfig({entity:'sensor.temp'});card.hass={...hass(),callWS:message=>new Promise(resolve=>pending.push({message,resolve}))};dom.window.document.body.append(card);await flush();
+  card.shift(-1);await flush();assert.equal(pending.length,2);
+  pending[1].resolve({items:[],month:'new'});await flush();pending[0].resolve({items:[],month:'old'});await flush();assert.equal(card.data.month,'new');dom.window.close();
+});

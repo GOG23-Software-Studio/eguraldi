@@ -1,5 +1,12 @@
 # Cambios
 
+## 0.1.10
+
+- Comparación de temperaturas con mínima azul y máxima naranja en ambos sensores. La media mantiene su color neutro.
+- Selectores propios de medida y mes/año, con fondo oscuro, buen contraste, teclado y cierre con Escape o al tocar fuera. Fechas en castellano y euskera.
+- Cambiar de mes descarta las respuestas pendientes del mes anterior.
+- Capturas de comparación e histórico actualizadas en castellano y euskera.
+
 ## 0.1.9
 
 - Resumen de hoy con temperatura mínima azul y máxima naranja, igual que la semana visual.

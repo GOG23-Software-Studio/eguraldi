@@ -7,7 +7,7 @@ from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
 
-VERSION = "0.1.9"
+VERSION = "0.1.10"
 EVENT_LOCATIONS_UPDATED = f"{DOMAIN}_locations_updated"
 
 

@@ -1,8 +1,8 @@
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.1.9';
-import './eguraldi-comparison-card.js?v=0.1.9';
-import './euskalmet-history-card.js?v=0.1.9';
-import './euskalmet-radar-map-card.js?v=0.1.9';
+import './euskalmet-alert-card.js?v=0.1.10';
+import './eguraldi-comparison-card.js?v=0.1.10';
+import './euskalmet-history-card.js?v=0.1.10-controls';
+import './euskalmet-radar-map-card.js?v=0.1.10';
 
 const EU_TEXT = {
   "Despejado": "Oskarbi",
