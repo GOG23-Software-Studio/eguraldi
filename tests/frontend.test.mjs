@@ -338,7 +338,7 @@ test('embedded alerts have one visible title and the radar defaults to satellite
   const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass();
   const loc={...location,entities:{...location.entities,alert_level:'sensor.alert'}};h.callWS=async()=>[loc];h.states['sensor.alert']={state:'none',attributes:{alerts:[]}};
   card.setConfig({mode:'alerts'});card.hass=h;dom.window.document.body.append(card);await flush();
-  const alerts=card.shadowRoot.querySelector('euskalmet-local-alert-card');assert.ok(alerts);assert.equal(alerts.shadowRoot.querySelector('.title').hidden,true);assert.equal(card.shadowRoot.querySelector('#extra-source').hidden,true);assert.ok(alerts.shadowRoot.querySelector('.card.embedded'));
+  const alerts=card.shadowRoot.querySelector('eguraldi-alert-card');assert.ok(alerts);assert.equal(alerts.shadowRoot.querySelector('.title').hidden,true);assert.equal(card.shadowRoot.querySelector('#extra-source').hidden,true);assert.ok(alerts.shadowRoot.querySelector('.card.embedded'));
   card.setConfig({mode:'radar'});await flush();assert.equal(card.shadowRoot.querySelector('#extra-heading').hidden,true);
   dom.window.close();
 });

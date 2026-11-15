@@ -1,5 +1,10 @@
 # Cambios
 
+## 0.1.4
+
+- Carga versionada de los componentes de avisos, histórico y radar para evitar conservar componentes anteriores tras actualizar.
+- La vista integrada de avisos usa su propio elemento Eguraldi y conserva el elemento anterior para configuraciones existentes.
+
 ## 0.1.3
 
 - Tres vistas independientes nuevas: gráfico de temperatura/lluvia de 24 horas, semana visual y planificador con radar desplegable.

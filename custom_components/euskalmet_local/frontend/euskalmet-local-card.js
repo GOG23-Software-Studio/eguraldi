@@ -1,7 +1,7 @@
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js';
-import './euskalmet-history-card.js';
-import './euskalmet-radar-map-card.js';
+import './euskalmet-alert-card.js?v=0.1.4';
+import './euskalmet-history-card.js?v=0.1.4';
+import './euskalmet-radar-map-card.js?v=0.1.4';
 
 const EU_TEXT = {
   "Despejado": "Oskarbi",
@@ -344,7 +344,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       tag='hui-history-graph-card';
       config={type:'history-graph',hours_to_show:24,entities:[{entity:loc.entities.temperature,name:`${loc.locality} · ${this._t('estación')} ${loc.station}`},...(this._config.comparison_entity?[{entity:this._config.comparison_entity,name:this._config.comparison_name||this._t('Comparación')}]:[])]};
     }else{
-      tag=mode==='history'?'euskalmet-local-history-card':mode==='radar'?'euskalmet-local-radar-map-card':'euskalmet-local-alert-card';
+      tag=mode==='history'?'euskalmet-local-history-card':mode==='radar'?'euskalmet-local-radar-map-card':'eguraldi-alert-card';
       const entity=loc.entities[mode==='history'?'temperature':mode==='radar'?'radar':'alert_level'];
       config={entity,entry_id:loc.entry_id,title:`${loc.locality} · ${this._t(labels[mode])}`};
       if(mode==='alerts'){config.embedded=true;config.show_title=false;}

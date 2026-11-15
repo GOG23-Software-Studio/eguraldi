@@ -179,6 +179,10 @@ class EuskalmetAlertCard extends HTMLElement {
   }
 }
 
+if (!customElements.get("eguraldi-alert-card")) {
+  customElements.define("eguraldi-alert-card", class extends EuskalmetAlertCard {});
+}
+
 if (!customElements.get("euskalmet-local-alert-card")) {
   customElements.define("euskalmet-local-alert-card", EuskalmetAlertCard);
 }
