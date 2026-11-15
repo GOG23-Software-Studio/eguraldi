@@ -1,5 +1,10 @@
 # Cambios
 
+## 0.1.8
+
+- Máximas y mínimas de la semana visual al mismo tamaño y peso, también en móvil. Máximas en naranja y mínimas en azul.
+- Capturas de previsión actualizadas en ambos idiomas.
+
 ## 0.1.7
 
 - Radar integrado con el fondo azul, tipografía y controles del resto de Eguraldi, sin panel negro interior ni cabecera añadida.
