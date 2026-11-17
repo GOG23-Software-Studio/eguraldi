@@ -8,7 +8,7 @@ from homeassistant.helpers import entity_registry as er
 from .const import DOMAIN
 from .microclimate_options import async_register_microclimate_service
 
-VERSION = "0.2.1"
+VERSION = "0.3.0"
 EVENT_LOCATIONS_UPDATED = f"{DOMAIN}_locations_updated"
 
 

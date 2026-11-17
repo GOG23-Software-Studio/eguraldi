@@ -33,6 +33,11 @@ def build(output_dir: Path | None = None):
         for name in (
             "INSTALLATION.md",
             "MICROCLIMATE.md",
+            "DRYING.md",
+            "drying.jpg",
+            "drying-eu.jpg",
+            "drying-mobile.jpg",
+            "drying-mobile-eu.jpg",
             "studio-banner.svg",
             "microclimate.jpg",
             "microclimate-eu.jpg",

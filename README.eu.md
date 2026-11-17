@@ -11,11 +11,21 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 [![Egiaztapenak](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 [![Bertsioa](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**0.2.1 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
+**0.3.0 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
 [Ikusi mugikorreko ikuspegia](docs/preview-mobile.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
+
+## Arropa kanpoan zabal dezaket?
+
+**Arropa zabaldu** ikuspegiak (`mode: drying`) hurrengo 24 orduetako 2, 3 edo 4 ordu osoko tarterik onena eta beste aukerak bilatzen ditu. Euria, tenperatura, hezetasuna eta haizea alderatzen ditu. Sakatu ordu bat datuak eta arrazoiak ikusteko. Editorean herri bereko beste orduko iragarpen bat hauta daiteke **hezetasun osagarri** gisa: aldagai hori soilik erabiltzen da, iturria adieraziz.
+
+Eguraldik gaur egun argitaratzen duen iragarpenak ez du orduko hezetasunik. Osagarririk gabe orientazio partziala ematen da, hezetasuna asmatu gabe eta uneko neurketa iragarpen gisa erabili gabe. Ez du Mikroklima edo sentsore propiorik behar. [Konfigurazioa eta arauak](docs/DRYING.md) (gaztelaniaz).
+
+![Arropa zabaltzeko tarte onenak eta arrazoiak, simulatutako datuekin](docs/drying-eu.jpg)
+
+[Mugikorreko ikuspegia](docs/drying-mobile-eu.jpg). Hautatutako iraupena bilatutako tartea da, ez arropa lehortzeko denboraren bermea.
 
 ## Zure etxeko mikroklima
 
@@ -93,6 +103,7 @@ mode: dashboard
 | Hurrengo orduak planifikatu | `planning` |
 | Gaurko laburpena | `summaries` |
 | Mikroklima | `microclimate` |
+| Arropa zabaldu | `drying` |
 | Hileko historikoa | `history` |
 | Radarra | `radar` |
 | Abisuak | `alerts` |

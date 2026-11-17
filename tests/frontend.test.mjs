@@ -12,6 +12,7 @@ function setup(){
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-alert-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-comparison-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-microclimate-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
+  for(const file of ['eguraldi-drying-model.js','eguraldi-drying-style.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replaceAll('export ',''),dom.getInternalVMContext());
   vm.runInContext(source+'\nwindow.logic={forecastRows,iconName,isNight,numeric,escapeHTML};',dom.getInternalVMContext());
   return dom;
 }
@@ -449,4 +450,26 @@ test('microclimate validation graph preserves gaps and shows failed improvement 
   assert.equal(card.sample,rows[0].timestamp);assert.match(card.shadowRoot.querySelector('.sample-values').textContent,/12/);
   card.hass={...hass(),locale:{language:'eu'},states:{'sensor.micro':{state:'learning',attributes:{training_hours:0,training_days:0,validation_days:0}}}};
   assert.equal(card.shadowRoot.querySelector('.series-chart'),null);assert.match(card.shadowRoot.querySelector('.progress').textContent,/Ikaskuntzaren aurrerapena/);dom.window.close();
+});
+
+test('drying view subscribes to optional humidity, updates entries, and releases every subscription',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass(),counter={subscribed:0,unsubscribed:0},callbacks={};
+  h.states['weather.rh']={state:'cloudy',attributes:{friendly_name:'Humedad local',supported_features:2}};
+  h.connection.subscribeMessage=async(cb,msg)=>{counter.subscribed++;if(msg.type==='subscribe_events')callbacks.event=cb;else {callbacks[msg.entity_id+':'+msg.forecast_type]=cb;const hourly=forecasts.map(f=>({...f,datetime:new Date(Math.ceil(Date.parse(f.datetime)/3600000)*3600000).toISOString(),condition:'sunny',precipitation:0,temperature:22,wind_speed:12}));cb({forecast:msg.entity_id==='weather.rh'?hourly.map(f=>({datetime:f.datetime,humidity:50})):hourly});}return()=>counter.unsubscribed++;};
+  card.setConfig({mode:'drying',humidity_forecast_entity:'weather.rh',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
+  assert.equal(counter.subscribed,4);assert.ok(card.shadowRoot.querySelector('.dry-hero'));assert.match(card.shadowRoot.querySelector('.dry-source').textContent,/Humedad local/);
+  assert.ok(card.shadowRoot.querySelectorAll('.dry-hour').length>=23);
+  card.shadowRoot.querySelector('[data-drying-duration="4"]').click();assert.equal(card._dryingDuration,4);
+  const oldHumidity=callbacks['weather.rh:hourly'];
+  let next={...location,locality:'Bilbao',station_id:'C999',entities:{...location.entities,weather:'weather.new'}};h.states['weather.new']=h.states['weather.test'];h.callWS=async()=>[next];callbacks.event({data:{entry_id:'test'}});await flush();
+  oldHumidity({forecast:[]});assert.equal(card._humidityMismatch,true);assert.equal(card._humidityForecast.length,0);assert.match(card.shadowRoot.querySelector('.forecast-kicker').textContent,/Bilbao/);
+  h.states['weather.rh']={...h.states['weather.rh'],state:'unavailable'};card.hass={...h,states:{...h.states}};card._render();assert.match(card.shadowRoot.textContent,/orientativa|esperar/);
+  card.remove();assert.equal(counter.subscribed,counter.unsubscribed);dom.window.close();
+});
+
+test('drying editor persists a supplemental humidity source and translates the new view',async()=>{
+  const dom=setup(),editor=dom.window.document.createElement('euskalmet-local-editor'),h=hass();h.states['weather.rh']={state:'cloudy',attributes:{friendly_name:'Humedad',supported_features:2}};
+  editor.setConfig({mode:'drying'});editor.hass=h;dom.window.document.body.append(editor);await flush();
+  let saved;editor.addEventListener('config-changed',e=>saved=e.detail.config);const select=editor.querySelector('#eg-drying-humidity');assert.ok(select);select.value='weather.rh';select.dispatchEvent(new dom.window.Event('change'));assert.equal(saved.humidity_forecast_entity,'weather.rh');assert.equal(saved.humidity_forecast_locality,'Ortuella');
+  editor.hass={...h,locale:{language:'eu'}};assert.match(editor.textContent,/Arropa kanpoan zabal dezaket/);dom.window.close();
 });

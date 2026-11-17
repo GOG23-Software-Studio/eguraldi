@@ -12,7 +12,7 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 [![Versión](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**Versión 0.2.1.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
+**Versión 0.3.0.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
 ![Tarjetas actuales de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
 
@@ -25,6 +25,16 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 ![Editor visual de Eguraldi, con datos simulados](docs/preview-editor.jpg)
 
 </details>
+
+## ¿Puedo tender fuera?
+
+La vista **Tender fuera** (`mode: drying`) busca la mejor ventana de 2, 3 o 4 horas completas de las próximas 24 horas y ofrece alternativas. Compara lluvia, temperatura, humedad y viento; toca una hora para ver sus datos y los motivos. El editor permite añadir una previsión horaria de la misma localidad como **complemento de humedad**: solo se usa esa variable y se indica su origen.
+
+La previsión que publica actualmente Eguraldi no incluye humedad horaria. Sin un complemento, la tarjeta ofrece una ventana orientativa y deja la humedad sin datos; no usa la humedad actual como si fuera una previsión. No necesita Microclima ni sensores propios. [Configuración y reglas](docs/DRYING.md).
+
+![Tender fuera: mejores franjas y motivos, con datos simulados](docs/drying.jpg)
+
+[Vista móvil](docs/drying-mobile.jpg). Las recomendaciones son orientativas; la duración elegida es la ventana que buscas, no una promesa de tiempo de secado.
 
 ## Microclima de tu casa
 
@@ -117,6 +127,7 @@ mode: dashboard
 | Planifica las próximas horas | `planning` |
 | Resumen de hoy | `summaries` |
 | Microclima | `microclimate` |
+| Tender fuera | `drying` |
 | Histórico mensual | `history` |
 | Radar | `radar` |
 | Avisos | `alerts` |
