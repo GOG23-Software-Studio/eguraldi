@@ -11,7 +11,7 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 [![Egiaztapenak](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 [![Bertsioa](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**0.1.10 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
+**0.1.11 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
@@ -31,7 +31,7 @@ Estekak ez badu funtzionatzen, gehitu `https://github.com/GOG23-Software-Studio/
 
 Home Assistant **2026.8 edo berriagoa**, Internet eta Open Data Euskadiko doako kontua behar dira. Aktibazio-mezua ez bada iristen, begiratu spam karpeta edo saiatu **Google bidez sartzen**. Laguntzaileak gakoak deskargatzeko esteka du.
 
-Biltegi pertsonalizatuaren bidez instala daiteke. HACS katalogo orokorrerako [eskaera aurkeztuta dago](https://github.com/hacs/default/pull/14144), baina berrikuspena falta da: ez da onartutzat aurkezten.
+Eguraldi **HACSeko biltegi pertsonalizatu** gisa instalatzen da. Katalogo orokorrean sartzeko [eskaera](https://github.com/hacs/default/pull/14144) 2026ko azaroaren 17an itxi zen, onartu gabe, aktibo jarraitzen duen jatorrizko Euskalmet integrazioaren antzekoa delako. Horrek ez die eragiten biltegi pertsonalizatu honetako instalazioari eta eguneraketei.
 
 [Instalazioari, eguneraketei eta arazoei buruzko gida (gaztelaniaz)](docs/INSTALLATION.md)
 

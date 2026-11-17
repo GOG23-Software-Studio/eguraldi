@@ -37,6 +37,12 @@ def test_public_package(tmp_path):
             "frontend/euskalmet-local-card.js",
         ):
             assert "custom_components/euskalmet_local/" + name in names
+        for obsolete in ("weather-radar-card-euskalmet.js", "README.md"):
+            assert "custom_components/euskalmet_local/frontend/" + obsolete not in names
+        assert (
+            "custom_components/euskalmet_local/frontend/euskalmet-radar-map-card.js"
+            in names
+        )
         for name in ("LICENSE", "THIRD_PARTY_NOTICES.md"):
             assert archive.read(name) == archive.read(
                 "custom_components/euskalmet_local/" + name

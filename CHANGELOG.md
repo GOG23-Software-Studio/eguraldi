@@ -1,5 +1,11 @@
 # Cambios
 
+## 0.1.11
+
+- Retirados el radar compilado obsoleto `weather-radar-card-euskalmet.js`, que no se registraba ni se utilizaba, y el README antiguo de frontend con rutas `/euskalmet_static/`.
+- El radar integrado de Eguraldi conserva su código fuente y Leaflet. Se mantienen las licencias y atribuciones correspondientes.
+- README en castellano y euskera actualizado: la solicitud del catálogo general de HACS está cerrada; instalación y actualizaciones disponibles mediante repositorio personalizado.
+
 ## 0.1.10
 
 - Comparación de temperaturas con mínima azul y máxima naranja en ambos sensores. La media mantiene su color neutro.

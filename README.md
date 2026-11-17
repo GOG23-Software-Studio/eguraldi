@@ -12,7 +12,7 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 [![Versión](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**Versión 0.1.10.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
+**Versión 0.1.11.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
 ![Tarjetas actuales de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
 
@@ -49,7 +49,7 @@ https://github.com/GOG23-Software-Studio/eguraldi
 
 Necesitas **Home Assistant 2026.8 o posterior**, Internet y una cuenta gratuita de Open Data Euskadi. Si no llega el correo de activación, revisa spam o prueba **Iniciar sesión con Google**. El asistente incluye el enlace para descargar tus claves.
 
-La instalación por repositorio personalizado ya está disponible. La inclusión en el catálogo general requiere revisión externa; Eguraldi no se anuncia como aprobado por HACS.
+Eguraldi se instala como **repositorio personalizado de HACS**. La [solicitud de inclusión en el catálogo general](https://github.com/hacs/default/pull/14144) se cerró el 17 de noviembre de 2026, sin aprobación, por su similitud con la integración Euskalmet original, que sigue activa. Esto no afecta a la instalación ni a las actualizaciones desde este repositorio personalizado.
 
 [Guía de instalación, actualización y solución de problemas](docs/INSTALLATION.md)
 
