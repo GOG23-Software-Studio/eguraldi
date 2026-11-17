@@ -12,7 +12,7 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 [![Versión](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**Versión 0.2.0.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
+**Versión 0.2.1.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
 ![Tarjetas actuales de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
 
@@ -28,13 +28,15 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 ## Microclima de tu casa
 
-Eguraldi 0.2 añade aprendizaje local con un sensor exterior propio: diferencias por hora y día/noche, cobertura de datos y validación en días separados. La estimación se activa solo si demuestra una mejora respecto a la estación. **No es una corrección de la previsión oficial.**
+Eguraldi añade aprendizaje local con un sensor exterior propio: diferencias por hora y día/noche, cobertura de datos y validación en días separados. La estimación se activa solo si demuestra una mejora respecto a la estación. **No es una corrección de la previsión oficial.**
 
 Actívalo en **Ajustes → Dispositivos y servicios → Eguraldi → Configurar → Microclima de tu casa**. Elige un sensor exterior protegido del sol directo. Aparece en el bloque desplegable de tiempo actual y como vista **Microclima** en el editor de tarjetas.
 
 El aprendizaje empieza al activarlo: necesita al menos cinco días con datos para aprender y otros dos días completos para comprobar el resultado. Cambiar de sensor, estación o localidad reinicia el periodo. Todo se procesa dentro de HA, sin nuevas consultas a Euskalmet. [Método, requisitos y límites](docs/MICROCLIMATE.md).
 
-![Microclima: patrón horario y validación con datos simulados](docs/microclimate.jpg)
+El gráfico compara tu sensor, la estación y el ajuste local en los dos días reservados para validación. Muestra el error antes y después, la mejora de cada día y las condiciones para activar la estimación. Las barras de progreso separan horas, días de aprendizaje y días de validación; los días con poca cobertura no cuentan.
+
+![Microclima: gráfico de validación y progreso con datos simulados](docs/microclimate.jpg)
 
 [Vista móvil](docs/microclimate-mobile.jpg) · [Estado de aprendizaje](docs/microclimate-learning.jpg). Capturas de demostración con datos simulados; el estado «Validado» ilustra el resultado tras superar los requisitos, no el estado inicial.
 

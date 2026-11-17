@@ -432,3 +432,21 @@ test('overview offers microclimate without changing existing dashboards',async()
   details.open=true;details.dispatchEvent(new dom.window.Event('toggle'));card._render();assert.equal(card.shadowRoot.querySelector('#overview-micro').open,true);
   card.setConfig({mode:'overview',show_microclimate:false});await flush();assert.equal(card.shadowRoot.querySelector('#overview-micro'),null);dom.window.close();
 });
+
+test('microclimate validation graph preserves gaps and shows failed improvement honestly',()=>{
+  const dom=setup(),card=dom.window.document.createElement('eguraldi-microclimate-card');
+  card.setConfig({entity:'sensor.micro',enabled:true});
+  const rows=[0,1,3].map(h=>({timestamp:1794866400+h*3600,reference:10+h,outdoor:12+h,adjusted:14+h}));
+  const attributes={training_hours:90,training_days:3,validation_days:1,validation_series:rows,baseline_mae:2,adjusted_mae:2,improvement_percent:0,validation_checks:{absolute_gain:false,relative_gain:false,each_day:false},validation_daily:[{date:'2026-11-16',hours:12,baseline_mae:2,adjusted_mae:2,improved:false}]};
+  card.hass={...hass(),states:{'sensor.micro':{state:'not_improved',attributes}}};
+  dom.window.document.body.append(card);
+  assert.deepEqual([...card.shadowRoot.querySelectorAll('progress')].map(p=>[p.value,p.max]),[[72,72],[3,5],[1,2]]);
+  assert.equal(card.shadowRoot.querySelectorAll('.series-chart path').length,3);
+  for(const p of card.shadowRoot.querySelectorAll('.series-chart path'))assert.equal((p.getAttribute('d').match(/M/g)||[]).length,2);
+  assert.equal(card.shadowRoot.querySelectorAll('.check.pass').length,0);
+  assert.equal(card.shadowRoot.querySelector('.estimate'),null);
+  const first=card.shadowRoot.querySelector('[data-sample]');first.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+  assert.equal(card.sample,rows[0].timestamp);assert.match(card.shadowRoot.querySelector('.sample-values').textContent,/12/);
+  card.hass={...hass(),locale:{language:'eu'},states:{'sensor.micro':{state:'learning',attributes:{training_hours:0,training_days:0,validation_days:0}}}};
+  assert.equal(card.shadowRoot.querySelector('.series-chart'),null);assert.match(card.shadowRoot.querySelector('.progress').textContent,/Ikaskuntzaren aurrerapena/);dom.window.close();
+});

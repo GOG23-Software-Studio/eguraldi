@@ -56,3 +56,11 @@ La acción administrativa `euskalmet_local.configure_microclimate` permite confi
 ## Desarrollo y vista de demostración
 
 `python tools/preview_server.py` sirve una demostración en `http://127.0.0.1:8793/?view=microclimate`. Añade `&state=learning` para ver el aprendizaje o `&lang=eu` para euskera. Todos los valores de esa vista son simulados y están marcados como tales; no representan resultados de una vivienda real.
+
+## Gráfico de validación y progreso
+
+La tarjeta muestra las tres series de medias horarias de los dos últimos días locales completos: estación (azul), sensor exterior (naranja) y reconstrucción local (verde discontinuo). El ajuste se calcula exclusivamente con los días anteriores. Toca una hora o selecciónala con el teclado para consultar los tres valores. Los huecos sin pares de datos interrumpen las curvas.
+
+El gráfico aparece cuando hay datos suficientes para ejecutar la validación, incluso si el resultado no mejora: se muestran el error absoluto medio de ambas alternativas, el porcentaje de reducción, los errores de cada día y las tres condiciones de aceptación. Una reconstrucción rechazada nunca activa la estimación actual.
+
+El progreso muestra horas de entrenamiento (mínimo 72), días de entrenamiento con al menos 8 horas (mínimo 5) y días de validación con al menos 12 horas (los dos últimos días completos). No es una cuenta atrás ni una probabilidad de acierto. Los periodos se recalculan cada día; llenar las barras solo permite comprobar la mejora, no garantiza que el modelo sea aceptado. Mientras aprende se muestra el progreso sin inventar curvas o porcentajes de mejora.

@@ -136,6 +136,11 @@ def analyse(
         else 0,
         "training_hours": len(training),
         "validation_hours": len(validation),
+        "training_days": sum(len(v) >= 8 for v in daily_training.values()),
+        "validation_days": sum(len(v) >= 12 for v in daily_validation.values()),
+        "validation_start": datetime.fromtimestamp(validation_start, UTC).isoformat(),
+        "validation_series": [],
+        "validation_daily": [],
         "minimum_training_days": 5,
         "minimum_validation_days": 2,
         "summary": _summary(pairs),
@@ -174,6 +179,14 @@ def analyse(
         correction = model[datetime.fromtimestamp(stamp, zone).hour]["correction"]
         baseline.append(abs(target - station))
         errors.append(abs(target - (station + correction)))
+        report["validation_series"].append(
+            {
+                "timestamp": stamp,
+                "reference": round(station, 3),
+                "outdoor": round(target, 3),
+                "adjusted": round(station + correction, 3),
+            }
+        )
     raw_mae, adjusted_mae = mean(baseline), mean(errors)
     gain = raw_mae - adjusted_mae
     improvement = gain / raw_mae * 100 if raw_mae > 0 else 0
@@ -185,6 +198,21 @@ def analyse(
         < mean(abs(t - r) for _, r, t in group)
         for group in daily_validation.values()
     )
+    for date, group in sorted(daily_validation.items()):
+        raw = mean(abs(t - r) for _, r, t in group)
+        adjusted = mean(
+            abs(t - r - model[datetime.fromtimestamp(s, zone).hour]["correction"])
+            for s, r, t in group
+        )
+        report["validation_daily"].append(
+            {
+                "date": date.isoformat(),
+                "hours": len(group),
+                "baseline_mae": round(raw, 3),
+                "adjusted_mae": round(adjusted, 3),
+                "improved": adjusted < raw,
+            }
+        )
     report.update(
         {
             "status": "validated"
@@ -193,6 +221,11 @@ def analyse(
             "baseline_mae": round(raw_mae, 3),
             "adjusted_mae": round(adjusted_mae, 3),
             "improvement_percent": round(improvement, 1),
+            "validation_checks": {
+                "absolute_gain": gain >= 0.2,
+                "relative_gain": improvement >= 10,
+                "each_day": each_day_improves,
+            },
             "error_p90": round(
                 sorted(errors)[min(len(errors) - 1, int(len(errors) * 0.9))], 3
             ),

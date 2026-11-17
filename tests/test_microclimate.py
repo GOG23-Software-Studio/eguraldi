@@ -62,6 +62,37 @@ def test_no_future_leakage_from_validation_into_training():
     assert result["status"] == "not_improved"
     assert result["adjusted_mae"] > result["baseline_mae"]
     assert result["hourly"][12]["correction"] == 4
+    assert all(p["adjusted"] == p["reference"] + 4 for p in result["validation_series"])
+    assert not any(result["validation_checks"].values())
+
+
+def test_validation_plot_uses_only_holdout_pairs_and_preserves_gaps():
+    left, right, start = history()
+    removed = right[-8]["start"]
+    right = [r for r in right if r["start"] != removed]
+    result = analyse(left, right, start)
+    points = result["validation_series"]
+    begin = datetime.fromisoformat(result["validation_start"]).timestamp()
+    end = datetime.fromisoformat(result["validation_end"]).timestamp()
+    assert result["status"] == "validated"
+    assert all(begin <= p["timestamp"] < end for p in points)
+    assert removed not in [p["timestamp"] for p in points]
+    assert len(points) == result["validation_hours"] <= 50
+    assert all(p["adjusted"] == p["outdoor"] for p in points)
+    assert all(result["validation_checks"].values())
+    assert len(result["validation_daily"]) == result["validation_days"] == 2
+    assert sum(d["hours"] for d in result["validation_daily"]) == len(points)
+    assert all(d["adjusted_mae"] == 0 for d in result["validation_daily"])
+
+
+def test_progress_counts_only_days_meeting_coverage_requirements():
+    left, right, start = history()
+    right = [r for i, r in enumerate(right) if i % 24 < 7]
+    result = analyse(left, right, start)
+    assert result["training_hours"] >= 72
+    assert result["days"] >= 12
+    assert result["training_days"] == result["validation_days"] == 0
+    assert result["validation_series"] == result["validation_daily"] == []
 
 
 def test_incomplete_validation_stays_learning():

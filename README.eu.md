@@ -11,7 +11,7 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 [![Egiaztapenak](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 [![Bertsioa](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**0.2.0 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
+**0.2.1 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
@@ -25,7 +25,9 @@ Aktibatu **Ezarpenak → Gailuak eta zerbitzuak → Eguraldi → Konfiguratu →
 
 Ikaskuntza aktibatzean hasten da. Gutxienez bost egun behar ditu ikasteko eta beste bi egun oso emaitza egiaztatzeko. Sentsorea, estazioa edo herria aldatzean epea berrabiarazten da. Dena HAn prozesatzen da, Euskalmeti kontsulta gehigarririk egin gabe. [Metodoa eta mugak](docs/MICROCLIMATE.md) (gaztelaniaz).
 
-![Mikroklima: orduko eredua eta baliozkotzea, simulatutako datuekin](docs/microclimate-eu.jpg)
+Grafikoak zure sentsorea, estazioa eta tokiko doikuntza alderatzen ditu egiaztatzeko gordetako bi egunetan. Aurreko eta ondorengo erroreak, egun bakoitzeko hobekuntza eta aktibatzeko baldintzak erakusten ditu. Aurrerapen-barrek orduak, ikasteko egunak eta egiaztatzeko egunak bereizten dituzte; estaldura eskasa duten egunek ez dute balio.
+
+![Mikroklima: egiaztapen-grafikoa eta aurrerapena, simulatutako datuekin](docs/microclimate-eu.jpg)
 
 [Mugikorreko ikuspegia](docs/microclimate-mobile-eu.jpg) · [Ikaskuntza-egoera](docs/microclimate-learning-eu.jpg). Irudiek simulatutako datuak erabiltzen dituzte; «Egiaztatua» egoerak baldintzak bete ondorengo emaitza erakusten du, ez hasierako egoera.
 
