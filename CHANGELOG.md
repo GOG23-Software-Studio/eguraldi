@@ -1,5 +1,14 @@
 # Cambios
 
+## 0.2.0 · Microclima
+
+- Asistente opcional para elegir un sensor exterior propio, sin identificadores escritos a mano, con confirmación de su ubicación. Compatible con sensores en °C y °F.
+- Motor local independiente: pares de medias horarias, diferencias por hora y día/noche según la posición del Sol, cobertura y validación temporal.
+- Aprende con al menos cinco días y se comprueba con otros dos días completos. Solo publica una estimación si el error absoluto medio mejora al menos 0,2 °C y un 10 %, con mejora en ambos días de prueba. No sustituye ni corrige la previsión oficial.
+- Seis entidades y una tarjeta Microclima en el editor visual y en el panel completo. Lecturas y estimación se actualizan sin recargar.
+- Cambio de sensor, estación o localidad reinicia el periodo; un reinicio normal de HA lo conserva. No se reutiliza histórico anterior a la activación.
+- Datos y procesamiento dentro de HA, sin peticiones adicionales a Euskalmet. Función desactivada por defecto y textos en castellano/euskera.
+
 ## 0.1.11
 
 - Retirados el radar compilado obsoleto `weather-radar-card-euskalmet.js`, que no se registraba ni se utilizaba, y el README antiguo de frontend con rutas `/euskalmet_static/`.

@@ -11,6 +11,7 @@ function setup(){
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-history-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-alert-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-comparison-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
+  vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-microclimate-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(source+'\nwindow.logic={forecastRows,iconName,isNight,numeric,escapeHTML};',dom.getInternalVMContext());
   return dom;
 }
@@ -401,4 +402,33 @@ test('history ignores old month responses after a fast date change',async()=>{
   card.setConfig({entity:'sensor.temp'});card.hass={...hass(),callWS:message=>new Promise(resolve=>pending.push({message,resolve}))};dom.window.document.body.append(card);await flush();
   card.shift(-1);await flush();assert.equal(pending.length,2);
   pending[1].resolve({items:[],month:'new'});await flush();pending[0].resolve({items:[],month:'old'});await flush();assert.equal(card.data.month,'new');dom.window.close();
+});
+
+test('microclimate blocks unvalidated estimates, handles missing values and translates live',()=>{
+  const dom=setup(),card=dom.window.document.createElement('eguraldi-microclimate-card');
+  card.setConfig({entity:'sensor.micro',enabled:true,station_name:'Arboleda'});
+  let h={...hass(),locale:{language:'es'},states:{'sensor.micro':{state:'learning',attributes:{paired_hours:0,days:0,coverage_percent:0,estimate:null,outdoor_temperature:0,reference_temperature:2,current_difference:-2,sensor_name:'<img onerror=alert(1)>'}}}};
+  card.hass=h;dom.window.document.body.append(card);
+  assert.equal(card.shadowRoot.querySelector('.estimate'),null);assert.match(card.shadowRoot.querySelector('.now').textContent,/0/);assert.equal(card.shadowRoot.querySelector('.now img'),null);
+  h={...h,states:{'sensor.micro':{state:'validated',attributes:{...h.states['sensor.micro'].attributes,estimate:12.4,baseline_mae:2,adjusted_mae:.5,improvement_percent:75,hourly:[{hour:0,correction:2,samples:20,method:'hourly'}]}}}};card.hass=h;
+  assert.match(card.shadowRoot.querySelector('.estimate').textContent,/12,4/);assert.equal(card.shadowRoot.querySelectorAll('[data-hour]').length,1);
+  card.hass={...h,locale:{language:'eu'}};assert.match(card.shadowRoot.querySelector('.badge').textContent,/Egiaztatua/);assert.match(card.shadowRoot.querySelector('.method').textContent,/Home Assistanten/);
+  card.setConfig({enabled:false});assert.match(card.shadowRoot.textContent,/Aktibatu/);assert.equal(card.shadowRoot.querySelector('.now'),null);dom.window.close();
+});
+
+test('microclimate mode follows its entry and never picks another home sensor',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass();
+  h.callWS=async()=>[{...location,microclimate_enabled:true,entities:{...location.entities,microclimate_status:'sensor.micro'}}];
+  card.setConfig({mode:'microclimate'});card.hass=h;dom.window.document.body.append(card);await flush();
+  const micro=card.shadowRoot.querySelector('eguraldi-microclimate-card');assert.ok(micro);assert.equal(micro.config.entity,'sensor.micro');assert.equal(micro.config.entry_id,'test');assert.equal(micro.config.enabled,true);
+  dom.window.close();
+});
+
+test('overview offers microclimate without changing existing dashboards',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass();
+  h.callWS=async()=>[{...location,microclimate_enabled:true,entities:{...location.entities,microclimate_status:'sensor.micro'}}];
+  card.setConfig({mode:'overview'});card.hass=h;dom.window.document.body.append(card);await flush();
+  const details=card.shadowRoot.querySelector('#overview-micro');assert.ok(details);assert.equal(details.open,false);assert.ok(details.querySelector('eguraldi-microclimate-card'));
+  details.open=true;details.dispatchEvent(new dom.window.Event('toggle'));card._render();assert.equal(card.shadowRoot.querySelector('#overview-micro').open,true);
+  card.setConfig({mode:'overview',show_microclimate:false});await flush();assert.equal(card.shadowRoot.querySelector('#overview-micro'),null);dom.window.close();
 });

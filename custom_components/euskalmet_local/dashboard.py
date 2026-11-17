@@ -6,8 +6,9 @@ from homeassistant.core import callback
 from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
+from .microclimate_options import async_register_microclimate_service
 
-VERSION = "0.1.11"
+VERSION = "0.2.0"
 EVENT_LOCATIONS_UPDATED = f"{DOMAIN}_locations_updated"
 
 
@@ -43,12 +44,16 @@ def websocket_locations(hass, connection, msg):
                 "latitude": entry.data.get("latitude"),
                 "longitude": entry.data.get("longitude"),
                 "entities": entities,
+                "microclimate_enabled": entry.options.get(
+                    "microclimate_enabled", False
+                ),
             }
         )
     connection.send_result(msg["id"], result)
 
 
 def register_dashboard(hass):
+    async_register_microclimate_service(hass)
     websocket_api.async_register_command(hass, websocket_locations)
     frontend.add_extra_js_url(
         hass, f"/euskalmet_local_static/euskalmet-local-card.js?v={VERSION}"

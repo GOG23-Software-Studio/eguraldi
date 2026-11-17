@@ -1,0 +1,21 @@
+configure_microclimate:
+  fields:
+    entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: euskalmet_local
+    microclimate_enabled:
+      required: true
+      selector:
+        boolean:
+    microclimate_sensor:
+      selector:
+        entity:
+          filter:
+            domain: sensor
+            device_class: temperature
+    microclimate_outdoors_confirmed:
+      required: true
+      selector:
+        boolean:

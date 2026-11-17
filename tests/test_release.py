@@ -35,6 +35,9 @@ def test_public_package(tmp_path):
             "brand/icon.png",
             "data/municipalities.jsonl.gz",
             "frontend/euskalmet-local-card.js",
+            "frontend/eguraldi-microclimate-card.js",
+            "microclimate.py",
+            "microclimate_model.py",
         ):
             assert "custom_components/euskalmet_local/" + name in names
         for obsolete in ("weather-radar-card-euskalmet.js", "README.md"):

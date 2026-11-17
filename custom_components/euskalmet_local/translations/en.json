@@ -331,6 +331,30 @@
           "orange": "Orange",
           "red": "Red"
         }
+      },
+      "microclimate_status": {
+        "name": "Microclimate status",
+        "state": {
+          "learning": "Learning",
+          "validated": "Validated",
+          "not_improved": "No improvement demonstrated",
+          "history_unavailable": "History unavailable"
+        }
+      },
+      "microclimate_bias": {
+        "name": "Mean difference from station"
+      },
+      "microclimate_difference": {
+        "name": "Current difference from station"
+      },
+      "microclimate_estimate": {
+        "name": "Estimated local temperature"
+      },
+      "microclimate_error": {
+        "name": "Validation error"
+      },
+      "microclimate_coverage": {
+        "name": "Microclimate coverage"
       }
     },
     "weather": {
@@ -355,7 +379,8 @@
         "menu_options": {
           "locality": "Change locality",
           "station": "Change station",
-          "home_assistant": "Use Home Assistant location"
+          "home_assistant": "Use Home Assistant location",
+          "microclimate": "Your home microclimate"
         }
       },
       "locality": {
@@ -379,6 +404,15 @@
       "home_assistant": {
         "title": "Home Assistant location",
         "description": "Uses the location configured in Settings → System → General. You can also select another locality in options."
+      },
+      "microclimate": {
+        "title": "Learn your home microclimate",
+        "description": "Optional, local analysis. Select an outdoor temperature sensor protected from direct sunlight. Hourly means stored in Home Assistant are compared with this location's station. Measurements never leave your HA.\n\nLearning starts when enabled and restarts when the sensor, station or location changes. At least five training days and two complete validation days with sufficient matched hours are required. The estimate is only published if mean absolute error falls by at least 0.2 °C and 10 %, improving on both test days. Official forecasts are unchanged.",
+        "data": {
+          "microclimate_enabled": "Enable Microclimate",
+          "microclimate_sensor": "Outdoor temperature sensor",
+          "microclimate_outdoors_confirmed": "I confirm the sensor is outdoors and protected from direct sunlight"
+        }
       }
     },
     "error": {
@@ -393,11 +427,33 @@
       "cannot_geocode": "No se pudo consultar el catálogo de localidades.",
       "no_nearby_station": "No hay estaciones compatibles a menos de 120 km.",
       "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial.",
-      "home_location_unavailable": "No supported municipality was identified at the HA location. Check the Home Assistant location or select another locality manually."
+      "home_location_unavailable": "No supported municipality was identified at the HA location. Check the Home Assistant location or select another locality manually.",
+      "invalid_microclimate_sensor": "Select an outdoor temperature sensor with °C or °F and measurement state_class. It cannot be an Eguraldi sensor.",
+      "confirm_outdoor_sensor": "Confirm the sensor placement before using it as the outdoor reference."
     },
     "abort": {
       "no_nearby_station": "No hay estaciones cercanas disponibles.",
       "already_configured": "This locality is already configured in another Eguraldi entry."
+    }
+  },
+  "services": {
+    "configure_microclimate": {
+      "name": "Configure Microclimate",
+      "description": "Configure a location outdoor sensor with the same validation as the wizard. Administrators only.",
+      "fields": {
+        "entry_id": {
+          "name": "Eguraldi location"
+        },
+        "microclimate_enabled": {
+          "name": "Enable Microclimate"
+        },
+        "microclimate_sensor": {
+          "name": "Outdoor temperature sensor"
+        },
+        "microclimate_outdoors_confirmed": {
+          "name": "I confirm the sensor is outdoors and protected from direct sunlight"
+        }
+      }
     }
   }
 }

@@ -169,6 +169,12 @@ async def async_setup_entry(
     """Configurar los sensores de Euskalmet."""
 
     coordinator = entry.runtime_data
+    microclimate = (
+        hass.data.get(DOMAIN, {}).get("microclimates", {}).get(entry.entry_id)
+    )
+    if microclimate:
+        from .microclimate import SPECS, MicroclimateSensor
+
     configured_measures = entry.data.get("available_measures")
     supported = coordinator.api.supported_measurements
 
@@ -320,6 +326,8 @@ async def async_setup_entry(
         if pollen_entities:
             async_add_entities(pollen_entities)
 
+    if microclimate:
+        entities.extend(MicroclimateSensor(microclimate, key) for key in SPECS)
     async_add_entities(entities)
     add_pollen_entities()
     entry.async_on_unload(coordinator.async_add_listener(add_pollen_entities))
@@ -1005,11 +1013,7 @@ class EuskalmetSensor(
         if self.key == "humidity":
             value = data.get("value")
             attributes["raw_value"] = value
-            attributes["quality"] = (
-                "valid"
-                if valid_humidity(value)
-                else "out_of_range"
-            )
+            attributes["quality"] = "valid" if valid_humidity(value) else "out_of_range"
 
         if self.key == "wind_direction":
             attributes["degrees"] = data.get("value")

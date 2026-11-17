@@ -32,6 +32,7 @@ def build(output_dir: Path | None = None):
             archive.write(ROOT / name, name)
         for name in (
             "INSTALLATION.md",
+            "MICROCLIMATE.md",
             "studio-banner.svg",
             "preview.jpg",
             "preview-eu.jpg",

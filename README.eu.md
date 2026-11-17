@@ -11,11 +11,19 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 [![Egiaztapenak](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 [![Bertsioa](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**0.1.11 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
+**0.2.0 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
 [Ikusi mugikorreko ikuspegia](docs/preview-mobile.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
+
+## Zure etxeko mikroklima
+
+Eguraldi 0.2k tokiko ikaskuntza gehitzen du kanpoko sentsore propioarekin: ordukako eta egun/gauko aldeak, datuen estaldura eta egun bereizietan egindako egiaztapena. Estimazioa estazioarekiko hobekuntza frogatzen denean soilik aktibatzen da. **Ez du iragarpen ofiziala zuzentzen.**
+
+Aktibatu **Ezarpenak → Gailuak eta zerbitzuak → Eguraldi → Konfiguratu → Zure etxeko mikroklima** atalean. Aukeratu eguzki zuzenetik babestutako kanpoko sentsorea. Uneko eguraldiaren bloke zabalgarrian eta txartelen editoreko **Mikroklima** ikuspegian agertzen da.
+
+Ikaskuntza aktibatzean hasten da. Gutxienez bost egun behar ditu ikasteko eta beste bi egun oso emaitza egiaztatzeko. Sentsorea, estazioa edo herria aldatzean epea berrabiarazten da. Dena HAn prozesatzen da, Euskalmeti kontsulta gehigarririk egin gabe. [Metodoa eta mugak](docs/MICROCLIMATE.md) (gaztelaniaz).
 
 ## Instalazioa
 
@@ -78,6 +86,7 @@ mode: dashboard
 | Asteko ikuspegia, maximo eta minimoekin | `daily_tiles` |
 | Hurrengo orduak planifikatu | `planning` |
 | Gaurko laburpena | `summaries` |
+| Mikroklima | `microclimate` |
 | Hileko historikoa | `history` |
 | Radarra | `radar` |
 | Abisuak | `alerts` |

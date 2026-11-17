@@ -331,6 +331,30 @@
           "orange": "Laranja",
           "red": "Gorria"
         }
+      },
+      "microclimate_status": {
+        "name": "Mikroklimaren egoera",
+        "state": {
+          "learning": "Ikasten",
+          "validated": "Egiaztatua",
+          "not_improved": "Hobekuntzarik gabe",
+          "history_unavailable": "Historikorik gabe"
+        }
+      },
+      "microclimate_bias": {
+        "name": "Estazioarekiko batez besteko aldea"
+      },
+      "microclimate_difference": {
+        "name": "Estazioarekiko uneko aldea"
+      },
+      "microclimate_estimate": {
+        "name": "Estimatutako tokiko tenperatura"
+      },
+      "microclimate_error": {
+        "name": "Egiaztapen-errorea"
+      },
+      "microclimate_coverage": {
+        "name": "Mikroklimaren estaldura"
       }
     },
     "weather": {
@@ -372,7 +396,8 @@
         "menu_options": {
           "locality": "Herria aldatu",
           "station": "Estazioa aldatu",
-          "home_assistant": "Home Assistant-en kokapena erabili"
+          "home_assistant": "Home Assistant-en kokapena erabili",
+          "microclimate": "Zure etxeko mikroklima"
         }
       },
       "locality": {
@@ -396,6 +421,15 @@
       "home_assistant": {
         "title": "Home Assistant-en kokapena",
         "description": "Ezarpenak → Sistema → Orokorra ataleko kokapena erabiliko da. Beste herri bat ere hauta dezakezu aukeretan."
+      },
+      "microclimate": {
+        "title": "Zure etxeko mikroklima ikasi",
+        "description": "Aukerako eta tokiko funtzioa. Aukeratu eguzki zuzenetik babestutako kanpoko tenperatura-sentsorea. Herri honetako estazioarekin alderatuko da, Home Assistanten gordetako orduko batezbestekoekin. Neurketak ez zaizkie hirugarrenei bidaltzen.\n\nIkaskuntza aktibatzean hasten da, eta sentsorea, estazioa edo herria aldatzean berrabiarazten da. Gutxienez bost ikaskuntza-egun eta beste bi egun oso behar ditu egiaztatzeko, behar adina ordu parekaturekin. Estimazioa argitaratzeko, erroreak gutxienez 0,2 °C eta % 10 jaitsi behar du, bi proba-egunetan hobetuz. Ez du iragarpen ofiziala aldatzen.",
+        "data": {
+          "microclimate_enabled": "Mikroklima aktibatu",
+          "microclimate_sensor": "Kanpoko tenperatura-sentsorea",
+          "microclimate_outdoors_confirmed": "Kanpoan neurtzen duela eta eguzki zuzenetik babestuta dagoela berresten dut"
+        }
       }
     },
     "error": {
@@ -410,11 +444,33 @@
       "cannot_geocode": "Ezin izan da herrien katalogoa kontsultatu.",
       "no_nearby_station": "Ez dago estazio bateragarririk 120 km baino gutxiagora.",
       "forecast_locality_not_found": "Herriak ez du iragarpen argirik Euskalmeteko katalogoan. Saiatu izen ofizialarekin.",
-      "home_location_unavailable": "Ez da Euskalmeteko udalerri egokirik aurkitu HAren kokapenean. Berrikusi Home Assistant-en kokapena edo aukeratu beste herri bat eskuz."
+      "home_location_unavailable": "Ez da Euskalmeteko udalerri egokirik aurkitu HAren kokapenean. Berrikusi Home Assistant-en kokapena edo aukeratu beste herri bat eskuz.",
+      "invalid_microclimate_sensor": "Aukeratu °C edo °F eta state_class measurement dituen kanpoko sentsorea. Ezin da Eguraldik sortutako sentsorea izan.",
+      "confirm_outdoor_sensor": "Berretsi sentsorearen kokapena kanpoko erreferentzia gisa erabili aurretik."
     },
     "abort": {
       "no_nearby_station": "Ez dago hurbileko estaziorik eskuragarri.",
       "already_configured": "Herri hau Eguraldiren beste sarrera batean konfiguratuta dago."
+    }
+  },
+  "services": {
+    "configure_microclimate": {
+      "name": "Mikroklima konfiguratu",
+      "description": "Konfiguratu herri baten kanpoko sentsorea, laguntzailearen egiaztapen berberekin. Administratzaileentzat soilik.",
+      "fields": {
+        "entry_id": {
+          "name": "Eguraldiren kokapena"
+        },
+        "microclimate_enabled": {
+          "name": "Mikroklima aktibatu"
+        },
+        "microclimate_sensor": {
+          "name": "Kanpoko tenperatura-sentsorea"
+        },
+        "microclimate_outdoors_confirmed": {
+          "name": "Kanpoan neurtzen duela eta eguzki zuzenetik babestuta dagoela berresten dut"
+        }
+      }
     }
   }
 }

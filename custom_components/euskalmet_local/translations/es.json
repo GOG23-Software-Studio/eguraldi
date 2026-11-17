@@ -331,6 +331,30 @@
           "orange": "Naranja",
           "red": "Rojo"
         }
+      },
+      "microclimate_status": {
+        "name": "Estado de Microclima",
+        "state": {
+          "learning": "Aprendiendo",
+          "validated": "Validado",
+          "not_improved": "Sin mejora demostrada",
+          "history_unavailable": "Histórico no disponible"
+        }
+      },
+      "microclimate_bias": {
+        "name": "Diferencia media con la estación"
+      },
+      "microclimate_difference": {
+        "name": "Diferencia actual con la estación"
+      },
+      "microclimate_estimate": {
+        "name": "Temperatura local estimada"
+      },
+      "microclimate_error": {
+        "name": "Error de validación"
+      },
+      "microclimate_coverage": {
+        "name": "Cobertura de Microclima"
       }
     },
     "weather": {
@@ -372,7 +396,8 @@
         "menu_options": {
           "locality": "Cambiar localidad",
           "station": "Cambiar estación",
-          "home_assistant": "Usar ubicación de Home Assistant"
+          "home_assistant": "Usar ubicación de Home Assistant",
+          "microclimate": "Microclima de tu casa"
         }
       },
       "locality": {
@@ -396,6 +421,15 @@
       "home_assistant": {
         "title": "Ubicación de Home Assistant",
         "description": "Se usará la ubicación configurada en Ajustes → Sistema → General. También puedes elegir otra localidad desde las opciones."
+      },
+      "microclimate": {
+        "title": "Aprender el microclima de tu vivienda",
+        "description": "Función opcional y local. Elige un sensor de temperatura exterior protegido del sol directo. Se comparará con la estación de esta localidad usando medias horarias guardadas en Home Assistant. No se envían mediciones a terceros.\n\nEl aprendizaje empieza al activarlo y se reinicia al cambiar sensor, estación o localidad, para no mezclar datos de orígenes distintos. Necesita al menos cinco días de aprendizaje y otros dos días completos para validarse, con suficientes horas coincidentes. La estimación solo se publica si reduce el error al menos 0,2 °C y un 10 %, mejorando en ambos días de prueba. No modifica la previsión oficial.",
+        "data": {
+          "microclimate_enabled": "Activar Microclima",
+          "microclimate_sensor": "Sensor de temperatura exterior",
+          "microclimate_outdoors_confirmed": "Confirmo que mide el exterior y está protegido del sol directo"
+        }
       }
     },
     "error": {
@@ -410,11 +444,33 @@
       "cannot_geocode": "No se pudo consultar el catálogo de localidades.",
       "no_nearby_station": "No hay estaciones compatibles a menos de 120 km.",
       "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial.",
-      "home_location_unavailable": "No se pudo identificar un municipio con previsión de Euskalmet para la ubicación de HA. Revisa la ubicación de Home Assistant o elige otra localidad manualmente."
+      "home_location_unavailable": "No se pudo identificar un municipio con previsión de Euskalmet para la ubicación de HA. Revisa la ubicación de Home Assistant o elige otra localidad manualmente.",
+      "invalid_microclimate_sensor": "Elige un sensor exterior de temperatura con unidades °C o °F y state_class measurement. No puede ser un sensor creado por Eguraldi.",
+      "confirm_outdoor_sensor": "Confirma la ubicación del sensor antes de usarlo como referencia exterior."
     },
     "abort": {
       "no_nearby_station": "No hay estaciones cercanas disponibles.",
       "already_configured": "Esta localidad ya está configurada en otra entrada de Eguraldi."
+    }
+  },
+  "services": {
+    "configure_microclimate": {
+      "name": "Configurar Microclima",
+      "description": "Configura el sensor exterior de una ubicación con las mismas validaciones que el asistente. Solo administradores.",
+      "fields": {
+        "entry_id": {
+          "name": "Ubicación de Eguraldi"
+        },
+        "microclimate_enabled": {
+          "name": "Activar Microclima"
+        },
+        "microclimate_sensor": {
+          "name": "Sensor de temperatura exterior"
+        },
+        "microclimate_outdoors_confirmed": {
+          "name": "Confirmo que mide el exterior y está protegido del sol directo"
+        }
+      }
     }
   }
 }

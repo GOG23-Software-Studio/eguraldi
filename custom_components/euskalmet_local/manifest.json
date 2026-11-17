@@ -1,6 +1,9 @@
 {
   "domain": "euskalmet_local",
   "name": "Eguraldi",
+  "after_dependencies": [
+    "recorder"
+  ],
   "codeowners": [
     "@oyogor1985"
   ],
@@ -17,5 +20,5 @@
     "custom_components.euskalmet_local"
   ],
   "requirements": [],
-  "version": "0.1.11"
+  "version": "0.2.0"
 }

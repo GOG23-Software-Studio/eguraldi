@@ -131,12 +131,23 @@ async def async_setup_entry(
     hass.data[DOMAIN].setdefault("coordinators", {})[entry.entry_id] = coordinator
 
     entry.runtime_data = coordinator
+    if entry.options.get("microclimate_enabled"):
+        from .microclimate import MicroclimateCoordinator
+
+        microclimate = MicroclimateCoordinator(hass, entry)
+        await microclimate.async_initialize()
+        hass.data[DOMAIN].setdefault("microclimates", {})[entry.entry_id] = microclimate
     entry.async_on_unload(entry.add_update_listener(_async_update_options))
 
     await hass.config_entries.async_forward_entry_setups(
         entry,
         PLATFORMS,
     )
+
+    microclimate = hass.data[DOMAIN].get("microclimates", {}).get(entry.entry_id)
+    if microclimate:
+        microclimate.async_start()
+        await microclimate.async_refresh()
 
     if entry.data.get("location_source") == "home_assistant":
 
@@ -209,6 +220,11 @@ async def async_unload_entry(
     )
 
     if unload_ok:
+        microclimate = (
+            hass.data[DOMAIN].get("microclimates", {}).pop(entry.entry_id, None)
+        )
+        if microclimate:
+            await microclimate.async_shutdown()
         hass.data[DOMAIN].get("coordinators", {}).pop(
             entry.entry_id,
             None,

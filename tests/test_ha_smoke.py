@@ -94,6 +94,7 @@ def test_weather_identity_uses_locality_and_preserves_station():
 def test_options_change_station_and_distance_without_changing_locality(monkeypatch):
     async def scenario():
         entry = SimpleNamespace(
+            options={},
             data={
                 "email": "demo@example.invalid",
                 "private_key": "TEST_ONLY",
@@ -106,7 +107,7 @@ def test_options_change_station_and_distance_without_changing_locality(monkeypat
                 "station_id": "C061",
                 "station_name": "Arboleda",
                 "distance_km": 1.9,
-            }
+            },
         )
 
         async def stations():
@@ -159,6 +160,7 @@ def test_options_change_station_and_distance_without_changing_locality(monkeypat
 
 def options_locality_fixture(monkeypatch):
     entry = SimpleNamespace(
+        options={},
         entry_id="stable-entry",
         unique_id="locality_1",
         title="Eguraldi · Ortuella",
@@ -256,7 +258,12 @@ def test_locality_options_apply_once_keep_identity_and_allow_manual_station(
     async def scenario():
         flow, entry, updates, _ = options_locality_fixture(monkeypatch)
         menu = await flow.async_step_init()
-        assert menu["menu_options"] == ["home_assistant", "locality", "station"]
+        assert menu["menu_options"] == [
+            "home_assistant",
+            "locality",
+            "station",
+            "microclimate",
+        ]
         result = await flow.async_step_locality({"locality": "Bilbao"})
         assert result["step_id"] == "place"
         result = await flow.async_step_place({"place": "2"})
@@ -406,6 +413,7 @@ def test_home_options_bind_current_entry_and_can_return_to_manual(monkeypatch):
 def test_another_locality_reuses_credentials_only_on_the_server(monkeypatch):
     async def scenario():
         entry = SimpleNamespace(
+            options={},
             entry_id="saved-account",
             title="Eguraldi · Ortuella",
             data={"email": "demo@example.invalid", "private_key": "TEST_ONLY"},
@@ -470,6 +478,7 @@ def test_only_ha_bound_entries_follow_core_location_changes(monkeypatch, source)
             ),
         )
         entry = SimpleNamespace(
+            options={},
             entry_id="stable",
             data={
                 "email": "demo@example.invalid",
@@ -503,5 +512,299 @@ def test_only_ha_bound_entries_follow_core_location_changes(monkeypatch, source)
             hass.config.latitude = 43.4
             await callback(None)
             assert reloads == ["stable"]
+
+    asyncio.run(scenario())
+
+
+def test_microclimate_options_require_real_outdoor_sensor_and_preserve_settings(
+    monkeypatch,
+):
+    from homeassistant.helpers import entity_registry as er
+
+    async def scenario():
+        flow, entry, _, _ = options_locality_fixture(monkeypatch)
+        entry.options = {"station_id": "automatic"}
+        flow.hass.states = {
+            "sensor.outdoor": SimpleNamespace(
+                attributes={
+                    "device_class": "temperature",
+                    "state_class": "measurement",
+                    "unit_of_measurement": "°C",
+                }
+            ),
+            "sensor.humidity": SimpleNamespace(attributes={"device_class": "humidity"}),
+        }
+        monkeypatch.setattr(
+            er, "async_get", lambda hass: SimpleNamespace(async_get=lambda id: None)
+        )
+        form = await flow.async_step_microclimate()
+        assert form["step_id"] == "microclimate"
+        invalid = await flow.async_step_microclimate(
+            {"microclimate_enabled": True, "microclimate_sensor": "sensor.humidity"}
+        )
+        assert "microclimate_sensor" in invalid["errors"]
+        assert "microclimate_outdoors_confirmed" in invalid["errors"]
+        result = await flow.async_step_microclimate(
+            {
+                "microclimate_enabled": True,
+                "microclimate_sensor": "sensor.outdoor",
+                "microclimate_outdoors_confirmed": True,
+            }
+        )
+        assert result["data"]["station_id"] == "automatic"
+        assert result["data"]["microclimate_since"]
+        entry.options = result["data"]
+        old_since = entry.options["microclimate_since"]
+        same = await flow.async_step_microclimate(
+            {
+                "microclimate_enabled": True,
+                "microclimate_sensor": "sensor.outdoor",
+                "microclimate_outdoors_confirmed": True,
+            }
+        )
+        assert same["data"]["microclimate_since"] == old_since
+        station = await flow.async_step_station({"station_id": "automatic"})
+        assert station["data"]["microclimate_sensor"] == "sensor.outdoor"
+        assert station["data"]["microclimate_enabled"]
+
+    asyncio.run(scenario())
+
+
+def test_microclimate_units_freshness_and_validation_gate(tmp_path, monkeypatch):
+    from datetime import timedelta
+
+    from homeassistant.helpers import entity_registry as er
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.euskalmet_local.microclimate import (
+        MicroclimateCoordinator,
+        MicroclimateSensor,
+    )
+
+    async def scenario():
+        hass = HomeAssistant(str(tmp_path))
+        entry = SimpleNamespace(
+            entry_id="micro-test",
+            options={"microclimate_sensor": "sensor.outdoor"},
+            data={"latitude": 43.3, "longitude": -3, "locality": "Ortuella"},
+            async_on_unload=lambda callback: None,
+        )
+        monkeypatch.setattr(
+            er,
+            "async_get",
+            lambda hass: SimpleNamespace(
+                async_get_entity_id=lambda *args: "sensor.reference"
+            ),
+        )
+        micro = MicroclimateCoordinator(hass, entry)
+        now = dt_util.utcnow()
+        hass.states.async_set(
+            "sensor.reference",
+            "18",
+            {"unit_of_measurement": "°C", "observed_at": now.isoformat()},
+        )
+        hass.states.async_set("sensor.outdoor", "68", {"unit_of_measurement": "°F"})
+        micro.data = {
+            "status": "learning",
+            "hourly": [{"hour": dt_util.now().hour, "correction": 2}],
+            "last_pair": now.isoformat(),
+        }
+        values = micro.live_values()
+        assert values["outdoor_temperature"] == 20
+        assert values["current_difference"] == 2
+        assert values["estimate"] is None
+        micro.data["status"] = "validated"
+        assert micro.live_values()["estimate"] == 20
+        assert MicroclimateSensor(micro, "estimate").device_class == "temperature"
+        assert MicroclimateSensor(micro, "bias").device_class is None
+        hass.states.async_set(
+            "sensor.reference",
+            "18",
+            {
+                "unit_of_measurement": "°C",
+                "observed_at": (now - timedelta(hours=2)).isoformat(),
+            },
+        )
+        assert micro.live_values()["estimate"] is None
+        assert micro.live_values()["current_difference"] is None
+        await micro.async_shutdown()
+        await hass.async_block_till_done()
+
+    asyncio.run(scenario())
+
+
+def test_microclimate_source_binding_survives_restart_and_resets_on_station_change(
+    tmp_path, monkeypatch
+):
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.euskalmet_local.microclimate import MicroclimateCoordinator
+    from custom_components.euskalmet_local.microclimate_model import source_key
+
+    async def scenario():
+        hass = HomeAssistant(str(tmp_path))
+        data = {
+            "station_id": "C061",
+            "locality_id": "1",
+            "latitude": 43.3,
+            "longitude": -3,
+        }
+        since = dt_util.utcnow() - timedelta(days=4)
+        key = source_key(data, "sensor.outdoor")
+        stored = {"source": key, "since": since.isoformat()}
+
+        class Storage:
+            async def async_load(self):
+                return stored.copy()
+
+            async def async_save(self, value):
+                stored.update(value)
+
+        entry = SimpleNamespace(
+            entry_id="micro-test",
+            options={
+                "microclimate_sensor": "sensor.outdoor",
+                "microclimate_source": key,
+                "microclimate_since": since.isoformat(),
+            },
+            data=data,
+            async_on_unload=lambda callback: None,
+        )
+        micro = MicroclimateCoordinator(hass, entry)
+        micro.store = Storage()
+        await micro.async_initialize()
+        assert micro.since == since
+        entry.data = {**data, "station_id": "OTHER"}
+        await micro.async_initialize()
+        assert micro.since > since + timedelta(days=3)
+        entry.data = data
+        await micro.async_initialize()
+        assert micro.since > since + timedelta(days=3)
+        new_since = micro.since
+        await micro.async_initialize()
+        assert micro.since == new_since
+        await micro.async_shutdown()
+        await hass.async_block_till_done()
+
+    asyncio.run(scenario())
+
+
+def test_microclimate_recorder_query_is_local_hourly_and_normalized(
+    tmp_path, monkeypatch
+):
+    from datetime import timedelta
+
+    from homeassistant.helpers import entity_registry as er
+    from homeassistant.helpers import recorder
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.euskalmet_local.microclimate import MicroclimateCoordinator
+
+    async def scenario():
+        hass = HomeAssistant(str(tmp_path))
+        entry = SimpleNamespace(
+            entry_id="micro-test",
+            options={"microclimate_sensor": "sensor.outdoor"},
+            data={"latitude": 43.3, "longitude": -3},
+            async_on_unload=lambda callback: None,
+        )
+        monkeypatch.setattr(
+            er,
+            "async_get",
+            lambda hass: SimpleNamespace(
+                async_get_entity_id=lambda *args: "sensor.reference"
+            ),
+        )
+        now = dt_util.utcnow()
+        end = int(now.timestamp() // 3600 * 3600)
+        calls = []
+
+        class Recorder:
+            async def async_add_executor_job(self, function, *args):
+                calls.append(args)
+                return {
+                    "sensor.reference": [
+                        {"start": end - 7200, "mean": 10},
+                        {"start": end - 3600, "mean": 11},
+                    ],
+                    "sensor.outdoor": [
+                        {"start": end - 7200, "mean": 12},
+                        {"start": end - 3600, "mean": 13},
+                    ],
+                }
+
+        monkeypatch.setattr(recorder, "get_instance", lambda hass: Recorder())
+        hass.states.async_set("sensor.outdoor", "13", {"friendly_name": "Outdoor"})
+        micro = MicroclimateCoordinator(hass, entry)
+        micro.since = now - timedelta(days=2)
+        result = await micro._async_update_data()
+        assert result["status"] == "learning" and result["paired_hours"] == 2
+        assert result["summary"]["bias"] == 2
+        assert calls[0][-3:] == ("hour", {"temperature": "°C"}, {"mean"})
+        assert calls[0][-4] == {"sensor.reference", "sensor.outdoor"}
+        await micro.async_shutdown()
+        await hass.async_block_till_done()
+
+    asyncio.run(scenario())
+
+
+def test_microclimate_admin_action_uses_wizard_validation(tmp_path, monkeypatch):
+    from homeassistant.exceptions import HomeAssistantError
+    from homeassistant.helpers import entity_registry as er
+
+    from custom_components.euskalmet_local.microclimate_options import (
+        async_register_microclimate_service,
+    )
+
+    async def scenario():
+        hass = HomeAssistant(str(tmp_path))
+        updates = []
+        entry = SimpleNamespace(
+            domain="euskalmet_local",
+            data={"station_id": "C061"},
+            options={"station_id": "automatic"},
+        )
+        hass.config_entries = SimpleNamespace(
+            async_get_entry=lambda id: entry if id == "ours" else None,
+            async_update_entry=lambda e, **kw: updates.append(kw),
+        )
+        monkeypatch.setattr(
+            er, "async_get", lambda hass: SimpleNamespace(async_get=lambda id: None)
+        )
+        hass.states.async_set(
+            "sensor.outdoor",
+            "15",
+            {
+                "device_class": "temperature",
+                "state_class": "measurement",
+                "unit_of_measurement": "°C",
+            },
+        )
+        async_register_microclimate_service(hass)
+        payload = {
+            "entry_id": "ours",
+            "microclimate_enabled": True,
+            "microclimate_sensor": "sensor.outdoor",
+            "microclimate_outdoors_confirmed": False,
+        }
+        with pytest.raises(HomeAssistantError):
+            await hass.services.async_call(
+                "euskalmet_local", "configure_microclimate", payload, blocking=True
+            )
+        assert not updates
+        payload["microclimate_outdoors_confirmed"] = True
+        await hass.services.async_call(
+            "euskalmet_local", "configure_microclimate", payload, blocking=True
+        )
+        assert updates[0]["options"]["station_id"] == "automatic"
+        assert updates[0]["options"]["microclimate_enabled"]
+        payload["entry_id"] = "other"
+        with pytest.raises(HomeAssistantError):
+            await hass.services.async_call(
+                "euskalmet_local", "configure_microclimate", payload, blocking=True
+            )
+        await hass.async_block_till_done()
 
     asyncio.run(scenario())

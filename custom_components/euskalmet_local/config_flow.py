@@ -10,6 +10,8 @@ from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
+    EntitySelector,
+    EntitySelectorConfig,
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
@@ -29,6 +31,7 @@ from .const import DOMAIN, MEASURES
 from .geography import LocationDiscoveryError
 from .home_location import home_entry_data, resolve_home
 from .locality import rank_stations, resolve_forecast, search_localities
+from .microclimate_options import microclimate_options
 from .pem import normalize_pem
 
 
@@ -659,7 +662,47 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
         if user_input and "station_id" in user_input:
             return await self.async_step_station(user_input)
         return self.async_show_menu(
-            step_id="init", menu_options=["home_assistant", "locality", "station"]
+            step_id="init",
+            menu_options=["home_assistant", "locality", "station", "microclimate"],
+        )
+
+    async def async_step_microclimate(self, user_input=None):
+        """Optional sensor binding; never reuse an old station's training history."""
+        entry = self.config_entry
+        errors = {}
+        if user_input is not None:
+            options, errors = microclimate_options(self.hass, entry, user_input)
+            if not errors:
+                return self.async_create_entry(title="", data=options)
+        defaults = {**entry.options, **(user_input or {})}
+        sensor_field = vol.Optional(
+            "microclimate_sensor",
+            **(
+                {"default": defaults["microclimate_sensor"]}
+                if defaults.get("microclimate_sensor")
+                else {}
+            ),
+        )
+        return self.async_show_form(
+            step_id="microclimate",
+            errors=errors,
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "microclimate_enabled",
+                        default=defaults.get("microclimate_enabled", False),
+                    ): bool,
+                    sensor_field: EntitySelector(
+                        EntitySelectorConfig(
+                            filter={"domain": "sensor", "device_class": "temperature"}
+                        )
+                    ),
+                    vol.Required(
+                        "microclimate_outdoors_confirmed",
+                        default=defaults.get("microclimate_outdoors_confirmed", False),
+                    ): bool,
+                }
+            ),
         )
 
     def _api_for_options(self):
@@ -817,7 +860,11 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
             )
             return self.async_create_entry(
                 title="",
-                data={"station_id": "automatic", "locality_id": data["locality_id"]},
+                data={
+                    **entry.options,
+                    "station_id": "automatic",
+                    "locality_id": data["locality_id"],
+                },
             )
         return self.async_show_form(
             step_id="confirm_locality",
@@ -884,7 +931,8 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
                         },
                     )
                     return self.async_create_entry(
-                        title="", data={"station_id": user_input["station_id"]}
+                        title="",
+                        data={**entry.options, "station_id": user_input["station_id"]},
                     )
         except EuskalmetAuthenticationError:
             errors["base"] = "invalid_auth"
