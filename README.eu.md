@@ -25,6 +25,10 @@ Aktibatu **Ezarpenak → Gailuak eta zerbitzuak → Eguraldi → Konfiguratu →
 
 Ikaskuntza aktibatzean hasten da. Gutxienez bost egun behar ditu ikasteko eta beste bi egun oso emaitza egiaztatzeko. Sentsorea, estazioa edo herria aldatzean epea berrabiarazten da. Dena HAn prozesatzen da, Euskalmeti kontsulta gehigarririk egin gabe. [Metodoa eta mugak](docs/MICROCLIMATE.md) (gaztelaniaz).
 
+![Mikroklima: orduko eredua eta baliozkotzea, simulatutako datuekin](docs/microclimate-eu.jpg)
+
+[Mugikorreko ikuspegia](docs/microclimate-mobile-eu.jpg) · [Ikaskuntza-egoera](docs/microclimate-learning-eu.jpg). Irudiek simulatutako datuak erabiltzen dituzte; «Egiaztatua» egoerak baldintzak bete ondorengo emaitza erakusten du, ez hasierako egoera.
+
 ## Instalazioa
 
 [**Ireki Eguraldi HACSen**](https://my.home-assistant.io/redirect/hacs_repository/?owner=GOG23-Software-Studio&repository=eguraldi&category=integration)

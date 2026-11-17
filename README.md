@@ -34,6 +34,10 @@ Actívalo en **Ajustes → Dispositivos y servicios → Eguraldi → Configurar 
 
 El aprendizaje empieza al activarlo: necesita al menos cinco días con datos para aprender y otros dos días completos para comprobar el resultado. Cambiar de sensor, estación o localidad reinicia el periodo. Todo se procesa dentro de HA, sin nuevas consultas a Euskalmet. [Método, requisitos y límites](docs/MICROCLIMATE.md).
 
+![Microclima: patrón horario y validación con datos simulados](docs/microclimate.jpg)
+
+[Vista móvil](docs/microclimate-mobile.jpg) · [Estado de aprendizaje](docs/microclimate-learning.jpg). Capturas de demostración con datos simulados; el estado «Validado» ilustra el resultado tras superar los requisitos, no el estado inicial.
+
 ## Instalar
 
 [**Abrir Eguraldi en HACS**](https://my.home-assistant.io/redirect/hacs_repository/?owner=GOG23-Software-Studio&repository=eguraldi&category=integration)
