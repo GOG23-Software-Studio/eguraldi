@@ -11,7 +11,7 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 [![Egiaztapenak](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 [![Bertsioa](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**0.4.1 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
+**0.4.2 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
@@ -20,6 +20,8 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 ## Kalera irteteko ordurik onena
 
 Aukeratu **Paseoa**, **Kirola** edo **Umeekin**, eta **30, 60 edo 90 minutuko** iraupena. Txartelak hurrengo 24 orduetako tarte onena eta bi aukera gehigarri bilatzen ditu. Aterkiari eta jakari buruzko orientazioa ematen du eta, ondorengo sei orduetan datuak badaude, euriaren, tenperaturaren edo haizearen lehen okerragotzea erakusten du.
+
+Tarte bakoitzak aurreikusitako haize maximoa ere erakusten du tenperaturaren azpian, Arropa zabaldu ikuspegiaren estilo berarekin.
 
 Iragarpena ordukoa da: ordu erdiko irteerek ordu-bloke berak erabiltzen dituzte, datuak asmatu gabe. Zeharkatutako ordu guztietan datuak behar dira. Ez du Mikroklima edo beste hornitzailerik behar. [Arauak eta konfigurazioa](docs/OUTING.md) (gaztelaniaz).
 

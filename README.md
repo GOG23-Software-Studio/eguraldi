@@ -12,7 +12,7 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 [![Versión](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**Versión 0.4.1.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
+**Versión 0.4.2.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
 ![Tarjetas actuales de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
 
@@ -29,6 +29,8 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 ## La mejor hora para salir
 
 Elige **Paseo**, **Deporte** o **Con niños**, y una duración de **30, 60 o 90 minutos**. La tarjeta busca una franja favorable en las próximas 24 horas, propone hasta dos alternativas, orienta sobre paraguas y chaqueta e indica el primer empeoramiento posterior de lluvia, temperatura o viento, dentro de las seis horas siguientes con datos.
+
+Cada franja muestra también el viento máximo previsto debajo de la temperatura, con el mismo estilo que Tender fuera.
 
 La previsión es horaria: las salidas a media hora reutilizan esos bloques, sin inventar una predicción de 30 minutos. Todas las horas atravesadas deben tener datos; las condiciones adversas y los huecos impiden recomendar una franja. No necesita Microclima ni otros proveedores. [Reglas y configuración](docs/OUTING.md).
 
