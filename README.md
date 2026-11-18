@@ -12,7 +12,7 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 [![Versión](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**Versión 0.4.0.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
+**Versión 0.4.1.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
 ![Tarjetas actuales de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
 
@@ -38,7 +38,7 @@ La previsión es horaria: las salidas a media hora reutilizan esos bloques, sin 
 
 ## ¿Puedo tender fuera?
 
-La vista **Tender fuera** (`mode: drying`) busca la mejor ventana de 2, 3 o 4 horas completas de las próximas 24 horas y ofrece alternativas. Compara lluvia, temperatura, humedad y viento; toca una hora para ver sus datos y los motivos. El editor permite añadir una previsión horaria de la misma localidad como **complemento de humedad**: solo se usa esa variable y se indica su origen.
+La vista **Tender fuera** (`mode: drying`) busca la mejor ventana de 2, 3 o 4 horas completas de las próximas 24 horas y ofrece alternativas. Compara lluvia, temperatura, humedad y viento; la velocidad del viento se ve también debajo de cada hora. Toca una hora para ver sus datos y los motivos, incluida la ayuda de la brisa al secado. El editor permite añadir una previsión horaria de la misma localidad como **complemento de humedad**: solo se usa esa variable y se indica su origen.
 
 La previsión que publica actualmente Eguraldi no incluye humedad horaria. Sin un complemento, la tarjeta ofrece una ventana orientativa y deja la humedad sin datos; no usa la humedad actual como si fuera una previsión. No necesita Microclima ni sensores propios. [Configuración y reglas](docs/DRYING.md).
 

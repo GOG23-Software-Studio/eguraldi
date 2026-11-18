@@ -33,6 +33,7 @@ export function dryingHour(forecast, units = {}, humidity = null, night = false)
   if (rh !== null && rh >= 75) reasons.push('humid');
   if (temperature < 12) reasons.push('cool');
   if (wind < 5) reasons.push('calm');
+  else reasons.push('breeze');
   if (night) reasons.push('night');
   if (probability !== null && probability >= 20) reasons.push('chance');
   return {temperature,wind,rain,gust,humidity:rh,probability,night,status,reasons,missing,score:Math.round(score)};

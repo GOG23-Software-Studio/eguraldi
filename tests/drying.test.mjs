@@ -42,3 +42,10 @@ test('humidity supplement joins exact UTC timestamps only and native forecast ta
   assert.equal(dryingPlan(rows,{now,humidityForecast:supplement}).slots[0].humidity,50);
   assert.equal(dryingPlan([],{now}).best,null);
 });
+
+test('a cooler breezy period can outrank a warmer calm period for drying',()=>{
+ const breezy=dryingHour({...good,temperature:14,humidity:60,wind_speed:12});
+ const warmCalm=dryingHour({...good,temperature:20,humidity:60,wind_speed:0});
+ assert.ok(breezy.score>warmCalm.score);assert.ok(breezy.reasons.includes('breeze'));
+ assert.ok(warmCalm.reasons.includes('calm'));assert.equal(dryingHour({...good,wind_speed:30}).status,'avoid');
+});

@@ -1,5 +1,5 @@
 /* Eguraldi · heuristic weather windows, not a safety assessment · MIT */
-import {dryingHour} from './eguraldi-drying-model.js?v=0.4.0';
+import {dryingHour} from './eguraldi-drying-model.js?v=0.4.1';
 const OUTING_HOUR=3600000, HALF_HOUR=1800000;
 const PROFILES={walk:{cold:0,hot:32,wind:35,gust:50,ideal:18},sport:{cold:2,hot:28,wind:30,gust:45,ideal:14},family:{cold:5,hot:30,wind:25,gust:40,ideal:20}};
 
