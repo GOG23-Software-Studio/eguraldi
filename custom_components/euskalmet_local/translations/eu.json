@@ -378,6 +378,11 @@
           "windy-variant": "Haizetsua eta hodeitsua"
         }
       }
+    },
+    "switch": {
+      "laundry_out": {
+        "name": "Arropa kanpoan dut"
+      }
     }
   },
   "title": "Eguraldi",
@@ -397,7 +402,8 @@
           "locality": "Herria aldatu",
           "station": "Estazioa aldatu",
           "home_assistant": "Home Assistant-en kokapena erabili",
-          "microclimate": "Zure etxeko mikroklima"
+          "microclimate": "Zure etxeko mikroklima",
+          "laundry": "Kanpoko arroparen abisuak"
         }
       },
       "locality": {
@@ -430,6 +436,21 @@
           "microclimate_sensor": "Kanpoko tenperatura-sentsorea",
           "microclimate_outdoors_confirmed": "Kanpoan neurtzen duela eta eguzki zuzenetik babestuta dagoela berresten dut"
         }
+      },
+      "laundry": {
+        "title": "Kanpoko arroparen abisuak",
+        "description": "Herri honetarako aukerako abisuak. Aktibatu ondoren, markatu «Arropa kanpoan dut» txartelean edo entitatean. Saioa arropa jasotzean edo 24 ordura amaitzen da. Iragarpena ordukoa da: 15, 30 edo 60 minutuko tarteak orientagarriak dira. Hasiera eta amaiera berdinak badira, egun osoa onartzen da. Arrisku mota bakoitzeko abisu bat saio bakoitzean; gutxieneko tartea berrabiarazi ondoren ere gordetzen da. Bidalketak huts eginez gero, errorea erakusten da automatikoki berriro bidali gabe.",
+        "data": {
+          "laundry_enabled": "Abisuak aktibatu",
+          "laundry_target": "Abisuen hartzailea",
+          "laundry_lead_minutes": "Aurrerapena (minutuak)",
+          "laundry_rain": "Euria edo ekaitza zaindu",
+          "laundry_wind": "Haize zakarra zaindu",
+          "laundry_wind_kmh": "Haizearen muga (km/h)",
+          "laundry_start": "Hasiera",
+          "laundry_end": "Amaiera",
+          "laundry_cooldown_minutes": "Abisuen arteko gutxieneko tartea (minutuak)"
+        }
       }
     },
     "error": {
@@ -446,7 +467,9 @@
       "forecast_locality_not_found": "Herriak ez du iragarpen argirik Euskalmeteko katalogoan. Saiatu izen ofizialarekin.",
       "home_location_unavailable": "Ez da Euskalmeteko udalerri egokirik aurkitu HAren kokapenean. Berrikusi Home Assistant-en kokapena edo aukeratu beste herri bat eskuz.",
       "invalid_microclimate_sensor": "Aukeratu °C edo °F eta state_class measurement dituen kanpoko sentsorea. Ezin da Eguraldik sortutako sentsorea izan.",
-      "confirm_outdoor_sensor": "Berretsi sentsorearen kokapena kanpoko erreferentzia gisa erabili aurretik."
+      "confirm_outdoor_sensor": "Berretsi sentsorearen kokapena kanpoko erreferentzia gisa erabili aurretik.",
+      "laundry_target_required": "Hautatu hartzaile erabilgarri bat abisuak aktibatzeko.",
+      "laundry_event_required": "Aktibatu euria edo haizea gutxienez."
     },
     "abort": {
       "no_nearby_station": "Ez dago hurbileko estaziorik eskuragarri.",

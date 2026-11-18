@@ -379,6 +379,11 @@
           "windy-variant": "Viento con nubes"
         }
       }
+    },
+    "switch": {
+      "laundry_out": {
+        "name": "Laundry outside"
+      }
     }
   },
   "options": {
@@ -397,7 +402,8 @@
           "locality": "Cambiar localidad",
           "station": "Cambiar estación",
           "home_assistant": "Usar ubicación de Home Assistant",
-          "microclimate": "Your home microclimate"
+          "microclimate": "Your home microclimate",
+          "laundry": "Laundry alerts"
         }
       },
       "locality": {
@@ -430,6 +436,21 @@
           "microclimate_sensor": "Outdoor temperature sensor",
           "microclimate_outdoors_confirmed": "I confirm the sensor is outdoors and protected from direct sunlight"
         }
+      },
+      "laundry": {
+        "title": "Laundry alerts",
+        "description": "Optional alerts for this locality. After enabling, turn on «Laundry outside» in the card or entity. A session ends when switched off or after 24 h. Forecast resolution is hourly: 15, 30 or 60 minutes are approximate lead times. Equal start and end times allow alerts all day. One alert per risk type and session; cooldown survives restarts. Delivery errors are shown without automatic retries.",
+        "data": {
+          "laundry_enabled": "Enable alerts",
+          "laundry_target": "Notification destination",
+          "laundry_lead_minutes": "Lead time (minutes)",
+          "laundry_rain": "Watch rain or storms",
+          "laundry_wind": "Watch strong wind",
+          "laundry_wind_kmh": "Wind threshold (km/h)",
+          "laundry_start": "From",
+          "laundry_end": "Until",
+          "laundry_cooldown_minutes": "Minimum interval between alerts (minutes)"
+        }
       }
     },
     "error": {
@@ -446,7 +467,9 @@
       "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial.",
       "home_location_unavailable": "No se pudo identificar un municipio con previsión de Euskalmet para la ubicación de HA. Revisa la ubicación de Home Assistant o elige otra localidad manualmente.",
       "invalid_microclimate_sensor": "Select an outdoor temperature sensor with °C or °F and measurement state_class. It cannot be an Eguraldi sensor.",
-      "confirm_outdoor_sensor": "Confirm the sensor placement before using it as the outdoor reference."
+      "confirm_outdoor_sensor": "Confirm the sensor placement before using it as the outdoor reference.",
+      "laundry_target_required": "Select an available destination to enable alerts.",
+      "laundry_event_required": "Enable rain or wind monitoring."
     },
     "abort": {
       "no_nearby_station": "No hay estaciones cercanas disponibles.",

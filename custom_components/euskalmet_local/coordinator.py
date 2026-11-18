@@ -98,6 +98,7 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
         self._daily_forecast_attempted: datetime | None = None
         self._hourly_forecast: dict[str, Any] | None = None
         self._hourly_forecast_attempted: datetime | None = None
+        self.hourly_forecast_updated: datetime | None = None
         self._alerts: dict[str, Any] | None = None
         self._alerts_attempted: datetime | None = None
         self._ocean: dict[str, Any] | None = None
@@ -377,6 +378,7 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
             )
             if not isinstance(hourly_result, Exception):
                 self._hourly_forecast = hourly
+                self.hourly_forecast_updated = now_utc
         else:
             hourly = self._hourly_forecast or {}
 

@@ -48,6 +48,12 @@ La previsión que publica actualmente Eguraldi no incluye humedad horaria. Sin u
 
 [Vista móvil](docs/drying-mobile.jpg). Las recomendaciones son orientativas; la duración elegida es la ventana que buscas, no una promesa de tiempo de secado.
 
+## Avisos de ropa tendida
+
+**Opcionales y desactivados por defecto para todos los usuarios.** Desde las opciones de cada localidad puedes elegir el destino, lluvia y/o viento fuerte, umbral de viento, antelación, horario e intervalo entre avisos. Después marca **Tengo ropa tendida** en la tarjeta y **Ya he recogido la ropa** al terminar. El seguimiento funciona con la tarjeta cerrada y caduca a las 24 h.
+
+La previsión es horaria y la antelación orientativa. Un aviso por tipo de riesgo y sesión, con protección frente a duplicados tras reiniciar. No se envían avisos hasta configurar y activar la función e iniciar una sesión. [Configuración y límites](docs/LAUNDRY_ALERTS.md).
+
 ## Microclima de tu casa
 
 Eguraldi añade aprendizaje local con un sensor exterior propio: diferencias por hora y día/noche, cobertura de datos y validación en días separados. La estimación se activa solo si demuestra una mejora respecto a la estación. **No es una corrección de la previsión oficial.**

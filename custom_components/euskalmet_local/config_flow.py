@@ -18,6 +18,7 @@ from homeassistant.helpers.selector import (
     TextSelector,
     TextSelectorConfig,
     TextSelectorType,
+    TimeSelector,
 )
 from homeassistant.util import dt as dt_util
 
@@ -663,7 +664,79 @@ class EuskalmetLocalOptionsFlow(config_entries.OptionsFlow):
             return await self.async_step_station(user_input)
         return self.async_show_menu(
             step_id="init",
-            menu_options=["home_assistant", "locality", "station", "microclimate"],
+            menu_options=[
+                "home_assistant",
+                "locality",
+                "station",
+                "microclimate",
+                "laundry",
+            ],
+        )
+
+    async def async_step_laundry(self, user_input=None):
+        """Configure an explicit destination; enabling never starts a session."""
+        from .laundry import destinations
+        from .laundry_model import DEFAULTS
+
+        entry = self.config_entry
+        targets = destinations(self.hass)
+        errors = {}
+        defaults = {**DEFAULTS, **entry.options, **(user_input or {})}
+        if user_input is not None:
+            for key in ("laundry_lead_minutes", "laundry_cooldown_minutes"):
+                defaults[key] = int(defaults[key])
+            if (
+                defaults["laundry_enabled"]
+                and defaults["laundry_target"] not in targets
+            ):
+                errors["laundry_target"] = "laundry_target_required"
+            if defaults["laundry_enabled"] and not (
+                defaults["laundry_rain"] or defaults["laundry_wind"]
+            ):
+                errors["base"] = "laundry_event_required"
+            if not errors:
+                return self.async_create_entry(
+                    title="",
+                    data={**entry.options, **{key: defaults[key] for key in DEFAULTS}},
+                )
+        fields = {
+            vol.Required("laundry_enabled", default=defaults["laundry_enabled"]): bool,
+            vol.Required(
+                "laundry_target", default=defaults["laundry_target"]
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=[
+                        SelectOptionDict(
+                            value="",
+                            label=_flow_text(
+                                self, "Selecciona un destino", "Hautatu hartzaile bat"
+                            ),
+                        )
+                    ]
+                    + [SelectOptionDict(value=k, label=v) for k, v in targets.items()]
+                )
+            ),
+            vol.Required(
+                "laundry_lead_minutes", default=str(defaults["laundry_lead_minutes"])
+            ): SelectSelector(SelectSelectorConfig(options=["15", "30", "60"])),
+            vol.Required("laundry_rain", default=defaults["laundry_rain"]): bool,
+            vol.Required("laundry_wind", default=defaults["laundry_wind"]): bool,
+            vol.Required(
+                "laundry_wind_kmh", default=defaults["laundry_wind_kmh"]
+            ): vol.All(vol.Coerce(float), vol.Range(min=10, max=100)),
+            vol.Required(
+                "laundry_start", default=defaults["laundry_start"]
+            ): TimeSelector(),
+            vol.Required(
+                "laundry_end", default=defaults["laundry_end"]
+            ): TimeSelector(),
+            vol.Required(
+                "laundry_cooldown_minutes",
+                default=str(defaults["laundry_cooldown_minutes"]),
+            ): SelectSelector(SelectSelectorConfig(options=["30", "60", "120", "240"])),
+        }
+        return self.async_show_form(
+            step_id="laundry", errors=errors, data_schema=vol.Schema(fields)
         )
 
     async def async_step_microclimate(self, user_input=None):

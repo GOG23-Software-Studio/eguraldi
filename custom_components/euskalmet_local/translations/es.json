@@ -378,6 +378,11 @@
           "windy-variant": "Viento con nubes"
         }
       }
+    },
+    "switch": {
+      "laundry_out": {
+        "name": "Tengo ropa tendida"
+      }
     }
   },
   "title": "Eguraldi",
@@ -397,7 +402,8 @@
           "locality": "Cambiar localidad",
           "station": "Cambiar estación",
           "home_assistant": "Usar ubicación de Home Assistant",
-          "microclimate": "Microclima de tu casa"
+          "microclimate": "Microclima de tu casa",
+          "laundry": "Avisos de ropa tendida"
         }
       },
       "locality": {
@@ -430,6 +436,21 @@
           "microclimate_sensor": "Sensor de temperatura exterior",
           "microclimate_outdoors_confirmed": "Confirmo que mide el exterior y está protegido del sol directo"
         }
+      },
+      "laundry": {
+        "title": "Avisos de ropa tendida",
+        "description": "Avisos opcionales para esta localidad. Tras activarlos, marca «Tengo ropa tendida» en la tarjeta o en la entidad. La sesión termina al recoger la ropa o a las 24 h. La previsión tiene resolución horaria: 15, 30 o 60 min son márgenes orientativos. Inicio y fin iguales permiten avisos todo el día. Un aviso por tipo de riesgo y sesión; el intervalo mínimo también se conserva tras reiniciar. Si falla la entrega, se muestra el error sin reenviar automáticamente.",
+        "data": {
+          "laundry_enabled": "Activar avisos",
+          "laundry_target": "Destino de los avisos",
+          "laundry_lead_minutes": "Antelación (minutos)",
+          "laundry_rain": "Vigilar lluvia o tormenta",
+          "laundry_wind": "Vigilar viento fuerte",
+          "laundry_wind_kmh": "Umbral de viento (km/h)",
+          "laundry_start": "Desde",
+          "laundry_end": "Hasta",
+          "laundry_cooldown_minutes": "Intervalo mínimo entre avisos (minutos)"
+        }
       }
     },
     "error": {
@@ -446,7 +467,9 @@
       "forecast_locality_not_found": "La localidad no tiene una previsión inequívoca en el catálogo de Euskalmet. Prueba su nombre oficial.",
       "home_location_unavailable": "No se pudo identificar un municipio con previsión de Euskalmet para la ubicación de HA. Revisa la ubicación de Home Assistant o elige otra localidad manualmente.",
       "invalid_microclimate_sensor": "Elige un sensor exterior de temperatura con unidades °C o °F y state_class measurement. No puede ser un sensor creado por Eguraldi.",
-      "confirm_outdoor_sensor": "Confirma la ubicación del sensor antes de usarlo como referencia exterior."
+      "confirm_outdoor_sensor": "Confirma la ubicación del sensor antes de usarlo como referencia exterior.",
+      "laundry_target_required": "Selecciona un destino disponible para activar los avisos.",
+      "laundry_event_required": "Activa al menos lluvia o viento."
     },
     "abort": {
       "no_nearby_station": "No hay estaciones cercanas disponibles.",

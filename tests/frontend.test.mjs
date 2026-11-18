@@ -484,3 +484,22 @@ test('outing controls update the view, translate and follow locality changes',as
  card.hass={...h,locale:{language:'eu'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/Kalera irteteko/);
  card.remove();assert.equal(count.subscriptions,count.unsubscribed);dom.window.close();
 });
+
+
+test('laundry is off by default and only controls the selected locality switch',async()=>{
+  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),ha=hass(),calls=[];
+  const loc={...location,entities:{...location.entities,laundry_out:'switch.demo_laundry'}};
+  ha.callWS=async()=>[loc];ha.callService=async(...args)=>calls.push(args);
+  ha.states['switch.demo_laundry']={entity_id:'switch.demo_laundry',state:'off',attributes:{alerts_enabled:false,monitoring_status:'disabled'}};
+  card.setConfig({mode:'drying'});card.hass=ha;dom.window.document.body.append(card);await flush();
+  let button=card.shadowRoot.querySelector('[data-laundry-toggle]');
+  assert.equal(button.disabled,true);assert.equal(button.getAttribute('aria-pressed'),'false');button.click();assert.equal(calls.length,0);
+  assert.match(card.shadowRoot.querySelector('.laundry-control').textContent,/Avisos desactivados/);
+  card.hass={...ha,states:{...ha.states,'switch.demo_laundry':{...ha.states['switch.demo_laundry'],attributes:{alerts_enabled:true,monitoring_status:'idle'}}}};await flush();
+  button=card.shadowRoot.querySelector('[data-laundry-toggle]');button.click();await flush();
+  assert.deepEqual(JSON.parse(JSON.stringify(calls[0])),['switch','turn_on',{entity_id:'switch.demo_laundry'}]);
+  card.hass={...ha,states:{...ha.states,'switch.demo_laundry':{entity_id:'switch.demo_laundry',state:'on',attributes:{alerts_enabled:true,monitoring_status:'watching'}}}};await flush();
+  button=card.shadowRoot.querySelector('[data-laundry-toggle]');assert.match(button.textContent,/Ya he recogido/);button.click();await flush();
+  assert.equal(calls[1][1],'turn_off');
+  dom.window.close();
+});

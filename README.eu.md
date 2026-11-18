@@ -39,6 +39,12 @@ Eguraldik gaur egun argitaratzen duen iragarpenak ez du orduko hezetasunik. Osag
 
 [Mugikorreko ikuspegia](docs/drying-mobile-eu.jpg). Hautatutako iraupena bilatutako tartea da, ez arropa lehortzeko denboraren bermea.
 
+## Kanpoko arroparen abisuak
+
+**Aukerakoak eta lehenespenez desaktibatuta erabiltzaile guztientzat.** Herri bakoitzaren aukeretan hautatu hartzailea, euria eta/edo haize zakarra, haizearen muga, aurrerapena, ordutegia eta abisuen arteko tartea. Ondoren, markatu **Arropa kanpoan dut** txartelean, eta **Arropa jaso dut** amaitzean. Jarraipenak txartela itxita ere funtzionatzen du eta 24 ordura iraungitzen da.
+
+Iragarpena ordukoa da eta aurrerapena orientagarria. Arrisku mota bakoitzeko abisu bat saio bakoitzean, berrabiaraztean bikoiztu gabe. Ez da abisurik bidaltzen funtzioa konfiguratu, aktibatu eta saioa hasi arte. [Konfigurazioa eta mugak](docs/LAUNDRY_ALERTS.md) (gaztelaniaz).
+
 ## Zure etxeko mikroklima
 
 Eguraldi 0.2k tokiko ikaskuntza gehitzen du kanpoko sentsore propioarekin: ordukako eta egun/gauko aldeak, datuen estaldura eta egun bereizietan egindako egiaztapena. Estimazioa estazioarekiko hobekuntza frogatzen denean soilik aktibatzen da. **Ez du iragarpen ofiziala zuzentzen.**

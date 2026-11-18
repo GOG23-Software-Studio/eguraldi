@@ -263,6 +263,7 @@ def test_locality_options_apply_once_keep_identity_and_allow_manual_station(
             "locality",
             "station",
             "microclimate",
+            "laundry",
         ]
         result = await flow.async_step_locality({"locality": "Bilbao"})
         assert result["step_id"] == "place"
@@ -442,6 +443,7 @@ def test_another_locality_reuses_credentials_only_on_the_server(monkeypatch):
 @pytest.mark.parametrize("source", ["home_assistant", "manual"])
 def test_only_ha_bound_entries_follow_core_location_changes(monkeypatch, source):
     import custom_components.euskalmet_local as integration
+    from custom_components.euskalmet_local import laundry
 
     async def noop(*args, **kwargs):
         return None
@@ -468,6 +470,15 @@ def test_only_ha_bound_entries_follow_core_location_changes(monkeypatch, source)
         async def reload(entry_id):
             reloads.append(entry_id)
 
+        monkeypatch.setattr(
+            laundry,
+            "LaundryCoordinator",
+            lambda *args: SimpleNamespace(
+                async_initialize=noop,
+                async_refresh=noop,
+                async_add_listener=lambda cb: lambda: None,
+            ),
+        )
         monkeypatch.setattr(integration, "_async_register_frontend", noop)
         monkeypatch.setattr(integration, "EuskalmetCoordinator", Coordinator)
         monkeypatch.setattr(
@@ -805,6 +816,228 @@ def test_microclimate_admin_action_uses_wizard_validation(tmp_path, monkeypatch)
             await hass.services.async_call(
                 "euskalmet_local", "configure_microclimate", payload, blocking=True
             )
+        await hass.async_block_till_done()
+
+    asyncio.run(scenario())
+
+
+def test_laundry_options_validate_destination_and_preserve_microclimate(
+    tmp_path, monkeypatch
+):
+    async def scenario():
+        hass = HomeAssistant(str(tmp_path))
+        flow, entry, _, _ = options_locality_fixture(monkeypatch)
+        flow.hass = hass
+        entry.options = {"microclimate_enabled": True, "microclimate_since": "keep"}
+        form = await flow.async_step_laundry()
+        defaults = form["data_schema"]({})
+        assert defaults["laundry_enabled"] is False
+        invalid = await flow.async_step_laundry({**defaults, "laundry_enabled": True})
+        assert invalid["errors"] == {"laundry_target": "laundry_target_required"}
+        saved = await flow.async_step_laundry(
+            {
+                **defaults,
+                "laundry_enabled": True,
+                "laundry_target": "persistent_notification",
+            }
+        )
+        assert saved["data"]["microclimate_since"] == "keep"
+        assert saved["data"]["laundry_lead_minutes"] == 30
+        invalid = await flow.async_step_laundry(
+            {
+                **defaults,
+                "laundry_enabled": True,
+                "laundry_target": "persistent_notification",
+                "laundry_rain": False,
+                "laundry_wind": False,
+            }
+        )
+        assert invalid["errors"]["base"] == "laundry_event_required"
+        await hass.async_block_till_done()
+
+    asyncio.run(scenario())
+
+
+def test_laundry_mock_delivery_persistence_and_isolation(tmp_path, monkeypatch):
+    from datetime import UTC, datetime, timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.euskalmet_local.laundry import (
+        LaundryCoordinator,
+        destinations,
+    )
+    from custom_components.euskalmet_local.laundry_model import DEFAULTS
+    from custom_components.euskalmet_local.switch import LaundrySwitch
+
+    async def scenario():
+        hass = HomeAssistant(str(tmp_path))
+        now = datetime(2026, 11, 18, 10, 40, tzinfo=UTC)
+        monkeypatch.setattr(dt_util, "utcnow", lambda: now)
+        calls = []
+
+        async def notify(call):
+            calls.append((call.domain, call.service, call.data))
+
+        hass.services.async_register("notify", "phone_test", notify)
+        hass.services.async_register("notify", "notify", notify)
+        hass.services.async_register("notify", "send_message", notify)
+        hass.services.async_register("persistent_notification", "create", notify)
+        hass.states.async_set("notify.test_entity", "unknown")
+        assert "service:notify" not in destinations(hass)
+        assert "service:send_message" not in destinations(hass)
+        provider = SimpleNamespace(
+            hourly_forecast_updated=now,
+            data={
+                "forecast_hourly": {
+                    "at": now.isoformat(),
+                    "for": now.isoformat(),
+                    "trends": {
+                        "set": [
+                            {
+                                "range": "[11:00..12:00)",
+                                "precipitation": {"value": 1},
+                                "windspeed": {"value": 0},
+                            }
+                        ]
+                    },
+                }
+            },
+        )
+
+        def entry(id="laundry-a", **options):
+            return SimpleNamespace(
+                entry_id=id,
+                title="Demo",
+                data={"locality": "Demo", "locality_id": id, "station_id": "TEST"},
+                options={**DEFAULTS, **options},
+                runtime_data=provider,
+                async_on_unload=lambda cb: None,
+            )
+
+        disabled = LaundryCoordinator(hass, entry())
+        await disabled.async_initialize()
+        await disabled.async_set_active(True)
+        assert not disabled.active and not calls and disabled.status == "disabled"
+        enabled_entry = entry(laundry_enabled=True, laundry_target="service:phone_test")
+        monitor = LaundryCoordinator(hass, enabled_entry)
+        await monitor.async_initialize()
+        assert not monitor.active
+        await monitor.async_set_active(True)
+        assert len(calls) == 1 and calls[0][:2] == ("notify", "phone_test")
+        assert (
+            "Demo" in calls[0][2]["title"]
+            and "11:" in calls[0][2]["message"]
+            or "12:" in calls[0][2]["message"]
+        )
+        await monitor.async_set_active(True)
+        await monitor.async_refresh()
+        assert len(calls) == 1
+        switch = LaundrySwitch(monitor)
+        assert switch.is_on and switch.extra_state_attributes["alerts_enabled"]
+        assert "target" not in switch.extra_state_attributes
+        restarted = LaundryCoordinator(hass, enabled_entry)
+        await restarted.async_initialize()
+        assert restarted.active
+        await restarted.async_refresh()
+        assert len(calls) == 1
+        await restarted.async_set_active(False)
+        await restarted.async_set_active(True)
+        assert len(calls) == 1 and restarted.status == "cooldown"
+        other = LaundryCoordinator(
+            hass,
+            entry(
+                "laundry-b",
+                laundry_enabled=True,
+                laundry_target="entity:notify.test_entity",
+            ),
+        )
+        await other.async_initialize()
+        assert not other.active
+        await other.async_set_active(True)
+        assert len(calls) == 2 and calls[-1][2]["entity_id"] == "notify.test_entity"
+        enabled_entry.data["locality_id"] = "changed"
+        changed = LaundryCoordinator(hass, enabled_entry)
+        await changed.async_initialize()
+        assert not changed.active
+        now += timedelta(hours=25)
+        await other.async_refresh()
+        assert not other.active
+        for controller in (disabled, monitor, restarted, other, changed):
+            await controller.async_shutdown()
+        await hass.async_block_till_done()
+
+    asyncio.run(scenario())
+
+
+def test_laundry_quiet_stale_failed_and_persistent_targets(tmp_path, monkeypatch):
+    from datetime import UTC, datetime, timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.euskalmet_local.laundry import LaundryCoordinator
+    from custom_components.euskalmet_local.laundry_model import DEFAULTS
+
+    async def scenario():
+        hass = HomeAssistant(str(tmp_path))
+        now = datetime(2026, 11, 18, 10, 40, tzinfo=UTC)
+        monkeypatch.setattr(dt_util, "utcnow", lambda: now)
+        calls = []
+
+        async def failing(call):
+            calls.append(call)
+            raise RuntimeError("mock delivery failure")
+
+        hass.services.async_register("persistent_notification", "create", failing)
+        provider = SimpleNamespace(
+            hourly_forecast_updated=now,
+            data={
+                "forecast_hourly": {
+                    "at": now.isoformat(),
+                    "for": now.isoformat(),
+                    "trends": {
+                        "set": [
+                            {"range": "[10:00..11:00)", "precipitation": {"value": 1}}
+                        ]
+                    },
+                }
+            },
+        )
+        entry = SimpleNamespace(
+            entry_id="laundry-errors",
+            title="Demo",
+            data={},
+            runtime_data=provider,
+            options={
+                **DEFAULTS,
+                "laundry_enabled": True,
+                "laundry_target": "persistent_notification",
+                "laundry_start": "00:00:00",
+                "laundry_end": "00:00:00",
+            },
+            async_on_unload=lambda cb: None,
+        )
+        monitor = LaundryCoordinator(hass, entry)
+        await monitor.async_initialize()
+        monitor.options["laundry_start"] = "22:00:00"
+        monitor.options["laundry_end"] = "23:00:00"
+        await monitor.async_set_active(True)
+        assert monitor.status == "quiet_hours" and not calls
+        monitor.options.update(laundry_start="00:00:00", laundry_end="00:00:00")
+        provider.hourly_forecast_updated = now - timedelta(hours=3)
+        await monitor.async_refresh()
+        assert monitor.status == "no_forecast" and not calls
+        provider.hourly_forecast_updated = now
+        monitor.options["laundry_target"] = "service:missing"
+        await monitor.async_refresh()
+        assert monitor.status == "target_unavailable" and not calls
+        monitor.options["laundry_target"] = "persistent_notification"
+        await monitor.async_refresh()
+        assert monitor.status == "delivery_failed" and len(calls) == 1
+        await monitor.async_refresh()
+        assert monitor.status == "delivery_failed" and len(calls) == 1
+        assert calls[0].data["notification_id"].endswith(entry.entry_id)
+        await monitor.async_shutdown()
         await hass.async_block_till_done()
 
     asyncio.run(scenario())

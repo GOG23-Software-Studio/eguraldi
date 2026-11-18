@@ -6,7 +6,7 @@
 
 <script type="module">
 
-import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.4.2-controls';
+import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.5.0-controls';
 
 const now=new Date().setMinutes(0,0,0),loc={entry_id:'demo',locality:'Ortuella',station:'Arboleda',location_source:'home_assistant',distance_km:1.8,latitude:43.31,longitude:-3.05,entities:{weather:'weather.demo',temperature:'sensor.demo_temperature',humidity:'sensor.demo_humidity',precipitation_today:'sensor.demo_rain',temperature_min_today:'sensor.demo_min',temperature_max_today:'sensor.demo_max',wind_gust_max_today:'sensor.demo_gust',irradiance:'sensor.demo_irradiance'}};
 
@@ -23,6 +23,11 @@ if(new URLSearchParams(location.search).get('lang')==='eu'){document.querySelect
 const view=new URLSearchParams(location.search).get('view');
 if(view==='outing'){document.querySelector('.grid').style.cssText='max-width:760px;grid-template-columns:minmax(0,1fr)';for(let i=0;i<hourly.length;i++){hourly[i].temperature=i<6?18-i*.3:12;hourly[i].wind_speed=i<6?8:24;hourly[i].precipitation=i>=6?.6:0;hourly[i].condition=i>=6?'rainy':'partlycloudy';}if(new URLSearchParams(location.search).get('state')==='missing')for(const f of hourly)delete f.precipitation;}
 if(view==='drying'){
+  loc.entities.laundry_out='switch.demo_laundry';
+  hass.states['switch.demo_laundry']={entity_id:'switch.demo_laundry',state:'off',attributes:{alerts_enabled:false,monitoring_status:'disabled'}};
+  hass.callService=async(domain,service,data)=>{if(domain==='switch'&&data.entity_id==='switch.demo_laundry'){const state=hass.states['switch.demo_laundry'];state.state=service==='turn_on'?'on':'off';state.attributes.monitoring_status=state.state==='on'?'watching':'idle';for(const card of document.querySelectorAll('euskalmet-local-card'))card.hass={...hass};}};
+  if(new URLSearchParams(location.search).get('alerts')==='enabled')hass.states['switch.demo_laundry'].attributes={alerts_enabled:true,monitoring_status:'idle'};
+
   document.querySelector('.grid').style.cssText='max-width:760px;grid-template-columns:minmax(0,1fr)';
   for(let i=0;i<hourly.length;i++){hourly[i].temperature=15+6*Math.max(0,Math.sin(i/24*Math.PI));hourly[i].humidity=80-25*Math.max(0,Math.sin(i/24*Math.PI));hourly[i].wind_speed=i===5?36:8+i%9;hourly[i].precipitation=i<3?.3:0;hourly[i].condition=i<3?'rainy':'partlycloudy';}
   if(new URLSearchParams(location.search).get('state')==='limited')for(const f of hourly)delete f.humidity;

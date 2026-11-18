@@ -28,6 +28,7 @@ PLATFORMS: list[Platform] = [
     Platform.CAMERA,
     Platform.SENSOR,
     Platform.WEATHER,
+    Platform.SWITCH,
 ]
 
 FRONTEND_URL = "/euskalmet_local_static"
@@ -131,6 +132,11 @@ async def async_setup_entry(
     hass.data[DOMAIN].setdefault("coordinators", {})[entry.entry_id] = coordinator
 
     entry.runtime_data = coordinator
+    from .laundry import LaundryCoordinator
+
+    laundry = LaundryCoordinator(hass, entry)
+    await laundry.async_initialize()
+    hass.data[DOMAIN].setdefault("laundry", {})[entry.entry_id] = laundry
     if entry.options.get("microclimate_enabled"):
         from .microclimate import MicroclimateCoordinator
 
@@ -143,6 +149,9 @@ async def async_setup_entry(
         entry,
         PLATFORMS,
     )
+
+    entry.async_on_unload(laundry.async_add_listener(lambda: None))
+    await laundry.async_refresh()
 
     microclimate = hass.data[DOMAIN].get("microclimates", {}).get(entry.entry_id)
     if microclimate:
@@ -220,6 +229,9 @@ async def async_unload_entry(
     )
 
     if unload_ok:
+        laundry = hass.data[DOMAIN].get("laundry", {}).pop(entry.entry_id, None)
+        if laundry:
+            await laundry.async_shutdown()
         microclimate = (
             hass.data[DOMAIN].get("microclimates", {}).pop(entry.entry_id, None)
         )
