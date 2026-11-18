@@ -6,7 +6,7 @@
 
 <script type="module">
 
-import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.5.0-controls';
+import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.5.1-controls';
 
 const now=new Date().setMinutes(0,0,0),loc={entry_id:'demo',locality:'Ortuella',station:'Arboleda',location_source:'home_assistant',distance_km:1.8,latitude:43.31,longitude:-3.05,entities:{weather:'weather.demo',temperature:'sensor.demo_temperature',humidity:'sensor.demo_humidity',precipitation_today:'sensor.demo_rain',temperature_min_today:'sensor.demo_min',temperature_max_today:'sensor.demo_max',wind_gust_max_today:'sensor.demo_gust',irradiance:'sensor.demo_irradiance'}};
 
@@ -26,6 +26,8 @@ if(view==='drying'){
   loc.entities.laundry_out='switch.demo_laundry';
   hass.states['switch.demo_laundry']={entity_id:'switch.demo_laundry',state:'off',attributes:{alerts_enabled:false,monitoring_status:'disabled'}};
   hass.callService=async(domain,service,data)=>{if(domain==='switch'&&data.entity_id==='switch.demo_laundry'){const state=hass.states['switch.demo_laundry'];state.state=service==='turn_on'?'on':'off';state.attributes.monitoring_status=state.state==='on'?'watching':'idle';for(const card of document.querySelectorAll('euskalmet-local-card'))card.hass={...hass};}};
+  const laundryFields=[['laundry_enabled',false],['laundry_target',''],['laundry_lead_minutes','30'],['laundry_rain',true],['laundry_wind',true],['laundry_wind_kmh',30],['laundry_start','08:00:00'],['laundry_end','22:00:00'],['laundry_cooldown_minutes','120']].map(([name,value])=>({name,default:value,...(['laundry_target','laundry_lead_minutes','laundry_cooldown_minutes'].includes(name)?{selector:{select:{options:name==='laundry_target'?[{value:'',label:'Selecciona un destino'},{value:'persistent_notification',label:'Home Assistant'}]:name==='laundry_lead_minutes'?['15','30','60']:['30','60','120','240']}}}:{})}));
+  hass.callApi=async(method,path,data)=>{if(method==='DELETE')return {};if(path.endsWith('/flow')||data?.next_step_id)return {type:'form',step_id:'laundry',flow_id:'demo-laundry',data_schema:laundryFields};const state=hass.states['switch.demo_laundry'];state.attributes.alerts_enabled=data.laundry_enabled;state.attributes.monitoring_status=data.laundry_enabled?'idle':'disabled';for(const card of document.querySelectorAll('euskalmet-local-card'))card.hass={...hass};return {type:'create_entry'};};
   if(new URLSearchParams(location.search).get('alerts')==='enabled')hass.states['switch.demo_laundry'].attributes={alerts_enabled:true,monitoring_status:'idle'};
 
   document.querySelector('.grid').style.cssText='max-width:760px;grid-template-columns:minmax(0,1fr)';

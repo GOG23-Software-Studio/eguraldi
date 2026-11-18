@@ -4,7 +4,7 @@ Disponibles desde Eguraldi 0.5.0. **Desactivados por defecto**, independientes p
 
 ## Configurar desde Home Assistant
 
-1. Abre **Ajustes → Dispositivos y servicios → Eguraldi → Configurar → Avisos de ropa tendida** en la entrada de tu localidad.
+1. Pulsa **Configurar avisos** en la tarjeta **¿Puedo tender fuera?** para abrir el formulario de esa localidad sin salir del panel. También puedes abrir **Ajustes → Dispositivos y servicios → Eguraldi → Configurar → Avisos de ropa tendida** en la entrada de tu localidad.
 2. Elige un destino: una entidad de notificaciones, un servicio específico como el de tu móvil, o las notificaciones internas de Home Assistant. Debe estar configurado previamente en HA. No se selecciona ningún móvil automáticamente ni se utiliza el envío genérico `notify.notify`.
 3. Configura lluvia o tormenta y/o viento fuerte. El umbral de viento es ajustable entre 10 y 100 km/h; por defecto, 30 km/h.
 4. Elige antelación de 15, 30 o 60 minutos, horario permitido e intervalo mínimo de 30, 60, 120 o 240 minutos. Por defecto: 30 minutos, 08:00–22:00 y 120 minutos. Se usa la zona horaria de HA. Un horario puede cruzar medianoche; inicio y fin iguales permiten todo el día.

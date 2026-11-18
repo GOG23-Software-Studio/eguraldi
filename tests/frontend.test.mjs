@@ -12,7 +12,7 @@ function setup(){
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-alert-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-comparison-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-microclimate-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
-  for(const file of ['eguraldi-drying-model.js','eguraldi-drying-style.js','eguraldi-outing-model.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replaceAll('export ',''),dom.getInternalVMContext());
+  for(const file of ['eguraldi-laundry-settings.js','eguraldi-drying-model.js','eguraldi-drying-style.js','eguraldi-outing-model.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replaceAll('export ',''),dom.getInternalVMContext());
   vm.runInContext(source+'\nwindow.logic={forecastRows,iconName,isNight,numeric,escapeHTML};',dom.getInternalVMContext());
   return dom;
 }
@@ -502,4 +502,40 @@ test('laundry is off by default and only controls the selected locality switch',
   button=card.shadowRoot.querySelector('[data-laundry-toggle]');assert.match(button.textContent,/Ya he recogido/);button.click();await flush();
   assert.equal(calls[1][1],'turn_off');
   dom.window.close();
+});
+
+
+test('configure laundry opens the selected entry form without navigation and saves through HA',async()=>{
+ const dom=setup();dom.window.HTMLDialogElement.prototype.showModal=function(){this.open=true;};dom.window.HTMLDialogElement.prototype.close=function(){this.open=false;};
+ const card=dom.window.document.createElement('euskalmet-local-card'),ha=hass(),calls=[];
+ ha.callWS=async()=>[{...location,entry_id:'chosen-entry',entities:{...location.entities,laundry_out:'switch.laundry'}}];
+ ha.states['switch.laundry']={state:'off',attributes:{alerts_enabled:false,monitoring_status:'disabled'}};
+ const fields=[['laundry_enabled',false],['laundry_target',''],['laundry_lead_minutes','30'],['laundry_rain',true],['laundry_wind',true],['laundry_wind_kmh',30],['laundry_start','08:00:00'],['laundry_end','22:00:00'],['laundry_cooldown_minutes','120']].map(([name,value])=>({name,default:value,...(['laundry_target','laundry_lead_minutes','laundry_cooldown_minutes'].includes(name)?{selector:{select:{options:name==='laundry_target'?[{value:'',label:'Select'},{value:'persistent_notification',label:'Home Assistant'}]:name==='laundry_lead_minutes'?['15','30','60']:['30','60','120','240']}}}:{})}));
+ ha.callApi=async(...args)=>{calls.push(args);if(args[1].endsWith('/flow'))return {type:'menu',flow_id:'our-flow',menu_options:['laundry']};if(args[2]?.next_step_id)return {type:'form',step_id:'laundry',flow_id:'our-flow',data_schema:fields};return {type:'create_entry'};};
+ card.setConfig({mode:'drying'});card.hass=ha;dom.window.document.body.append(card);await flush();
+ card.shadowRoot.querySelector('[data-laundry-config]').click();await flush();
+ assert.equal(calls[0][2].handler,'chosen-entry');assert.equal(calls[1][2].next_step_id,'laundry');assert.equal(dom.window.location.pathname,'/');
+ const dialogHost=[...dom.window.document.body.children].find(el=>el.shadowRoot?.querySelector('dialog')),root=dialogHost.shadowRoot;
+ assert.match(root.querySelector('h2').textContent,/Avisos de ropa/);assert.equal(root.querySelector('[name=laundry_enabled]').checked,false);
+ root.querySelector('[name=laundry_target]').value='persistent_notification';root.querySelector('[name=laundry_enabled]').checked=true;
+ root.querySelector('form').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));await flush();
+ assert.equal(calls[2][1],'config/config_entries/options/flow/our-flow');assert.equal(calls[2][2].laundry_enabled,true);assert.equal(calls[2][2].laundry_target,'persistent_notification');assert.equal(calls[2][2].laundry_wind_kmh,30);assert.equal(dialogHost.isConnected,false);assert.equal(calls.some(c=>c[0]==='DELETE'),false);
+ dom.window.close();
+});
+
+test('laundry settings cancel aborts its flow and pending entry responses cannot reopen it',async()=>{
+ const dom=setup();dom.window.HTMLDialogElement.prototype.showModal=function(){};dom.window.HTMLDialogElement.prototype.close=function(){};
+ let resolve;const calls=[];const ha={callApi:async(...args)=>{calls.push(args);if(args[0]==='POST')return new Promise(r=>resolve=r);return {};}};
+ const popup=dom.window.eval('openLaundrySettings')({hass:ha,entryId:'scoped',locality:'Demo',t:text=>text});
+ popup.close();resolve({type:'menu',flow_id:'late',menu_options:['laundry']});await flush();
+ assert.equal(calls.length,2);assert.equal(calls[1][0],'DELETE');assert.match(calls[1][1],/\/late$/);assert.equal(dom.window.document.body.children.length,0);dom.window.close();
+});
+
+test('laundry settings keeps validation errors and does not silently save',async()=>{
+ const dom=setup();dom.window.HTMLDialogElement.prototype.showModal=function(){};dom.window.HTMLDialogElement.prototype.close=function(){};
+ const form={type:'form',step_id:'laundry',flow_id:'errors',data_schema:[{name:'laundry_enabled',default:false},{name:'laundry_target',default:'',selector:{select:{options:[{value:'',label:'Select'}]}}}]};
+ const ha={callApi:async(method,path,data)=>method==='DELETE'?{}:path.endsWith('/flow')?form:{...form,errors:{laundry_target:'laundry_target_required'}}};
+ const popup=dom.window.eval('openLaundrySettings')({hass:ha,entryId:'scoped',locality:'Demo',t:text=>text});await flush();
+ const root=dom.window.document.body.firstElementChild.shadowRoot;root.querySelector('[name=laundry_enabled]').checked=true;root.querySelector('form').dispatchEvent(new dom.window.Event('submit',{cancelable:true}));await flush();
+ assert.match(root.querySelector('[role=alert]').textContent,/Selecciona un destino/);assert.equal(root.querySelector('[name=laundry_enabled]').checked,true);assert.equal(root.querySelector('#save').disabled,false);popup.close();dom.window.close();
 });

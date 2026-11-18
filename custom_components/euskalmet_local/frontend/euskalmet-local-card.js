@@ -1,16 +1,38 @@
+import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.5.1';
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.5.0';
-import './eguraldi-comparison-card.js?v=0.5.0';
-import './eguraldi-microclimate-card.js?v=0.5.0';
-import './euskalmet-history-card.js?v=0.5.0-controls';
-import './euskalmet-radar-map-card.js?v=0.5.0';
+import './euskalmet-alert-card.js?v=0.5.1';
+import './eguraldi-comparison-card.js?v=0.5.1';
+import './eguraldi-microclimate-card.js?v=0.5.1';
+import './euskalmet-history-card.js?v=0.5.1-controls';
+import './euskalmet-radar-map-card.js?v=0.5.1';
 
-import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.5.0';
-import {dryingPlan} from './eguraldi-drying-model.js?v=0.5.0';
+import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.5.1';
+import {dryingPlan} from './eguraldi-drying-model.js?v=0.5.1';
 
-import {outingPlan} from './eguraldi-outing-model.js?v=0.5.0';
+import {outingPlan} from './eguraldi-outing-model.js?v=0.5.1';
 
 const EU_TEXT = {
+  "Avisos de ropa tendida": "Kanpoko arroparen abisuak",
+  "Cargando opciones…": "Aukerak kargatzen…",
+  "Cancelar": "Utzi",
+  "Guardar": "Gorde",
+  "Selecciona un destino": "Hautatu hartzaile bat",
+  "Activar avisos": "Abisuak aktibatu",
+  "Destino de los avisos": "Abisuen hartzailea",
+  "Antelación (minutos)": "Aurrerapena (minutuak)",
+  "Vigilar lluvia o tormenta": "Euria edo ekaitza zaindu",
+  "Vigilar viento fuerte": "Haize zakarra zaindu",
+  "Umbral de viento (km/h)": "Haizearen muga (km/h)",
+  "Desde": "Hasiera",
+  "Hasta": "Amaiera",
+  "Intervalo mínimo entre avisos (minutos)": "Abisuen arteko gutxieneko tartea (minutuak)",
+  "Activa los avisos y elige dónde recibirlos. Después marca «Tengo ropa tendida» para iniciar el seguimiento.": "Aktibatu abisuak eta aukeratu hartzailea. Ondoren, markatu «Arropa kanpoan dut» jarraipena hasteko.",
+  "Previsión horaria: la antelación es orientativa. La sesión caduca a las 24 h. Inicio y fin iguales permiten avisos todo el día.": "Orduko iragarpena: aurrerapena orientagarria da. Saioa 24 ordura iraungitzen da. Hasiera eta amaiera berdinekin, egun osoan abisatzen da.",
+  "Selecciona un destino disponible para activar los avisos.": "Hautatu hartzaile erabilgarri bat abisuak aktibatzeko.",
+  "Activa al menos lluvia o viento.": "Aktibatu euria edo haizea gutxienez.",
+  "No se pudieron guardar los avisos. Revisa los valores.": "Ezin izan dira abisuak gorde. Berrikusi balioak.",
+  "No se pudieron abrir los avisos. Necesitas permisos de administrador y Eguraldi actualizado.": "Ezin izan dira abisuak ireki. Administratzaile baimenak eta Eguraldi eguneratua behar dituzu.",
+
   "Ropa tendida": "Kanpoko arropa",
   "Tengo ropa tendida": "Arropa kanpoan dut",
   "Ya he recogido la ropa": "Arropa jaso dut",
@@ -187,7 +209,7 @@ export class EuskalmetLocalCard extends HTMLElement {
   set hass(value){const previous=this._hass;this._hass=value;this._start();const changed=!previous||!this._location||Object.values(this._location.entities).some(id=>previous.states[id]!==value.states[id])||previous.states[this._config?.humidity_forecast_entity]!==value.states[this._config?.humidity_forecast_entity]||previous.config?.time_zone!==value.config?.time_zone||egLocale(previous)!==egLocale(value);if(changed&&!this._renderScheduled){this._renderScheduled=true;queueMicrotask(()=>{this._renderScheduled=false;this._render();});}}
   connectedCallback(){this._start();this._dryingClock=setInterval(()=>{if(['drying','outing'].includes(this._config?.mode)||['drying','outing'].includes(this._tab))this._render();},60000);}
   disconnectedCallback(){clearInterval(this._dryingClock);this._stop();}
-  _stop(){this._generation++;this._extraRevision=(this._extraRevision||0)+1;this._extraPending=null;this._humidityForecast=[];this._dryingSelected=null;for(const unsubscribe of this._unsubs.splice(0))unsubscribe();this._starting=false;}
+  _stop(){this._laundrySettings?.close();this._generation++;this._extraRevision=(this._extraRevision||0)+1;this._extraPending=null;this._humidityForecast=[];this._dryingSelected=null;for(const unsubscribe of this._unsubs.splice(0))unsubscribe();this._starting=false;}
   async _start(){
     if(!this._hass||!this._config||!this.isConnected||this._starting||this._unsubs.length)return;
     this._starting=true;const generation=this._generation;
@@ -325,7 +347,7 @@ export class EuskalmetLocalCard extends HTMLElement {
     if(!state)return '';
     const enabled=state.attributes?.alerts_enabled===true,active=state.state==='on',available=!['unknown','unavailable'].includes(state.state);
     const statuses={disabled:'Avisos desactivados',idle:'Activa el seguimiento cuando tiendas',watching:'Vigilando lluvia y viento según tu configuración',quiet_hours:'Fuera del horario de avisos',no_forecast:'Sin previsión reciente: avisos en pausa',cooldown:'Intervalo entre avisos en curso',target_unavailable:'El destino de los avisos no está disponible',notified:'Aviso enviado para esta sesión',delivery_failed:'No se ha podido confirmar la entrega del aviso'};
-    return `<div class="laundry-control"><div><strong>${escapeHTML(this._t('Ropa tendida'))}</strong><span role="status">${escapeHTML(this._t(statuses[state.attributes?.monitoring_status]||statuses.idle))}</span></div><button data-laundry-toggle aria-pressed="${active}" ${!available||!enabled?'disabled':''}>${escapeHTML(this._t(active?'Ya he recogido la ropa':'Tengo ropa tendida'))}</button><a href="/config/integrations/integration/euskalmet_local">${escapeHTML(this._t('Configurar avisos'))}</a></div>`;
+    return `<div class="laundry-control"><div><strong>${escapeHTML(this._t('Ropa tendida'))}</strong><span role="status">${escapeHTML(this._t(statuses[state.attributes?.monitoring_status]||statuses.idle))}</span></div><button data-laundry-toggle aria-pressed="${active}" ${!available||!enabled?'disabled':''}>${escapeHTML(this._t(active?'Ya he recogido la ropa':'Tengo ropa tendida'))}</button><button data-laundry-config>${escapeHTML(this._t('Configurar avisos'))}</button></div>`;
   }
   _drying(){
     const humidityEntity=this._config.humidity_forecast_entity,other=this._hass?.states[humidityEntity],weather=this._state('weather'),usable=weather&&!['unknown','unavailable'].includes(weather.state);
@@ -379,6 +401,10 @@ export class EuskalmetLocalCard extends HTMLElement {
       }
     }
     this.shadowRoot.querySelectorAll('[data-outing-activity],[data-outing-minutes],[data-outing-start]').forEach(b=>b.addEventListener('click',()=>{let attr;if(b.dataset.outingActivity){this._outingActivity=b.dataset.outingActivity;this._outingSelected=null;attr='data-outing-activity';}else if(b.dataset.outingMinutes){this._outingMinutes=Number(b.dataset.outingMinutes);this._outingSelected=null;attr='data-outing-minutes';}else{this._outingSelected=Number(b.dataset.outingStart);attr='data-outing-start';}const value=b.getAttribute(attr);this._render();this.shadowRoot.querySelector(`[${attr}="${value}"]`)?.focus();}));
+    this.shadowRoot.querySelector('[data-laundry-config]')?.addEventListener('click',()=>{
+      if(this._laundrySettings)return;
+      this._laundrySettings=openLaundrySettings({hass:this._hass,entryId:this._location.entry_id,locality:this._location.locality,t:text=>this._t(text),onClose:()=>{this._laundrySettings=null;this.shadowRoot.querySelector('[data-laundry-config]')?.focus();}});
+    });
     this.shadowRoot.querySelector('[data-laundry-toggle]')?.addEventListener('click',async event=>{
       const state=this._state('laundry_out');if(!state||!state.attributes?.alerts_enabled)return;
       event.currentTarget.disabled=true;
