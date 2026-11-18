@@ -12,6 +12,7 @@ from .laundry_model import (
     DEFAULTS,
     allowed_time,
     forecast_fresh,
+    notification_message,
     risks,
     source_key,
     timestamp,
@@ -136,29 +137,9 @@ class LaundryCoordinator(DataUpdateCoordinator):
             self.status = "target_unavailable"
             return {}
         kinds = sorted(set(candidate["kinds"]) - sent)
-        eu = str(self.hass.config.language).startswith("eu")
         locality = self.entry.data.get("locality", self.entry.title)
-        when = dt_util.as_local(candidate["start"]).strftime("%H:%M")
         title = f"Eguraldi · {locality}"
-        reason = (" eta " if eu else " y ").join(
-            ("euria" if eu else "lluvia")
-            if k == "rain"
-            else ("haize zakarra" if eu else "viento fuerte")
-            for k in kinds
-        )
-        message = (
-            (
-                f"Arropa kanpoan duzu. {when} inguruan: {reason}. "
-                "Jasotzea komeni da. Euskalmet-en orduko iragarpena; "
-                "une zehatza gutxi gorabeherakoa da."
-            )
-            if eu
-            else (
-                f"Tienes ropa tendida. Se prevé {reason} "
-                f"en el bloque de las {when}. Valora recogerla. "
-                "Previsión horaria de Euskalmet; la hora es orientativa."
-            )
-        )
+        message = notification_message(locality, kinds, self.hass.config.language)
         # Persist the reservation before delivery, including uncertain responses.
         session = self.session
         self.session["sent"] = sorted(sent | set(kinds))

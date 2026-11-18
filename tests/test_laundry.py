@@ -97,3 +97,29 @@ def test_quiet_hours_include_overnight_and_ha_timezone():
     assert not model.allowed_time(
         local.replace(hour=22, minute=0), "08:00:00", "22:00:00"
     )
+
+
+def test_notifications_use_natural_speech_and_the_users_locality():
+    for kinds, risk in (
+        (["rain"], "lluvia"),
+        (["wind"], "viento fuerte"),
+        (["wind", "rain"], "lluvia y viento fuerte"),
+    ):
+        verb = "Se esperan" if len(kinds) == 2 else "Se espera"
+        assert model.notification_message("Bilbao", kinds) == (
+            f"{verb} {risk} próximamente en Bilbao. "
+            "Si tienes ropa tendida, conviene recogerla."
+        )
+    assert model.notification_message("Ortuella", ["rain"]) == (
+        "Se espera lluvia próximamente en Ortuella. "
+        "Si tienes ropa tendida, conviene recogerla."
+    )
+    for kinds, risk in (
+        (["rain"], "euria"),
+        (["wind"], "haize zakarra"),
+        (["rain", "wind"], "euria eta haize zakarra"),
+    ):
+        assert model.notification_message("Durango", kinds, "eu-ES") == (
+            f"Laster {risk} espero da Durango inguruan. "
+            "Arropa kanpoan baduzu, jasotzea komeni da."
+        )

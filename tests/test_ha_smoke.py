@@ -925,10 +925,10 @@ def test_laundry_mock_delivery_persistence_and_isolation(tmp_path, monkeypatch):
         assert not monitor.active
         await monitor.async_set_active(True)
         assert len(calls) == 1 and calls[0][:2] == ("notify", "phone_test")
-        assert (
-            "Demo" in calls[0][2]["title"]
-            and "11:" in calls[0][2]["message"]
-            or "12:" in calls[0][2]["message"]
+        assert calls[0][2]["title"] == "Eguraldi · Demo"
+        assert calls[0][2]["message"] == (
+            "Se espera lluvia próximamente en Demo. "
+            "Si tienes ropa tendida, conviene recogerla."
         )
         await monitor.async_set_active(True)
         await monitor.async_refresh()

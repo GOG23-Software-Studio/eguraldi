@@ -112,3 +112,28 @@ def risks(document, now, options):
         if kinds:
             result.append({"start": start, "kinds": kinds})
     return sorted(result, key=lambda risk: risk["start"])
+
+
+def notification_message(locality, kinds, language="es"):
+    """Natural speech shared by every notification destination."""
+    combined = "rain" in kinds and "wind" in kinds
+    if str(language).startswith("eu"):
+        risk = (
+            "euria eta haize zakarra"
+            if combined
+            else ("euria" if "rain" in kinds else "haize zakarra")
+        )
+        return (
+            f"Laster {risk} espero da {locality} inguruan. "
+            "Arropa kanpoan baduzu, jasotzea komeni da."
+        )
+    risk = (
+        "lluvia y viento fuerte"
+        if combined
+        else ("lluvia" if "rain" in kinds else "viento fuerte")
+    )
+    verb = "Se esperan" if combined else "Se espera"
+    return (
+        f"{verb} {risk} próximamente en {locality}. "
+        "Si tienes ropa tendida, conviene recogerla."
+    )

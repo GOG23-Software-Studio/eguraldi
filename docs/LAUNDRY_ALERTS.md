@@ -17,7 +17,7 @@ La sesión caduca a las 24 horas. Desactivar los avisos, cambiar de localidad, c
 
 Se revisa cada minuto la previsión horaria que Eguraldi ya descarga: precipitación superior a cero o símbolos de lluvia/tormenta, y viento medio previsto por encima del umbral (incluida la igualdad). La API expresa el viento en m/s y Eguraldi lo convierte a km/h. No se inventan probabilidades, rachas ni una predicción de resolución inferior a una hora.
 
-Se incluye el bloque horario en curso y el siguiente cuando entra en el margen elegido. La hora indicada es la del **bloque de previsión**, no un minuto exacto de llegada de la lluvia. No sustituye la observación real ni garantiza que la ropa no se moje. Las previsiones no son específicas de un balcón.
+Se incluye el bloque horario en curso y el siguiente cuando entra en el margen elegido. El margen se calcula con **bloques de previsión**, no con un minuto exacto de llegada de la lluvia. El mensaje dice «próximamente» para que resulte natural al escucharlo. No sustituye la observación real ni garantiza que la ropa no se moje. Las previsiones no son específicas de un balcón.
 
 Solo avisa si los avisos están activados, la ropa está marcada fuera, el horario permite avisos y el destino sigue disponible. Se pausa si la última descarga correcta supera dos horas o la emisión del documento supera doce horas. Fuera de horario no se encolan avisos antiguos: se reevalúa la previsión al volver al horario permitido.
 
@@ -30,3 +30,13 @@ Home Assistant permite [notificaciones mediante entidades](https://www.home-assi
 ## Capturas
 
 Las capturas del README usan datos simulados y muestran la función desactivada. Para ver los controles activos en la demostración local se puede abrir `preview.html?view=drying&alerts=enabled`; esta demostración no envía mensajes.
+
+## Mensajes de los avisos
+
+Desde 0.5.2 los mensajes usan un lenguaje más natural, tanto en altavoces como en el resto de destinos. La localidad se sustituye por la de cada entrada.
+
+- Lluvia: «Se espera lluvia próximamente en Ortuella. Si tienes ropa tendida, conviene recogerla».
+- Viento: «Se espera viento fuerte próximamente en Ortuella. Si tienes ropa tendida, conviene recogerla».
+- Ambos: «Se esperan lluvia y viento fuerte próximamente en Ortuella. Si tienes ropa tendida, conviene recogerla».
+
+En euskera: «Laster euria espero da Ortuella inguruan. Arropa kanpoan baduzu, jasotzea komeni da», adaptando también el riesgo a viento o a ambos. La resolución horaria y los límites de la previsión se explican en la configuración y esta guía.
