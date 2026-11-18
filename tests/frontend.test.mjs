@@ -12,7 +12,7 @@ function setup(){
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-alert-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-comparison-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-microclimate-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
-  for(const file of ['eguraldi-drying-model.js','eguraldi-drying-style.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replaceAll('export ',''),dom.getInternalVMContext());
+  for(const file of ['eguraldi-drying-model.js','eguraldi-drying-style.js','eguraldi-outing-model.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replaceAll('export ',''),dom.getInternalVMContext());
   vm.runInContext(source+'\nwindow.logic={forecastRows,iconName,isNight,numeric,escapeHTML};',dom.getInternalVMContext());
   return dom;
 }
@@ -472,4 +472,15 @@ test('drying editor persists a supplemental humidity source and translates the n
   editor.setConfig({mode:'drying'});editor.hass=h;dom.window.document.body.append(editor);await flush();
   let saved;editor.addEventListener('config-changed',e=>saved=e.detail.config);const select=editor.querySelector('#eg-drying-humidity');assert.ok(select);select.value='weather.rh';select.dispatchEvent(new dom.window.Event('change'));assert.equal(saved.humidity_forecast_entity,'weather.rh');assert.equal(saved.humidity_forecast_locality,'Ortuella');
   editor.hass={...h,locale:{language:'eu'}};assert.match(editor.textContent,/Arropa kanpoan zabal dezaket/);dom.window.close();
+});
+
+test('outing controls update the view, translate and follow locality changes',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),count={subscriptions:0,unsubscribed:0},h=hass(count);let loc={...location};h.callWS=async()=>[loc];
+ card.setConfig({mode:'outing',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
+ assert.ok(card.shadowRoot.querySelector('.outing'));assert.match(card.shadowRoot.textContent,/Previsión horaria/);
+ card.shadowRoot.querySelector('[data-outing-activity="family"]').click();assert.equal(card._outingActivity,'family');
+ card.shadowRoot.querySelector('[data-outing-minutes="90"]').click();assert.equal(card._outingMinutes,90);
+ loc={...loc,locality:'Bilbao',station_id:'C999'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-kicker').textContent,/Bilbao/);
+ card.hass={...h,locale:{language:'eu'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/Kalera irteteko/);
+ card.remove();assert.equal(count.subscriptions,count.unsubscribed);dom.window.close();
 });

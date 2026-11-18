@@ -11,11 +11,21 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 [![Egiaztapenak](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 [![Bertsioa](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**0.3.0 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
+**0.4.0 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
 [Ikusi mugikorreko ikuspegia](docs/preview-mobile.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
+
+## Kalera irteteko ordurik onena
+
+Aukeratu **Paseoa**, **Kirola** edo **Umeekin**, eta **30, 60 edo 90 minutuko** iraupena. Txartelak hurrengo 24 orduetako tarte onena eta bi aukera gehigarri bilatzen ditu. Aterkiari eta jakari buruzko orientazioa ematen du eta, ondorengo sei orduetan datuak badaude, euriaren, tenperaturaren edo haizearen lehen okerragotzea erakusten du.
+
+Iragarpena ordukoa da: ordu erdiko irteerek ordu-bloke berak erabiltzen dituzte, datuak asmatu gabe. Zeharkatutako ordu guztietan datuak behar dira. Ez du Mikroklima edo beste hornitzailerik behar. [Arauak eta konfigurazioa](docs/OUTING.md) (gaztelaniaz).
+
+![Kalera irteteko ordurik onena, simulatutako datuekin](docs/outing-eu.jpg)
+
+[Mugikorreko ikuspegia](docs/outing-mobile-eu.jpg). Editorean **Kalera irteteko ordurik onena** (`mode: outing`) eta panel osoko **Kalera irten** fitxan eskuragarri.
 
 ## Arropa kanpoan zabal dezaket?
 
@@ -104,6 +114,7 @@ mode: dashboard
 | Gaurko laburpena | `summaries` |
 | Mikroklima | `microclimate` |
 | Arropa zabaldu | `drying` |
+| Kalera irteteko ordurik onena | `outing` |
 | Hileko historikoa | `history` |
 | Radarra | `radar` |
 | Abisuak | `alerts` |

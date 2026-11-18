@@ -6,7 +6,7 @@
 
 <script type="module">
 
-import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.3.0-controls';
+import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.4.0-controls';
 
 const now=new Date().setMinutes(0,0,0),loc={entry_id:'demo',locality:'Ortuella',station:'Arboleda',location_source:'home_assistant',distance_km:1.8,latitude:43.31,longitude:-3.05,entities:{weather:'weather.demo',temperature:'sensor.demo_temperature',humidity:'sensor.demo_humidity',precipitation_today:'sensor.demo_rain',temperature_min_today:'sensor.demo_min',temperature_max_today:'sensor.demo_max',wind_gust_max_today:'sensor.demo_gust',irradiance:'sensor.demo_irradiance'}};
 
@@ -21,6 +21,7 @@ const hass={locale:{language:new URLSearchParams(location.search).get('lang')||'
 
 if(new URLSearchParams(location.search).get('lang')==='eu'){document.querySelector('mark').textContent='AURREBISTA · SIMULATUTAKO DATUAK';document.querySelector('header p:last-child').textContent='Home Assistanterako proiektu independentea · herria, hurbileko estazioa eta txartel integratuak';}
 const view=new URLSearchParams(location.search).get('view');
+if(view==='outing'){document.querySelector('.grid').style.cssText='max-width:760px;grid-template-columns:minmax(0,1fr)';for(let i=0;i<hourly.length;i++){hourly[i].temperature=i<6?18-i*.3:12;hourly[i].wind_speed=i<6?8:24;hourly[i].precipitation=i>=6?.6:0;hourly[i].condition=i>=6?'rainy':'partlycloudy';}if(new URLSearchParams(location.search).get('state')==='missing')for(const f of hourly)delete f.precipitation;}
 if(view==='drying'){
   document.querySelector('.grid').style.cssText='max-width:760px;grid-template-columns:minmax(0,1fr)';
   for(let i=0;i<hourly.length;i++){hourly[i].temperature=15+6*Math.max(0,Math.sin(i/24*Math.PI));hourly[i].humidity=80-25*Math.max(0,Math.sin(i/24*Math.PI));hourly[i].wind_speed=i===5?36:8+i%9;hourly[i].precipitation=i<3?.3:0;hourly[i].condition=i<3?'rainy':'partlycloudy';}
@@ -54,7 +55,7 @@ if(view==='radar'){
 }
 if(view==='forecasts')document.querySelector('.grid').style.gridTemplateColumns='minmax(0,1fr)';
 if(view==='radar')document.querySelector('.grid').style.cssText='max-width:650px;grid-template-columns:minmax(0,1fr)';
-for(const mode of (view==='editor'?[]:view==='radar'?['radar']:view==='summaries'?['summaries']:view==='drying'?['drying']:view==='microclimate'?['microclimate']:view==='forecasts'?['hourly_chart','daily_tiles','planning']:view==='charts'?['comparison','history']:['overview','hourly','daily'])){const card=document.createElement('euskalmet-local-card');card.setConfig({mode,...(mode==='radar'?{autoplay:false}:{}),...(mode==='comparison'?{comparison_entity:'sensor.demo_balcony',comparison_name:'Balcón'}:{})});card.hass=hass;document.querySelector('#cards').append(card);}
+for(const mode of (view==='editor'?[]:view==='radar'?['radar']:view==='summaries'?['summaries']:view==='drying'?['drying']:view==='outing'?['outing']:view==='microclimate'?['microclimate']:view==='forecasts'?['hourly_chart','daily_tiles','planning']:view==='charts'?['comparison','history']:['overview','hourly','daily'])){const card=document.createElement('euskalmet-local-card');card.setConfig({mode,...(mode==='radar'?{autoplay:false}:{}),...(mode==='comparison'?{comparison_entity:'sensor.demo_balcony',comparison_name:'Balcón'}:{})});card.hass=hass;document.querySelector('#cards').append(card);}
 
 if(new URLSearchParams(location.search).get('view')==='editor'){
 

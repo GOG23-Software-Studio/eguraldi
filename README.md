@@ -12,7 +12,7 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 [![Versión](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**Versión 0.3.0.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
+**Versión 0.4.0.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
 ![Tarjetas actuales de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
 
@@ -25,6 +25,16 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 ![Editor visual de Eguraldi, con datos simulados](docs/preview-editor.jpg)
 
 </details>
+
+## La mejor hora para salir
+
+Elige **Paseo**, **Deporte** o **Con niños**, y una duración de **30, 60 o 90 minutos**. La tarjeta busca una franja favorable en las próximas 24 horas, propone hasta dos alternativas, orienta sobre paraguas y chaqueta e indica el primer empeoramiento posterior de lluvia, temperatura o viento, dentro de las seis horas siguientes con datos.
+
+La previsión es horaria: las salidas a media hora reutilizan esos bloques, sin inventar una predicción de 30 minutos. Todas las horas atravesadas deben tener datos; las condiciones adversas y los huecos impiden recomendar una franja. No necesita Microclima ni otros proveedores. [Reglas y configuración](docs/OUTING.md).
+
+![La mejor hora para salir, con datos simulados](docs/outing.jpg)
+
+[Vista móvil](docs/outing-mobile.jpg). Disponible en el editor como **La mejor hora para salir** (`mode: outing`) y en la pestaña **Salir** del panel completo.
 
 ## ¿Puedo tender fuera?
 
@@ -128,6 +138,7 @@ mode: dashboard
 | Resumen de hoy | `summaries` |
 | Microclima | `microclimate` |
 | Tender fuera | `drying` |
+| La mejor hora para salir | `outing` |
 | Histórico mensual | `history` |
 | Radar | `radar` |
 | Avisos | `alerts` |
