@@ -1,18 +1,47 @@
-import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.6.2';
-import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.6.2';
+import {daySummaryPlan,summaryAlerts} from './eguraldi-day-summary-model.js?v=0.7.0';
+import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.7.0';
+import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.7.0';
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.6.2';
-import './eguraldi-comparison-card.js?v=0.6.2';
-import './eguraldi-microclimate-card.js?v=0.6.2';
-import './euskalmet-history-card.js?v=0.6.2-controls';
-import './euskalmet-radar-map-card.js?v=0.6.2';
+import './euskalmet-alert-card.js?v=0.7.0';
+import './eguraldi-comparison-card.js?v=0.7.0';
+import './eguraldi-microclimate-card.js?v=0.7.0';
+import './euskalmet-history-card.js?v=0.7.0-controls';
+import './euskalmet-radar-map-card.js?v=0.7.0';
 
-import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.6.2';
-import {dryingPlan} from './eguraldi-drying-model.js?v=0.6.2';
+import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.7.0';
+import {dryingPlan} from './eguraldi-drying-model.js?v=0.7.0';
 
-import {outingPlan} from './eguraldi-outing-model.js?v=0.6.2';
+import {outingPlan} from './eguraldi-outing-model.js?v=0.7.0';
 
 const EU_TEXT = {
+  "Consulta vigente":"Kontsulta eguneratua",
+  "Tu día con Eguraldi": "Zure eguna Eguraldirekin",
+  "Tu día": "Zure eguna",
+  "Decide de un vistazo": "Erabaki begirada batean",
+  "Salir y tender: 24 h · lavar: 7 días": "Irten eta zabaldu: 24 h · garbitu: 7 egun",
+  "Sin previsión horaria suficiente": "Orduko iragarpen nahikorik ez",
+  "Sin previsión diaria suficiente": "Eguneko iragarpen nahikorik ez",
+  "No hay una franja adecuada entre las horas con datos": "Ez dago tarte egokirik datuak dituzten orduetan",
+  "Paseo de {minutes} min": "{minutes} minutuko paseoa",
+  "Deporte de {minutes} min": "{minutes} minutuko kirola",
+  "Salida con niños de {minutes} min": "{minutes} minutuko irteera umeekin",
+  "Ventana de {hours} h": "{hours} orduko tartea",
+  "No hay dos días seguidos con margen suficiente": "Ez dago tarte nahikoa duten bi egun jarraian",
+  "Comparación de los próximos siete días": "Hurrengo zazpi egunen alderaketa",
+  "Avisos de tu localidad": "Zure herriko abisuak",
+  "Sin avisos activos": "Abisu aktiborik ez",
+  "Avisos activos": "Abisu aktiboak",
+  "No se pueden comprobar los avisos ahora": "Ezin dira abisuak egiaztatu une honetan",
+  "Avisos oficiales de Euskalmet": "Euskalmet-en abisu ofizialak",
+  "Amarillo": "Horia",
+  "Naranja": "Laranja",
+  "Rojo": "Gorria",
+  "Ver detalle": "Ikusi xehetasunak",
+  "Cerrar detalle": "Itxi xehetasunak",
+  "Qué resume esta tarjeta": "Zer laburbiltzen du txartel honek",
+  "Reutiliza las recomendaciones de salir, tender y lavar. Las horas pueden pertenecer a hoy o mañana y siempre muestran su fecha.": "Kalera irteteko, arropa zabaltzeko eta garbitzeko gomendioak berrerabiltzen ditu. Orduak gaurkoak edo biharkoak izan daitezke eta beti erakusten dute data.",
+  "Si faltan datos o han caducado, no se presenta una recomendación favorable. Los avisos solo se confirman con una consulta vigente.": "Datuak falta badira edo iraungi badira, ez da aldeko gomendiorik erakusten. Abisuak indarreko kontsulta batekin bakarrik baieztatzen dira.",
+
   "Esperando una previsión válida":"Baliozko iragarpen baten zain",
   "No se han podido cargar los datos de esta localidad. Se reintentará automáticamente.":"Ezin izan dira herri honetako datuak kargatu. Automatikoki berriro saiatuko da.",
   "No se ha podido cargar esta previsión. Se reintentará automáticamente.": "Ezin izan da iragarpena kargatu. Automatikoki berriro saiatuko da.",
@@ -245,11 +274,11 @@ const FORECAST_CSS=`
 export class EuskalmetLocalCard extends HTMLElement {
   constructor(){super();this.attachShadow({mode:'open'});this._generation=0;this._forecasts={};this._unsubs=[];this._tab='hourly';}
   setConfig(config){
-    if(!['dashboard','overview','hourly','daily','hourly_chart','daily_tiles','planning','drying','outing','vehicle_wash',...EXTRA_MODES].includes(config.mode||'dashboard'))throw Error(this._t('Modo no válido'));
-    this._stop();this._config={...config,mode:config.mode||'dashboard'};this._location=null;this._locations=null;this._forecasts={};this._humidityForecast=[];this._humidityBinding=null;this._dryingSelected=null;this._dryingDuration=null;this._outingSelected=null;this._washSelected=null;this._outingActivity=null;this._outingMinutes=null;this._error=null;this._start();this._render();
+    if(!['dashboard','overview','hourly','daily','hourly_chart','daily_tiles','planning','drying','outing','vehicle_wash','day_summary',...EXTRA_MODES].includes(config.mode||'dashboard'))throw Error(this._t('Modo no válido'));
+    this._stop();this._config={...config,mode:config.mode||'dashboard'};this._location=null;this._locations=null;this._forecasts={};this._humidityForecast=[];this._humidityBinding=null;this._dryingSelected=null;this._dryingDuration=null;this._outingSelected=null;this._washSelected=null;this._summaryDetail=null;this._outingActivity=null;this._outingMinutes=null;this._error=null;this._start();this._render();
   }
   set hass(value){const previous=this._hass;this._hass=value;this._start();const changed=!previous||!this._location||Object.values(this._location.entities).some(id=>previous.states[id]!==value.states[id])||previous.states[this._config?.humidity_forecast_entity]!==value.states[this._config?.humidity_forecast_entity]||previous.config?.time_zone!==value.config?.time_zone||egLocale(previous)!==egLocale(value);if(changed&&!this._renderScheduled){this._renderScheduled=true;queueMicrotask(()=>{this._renderScheduled=false;this._render();});}}
-  connectedCallback(){this._start();this._dryingClock=setInterval(()=>{if(['drying','outing','vehicle_wash'].includes(this._config?.mode)||['drying','outing','vehicle_wash'].includes(this._tab))this._render();},60000);}
+  connectedCallback(){this._start();this._dryingClock=setInterval(()=>{if(['drying','outing','vehicle_wash','day_summary'].includes(this._config?.mode)||['drying','outing','vehicle_wash','day_summary'].includes(this._tab))this._render();},60000);}
   disconnectedCallback(){clearInterval(this._dryingClock);this._stop();}
   _stop(){clearTimeout(this._locationRetry);this._locationRetry=null;clearTimeout(this._forecastRetry);this._forecastRetry=null;this._forecastPending=new Set();this._forecastSubscriptions=new Set();this._forecasts={};this._receivedAt={};this._forecastErrors={};this._laundrySettings?.close();this._generation++;this._extraRevision=(this._extraRevision||0)+1;this._extraPending=null;this._humidityForecast=[];this._dryingSelected=null;for(const unsubscribe of this._unsubs.splice(0))unsubscribe();this._starting=false;}
   async _start(){
@@ -280,7 +309,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       const binding=JSON.stringify([this._location.locality,this._location.latitude,this._location.longitude]);
       this._humidityBinding??=binding;
       this._humidityMismatch=this._humidityBinding!==binding||Boolean(this._config.humidity_forecast_locality&&this._config.humidity_forecast_locality!==this._location.locality);
-      if(!this._humidityMismatch&&['drying','dashboard'].includes(this._config.mode)&&/^weather\.[a-z0-9_]+$/.test(humidityEntity||'')&&humidityEntity!==weather){
+      if(!this._humidityMismatch&&['drying','dashboard','day_summary'].includes(this._config.mode)&&/^weather\.[a-z0-9_]+$/.test(humidityEntity||'')&&humidityEntity!==weather){
         try{
           const unsubscribe=await this._hass.connection.subscribeMessage(event=>{if(generation!==this._generation)return;this._humidityForecast=event.forecast||[];this._render();},{type:'weather/subscribe_forecast',forecast_type:'hourly',entity_id:humidityEntity});
           if(generation!==this._generation){unsubscribe();return;}this._unsubs.push(unsubscribe);
@@ -412,6 +441,21 @@ export class EuskalmetLocalCard extends HTMLElement {
     const minimum=values.length?Math.min(...values):0,maximum=values.length?Math.max(...values):1,span=Math.max(maximum-minimum,1);
     return `<section>${this._forecastHeader('Próximos días','Una mirada a la semana')}<div class="week-tiles">${days.map(f=>{const key=dayKey(f.datetime),label=key===today?this._t('Hoy'):key===tomorrow?this._t('Mañana'):this._time(f.datetime,{weekday:'short',day:'numeric'}),value=rain.value(f),low=numeric(f.templow),high=numeric(f.temperature),valid=low!==null&&high!==null&&high>=low,left=valid?(low-minimum)/span*100:0,width=valid?(high-low)/span*100:0;return `<article class="week-tile"><div class="week-day">${escapeHTML(label)}</div><img src="${BASE}icons/${iconName(f.condition,false)}.svg" alt="${escapeHTML(this._t(CONDITIONS[f.condition]||'Sin datos'))}"><div class="week-values"><div><small>${escapeHTML(this._t('Máxima'))}</small><strong>${fmt(high,0)}°</strong></div><div><small>${escapeHTML(this._t('Mínima'))}</small><span>${fmt(low,0)}°</span></div></div>${valid?`<div class="week-track" role="img" aria-label="${escapeHTML(this._t('Rango de temperatura'))}: ${fmt(low)}–${fmt(high)} ${escapeHTML(this._weather().temperature_unit||'°C')}"><div class="week-range" style="left:${left}%;width:${width}%"></div></div>`:''}${value===null?'':`<div class="week-rain" title="${escapeHTML(this._t(rain.label))}">💧 ${fmt(value)} ${escapeHTML(rain.unit)}</div>`}</article>`;}).join('')}</div>${!days.length?`<div class="message">${escapeHTML(this._t('Esperando previsión diaria…'))}</div>`:''}</section>`;
   }
+  _daySummary(){
+    const other=this._hass?.states[this._config.humidity_forecast_entity],supplemental=!this._humidityMismatch&&other&&!['unknown','unavailable'].includes(other.state)?this._humidityForecast||[]:[];
+    const summary=daySummaryPlan({hourly:this._forecast('hourly'),daily:this._forecast('daily'),units:this._weather(),humidityForecast:supplemental,timeZone:this._hass?.config?.time_zone||'Europe/Madrid',night:stamp=>isNight(stamp,this._location.latitude,this._location.longitude),minutes:Number(this._config.outing_minutes)||60,activity:this._config.outing_activity||'walk',hours:Number(this._config.drying_hours)||3});
+    const clock=stamp=>this._time(stamp,{hour:'2-digit',minute:'2-digit'}),day=stamp=>this._time(stamp,{weekday:'short',day:'numeric',month:'short'}),range=window=>`${day(window.start)} · ${clock(window.start)}–${clock(window.end)}${day(window.start)!==day(window.end)?' · '+day(window.end):''}`;
+    const outing=summary.outing,drying=summary.drying,washing=summary.washing,alerts=summaryAlerts(this._state('alert_level'),this._weather());
+    const labels={good:'Condiciones favorables',fair:'Condiciones aceptables',limited:'Ventana orientativa',wait:'Mejor esperar',unknown:'Sin datos suficientes',clear:'Consulta vigente',active:'Avisos activos'};
+    const levels={yellow:'Amarillo',orange:'Naranja',red:'Rojo'};
+    const rows=[
+      {id:'outing',label:'Salir',status:outing.status,headline:outing.plan.best?range(outing.plan.best):this._t(outing.status==='unknown'?'Sin previsión horaria suficiente':'No hay una franja adecuada entre las horas con datos'),note:this._t({walk:'Paseo de {minutes} min',sport:'Deporte de {minutes} min',family:'Salida con niños de {minutes} min'}[outing.plan.activity],{minutes:outing.plan.minutes}),icon:outing.plan.best?.parts[0].condition,stamp:outing.plan.best?.start},
+      {id:'drying',label:'Tender fuera',status:drying.status,headline:drying.plan.best?range(drying.plan.best):this._t(drying.status==='unknown'?'Sin previsión horaria suficiente':'No hay una franja adecuada entre las horas con datos'),note:this._t(drying.plan.best?.limited?'Humedad horaria no disponible: orientación parcial.':'Ventana de {hours} h',{hours:drying.plan.duration}),icon:drying.plan.best?.slots[0].condition,stamp:drying.plan.best?.start},
+      {id:'vehicle_wash',label:'Lavar vehículo',status:washing.status,headline:washing.plan.best?this._time(washing.plan.best.key+'T12:00:00Z',{weekday:'long',day:'numeric',month:'short',timeZone:'UTC'}):this._t(washing.status==='unknown'?'Sin previsión diaria suficiente':'No hay dos días seguidos con margen suficiente'),note:this._t('Comparación de los próximos siete días'),icon:washing.plan.best?.condition,stamp:washing.plan.best?washing.plan.best.key+'T12:00:00Z':null},
+      {id:'alerts',label:'Avisos de tu localidad',status:alerts.status,headline:this._t(alerts.status==='unknown'?'No se pueden comprobar los avisos ahora':alerts.status==='clear'?'Sin avisos activos':levels[alerts.level]),note:this._t('Avisos oficiales de Euskalmet'),icon:null,stamp:null},
+    ];
+    return `<section class="day-summary">${this._forecastHeader('Tu día con Eguraldi','Decide de un vistazo')}<div class="summary-horizon">${escapeHTML(this._t('Salir y tender: 24 h · lavar: 7 días'))}</div><div class="summary-grid">${rows.map(row=>`<button class="summary-row ${row.status} ${row.id==='alerts'?'alert-'+alerts.level:''}" data-summary-detail="${row.id}" aria-expanded="${this._summaryDetail===row.id}"><div class="summary-label"><span>${escapeHTML(this._t(row.label))}</span><span class="summary-badge">${escapeHTML(this._t(labels[row.status]))}</span></div><div class="summary-main"><strong>${escapeHTML(row.headline)}</strong>${row.icon?this._icon(row.icon,row.stamp):`<span class="summary-symbol" aria-hidden="true">${row.id==='alerts'?(alerts.status==='clear'?'✓':alerts.status==='active'?'!':'?'):'—'}</span>`}</div><small>${escapeHTML(row.note)}</small><span class="summary-open">${escapeHTML(this._t(this._summaryDetail===row.id?'Cerrar detalle':'Ver detalle'))} ${this._summaryDetail===row.id?'−':'↗'}</span></button>`).join('')}</div>${this._summaryDetail?`<div class="summary-detail" id="summary-detail"></div>`:''}<details class="dry-method"><summary>${escapeHTML(this._t('Qué resume esta tarjeta'))}</summary><p>${escapeHTML(this._t('Reutiliza las recomendaciones de salir, tender y lavar. Las horas pueden pertenecer a hoy o mañana y siempre muestran su fecha.'))}</p><p>${escapeHTML(this._t('Si faltan datos o han caducado, no se presenta una recomendación favorable. Los avisos solo se confirman con una consulta vigente.'))}</p></details></section>`;
+  }
   _vehicleWash(){
     const weather=this._state('weather'),usable=weather&&!['unknown','unavailable'].includes(weather.state),zone=this._hass?.config?.time_zone||'Europe/Madrid';
     const plan=vehicleWashPlan(usable?this._forecast('daily'):[],{timeZone:zone,units:this._weather()});
@@ -462,6 +506,7 @@ export class EuskalmetLocalCard extends HTMLElement {
   _render(){
     if(!this.shadowRoot||!this._config)return;
     if(this._location&&EXTRA_MODES.includes(this._config.mode)){this._renderExtra();return;}
+    const previousSummaryDetail=this.shadowRoot.querySelector('#summary-detail > euskalmet-local-card');
     const previousPlanningRadar=this.shadowRoot.querySelector('#planning-radar > euskalmet-local-card');
     const previousExtra=this.shadowRoot.querySelector('#content > euskalmet-local-card');
     const extraMode=this._tab==='microclimate'?'microclimate':this._tab==='history'?'history':this._tab==='radar'?'radar':'alerts';
@@ -472,7 +517,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       html=`<section><h2>Eguraldi</h2>${locations.length?`<label>${this._t('Selecciona localidad')} <select id="locality"><option value="">${escapeHTML(this._t("Elegir…"))}</option>${locations.map(l=>`<option value="${escapeHTML(l.entry_id)}">${escapeHTML(l.locality)}</option>`).join('')}</select></label>`:`<div class="message">${escapeHTML(this._t(this._error||(this._locations?'Añade una localidad desde la integración Eguraldi.':'Cargando localidades…')))}</div>`}</section>`;
     }else{
       const mode=this._config.mode;
-      html=mode==='overview'?this._overview():mode==='hourly'?this._hourly():mode==='daily'?this._daily():mode==='hourly_chart'?this._hourlyChart():mode==='daily_tiles'?this._dailyTiles():mode==='planning'?this._planning():mode==='drying'?this._drying():mode==='outing'?this._outing():mode==='vehicle_wash'?this._vehicleWash():this._overview()+`<section class="divider"><nav class="tabs" aria-label="${this._t('Vista del tiempo')}">${[['hourly','24 horas'],['daily','Próximos días'],['microclimate','Microclima'],['drying','Tender fuera'],['outing','Salir'],['vehicle_wash','Lavar vehículo'],['radar','Radar'],['history','Histórico'],['alerts','Avisos']].map(([id,label])=>`<button data-tab="${id}" class="${this._tab===id?'active':''}" aria-pressed="${this._tab===id}">${escapeHTML(this._t(label))}</button>`).join('')}</nav><div id="content"></div></section>`;
+      html=mode==='overview'?this._overview():mode==='hourly'?this._hourly():mode==='daily'?this._daily():mode==='hourly_chart'?this._hourlyChart():mode==='daily_tiles'?this._dailyTiles():mode==='planning'?this._planning():mode==='drying'?this._drying():mode==='outing'?this._outing():mode==='vehicle_wash'?this._vehicleWash():mode==='day_summary'?this._daySummary():this._overview()+`<section class="divider"><nav class="tabs" aria-label="${this._t('Vista del tiempo')}">${[['day_summary','Tu día'],['hourly','24 horas'],['daily','Próximos días'],['microclimate','Microclima'],['drying','Tender fuera'],['outing','Salir'],['vehicle_wash','Lavar vehículo'],['radar','Radar'],['history','Histórico'],['alerts','Avisos']].map(([id,label])=>`<button data-tab="${id}" class="${this._tab===id?'active':''}" aria-pressed="${this._tab===id}">${escapeHTML(this._t(label))}</button>`).join('')}</nav><div id="content"></div></section>`;
     }
     this.shadowRoot.innerHTML=`<style>${CSS}${FORECAST_CSS}${DRYING_CSS}</style><ha-card>${this._forecastNotice(this._config.mode)}${html}${this._error?`<div class="message error">${escapeHTML(this._t(this._error))}</div>`:''}</ha-card>`;
     const microHost=this.shadowRoot.querySelector('#overview-micro-card');
@@ -483,12 +528,19 @@ export class EuskalmetLocalCard extends HTMLElement {
     for(const button of this.shadowRoot.querySelectorAll('[data-tab]'))button.addEventListener('click',()=>{this._tab=button.dataset.tab;this._render();});
     if(this._location&&this._config.mode==='dashboard'){
       const content=this.shadowRoot.querySelector('#content');
-      if(['hourly','daily','drying','outing','vehicle_wash'].includes(this._tab))content.innerHTML=this._tab==='hourly'?this._hourly():this._tab==='daily'?this._daily():this._tab==='outing'?this._outing():this._tab==='vehicle_wash'?this._vehicleWash():this._drying();
+      if(['hourly','daily','drying','outing','vehicle_wash','day_summary'].includes(this._tab))content.innerHTML=this._tab==='hourly'?this._hourly():this._tab==='daily'?this._daily():this._tab==='outing'?this._outing():this._tab==='vehicle_wash'?this._vehicleWash():this._tab==='day_summary'?this._daySummary():this._drying();
       else{
         const card=reusableExtra||document.createElement('euskalmet-local-card');
         if(!reusableExtra)card.setConfig({entry_id:this._location.entry_id,mode:extraMode});
         card.hass=this._hass;content.append(card);
       }
+    }
+    this.shadowRoot.querySelectorAll('[data-summary-detail]').forEach(button=>button.addEventListener('click',()=>{this._summaryDetail=this._summaryDetail===button.dataset.summaryDetail?null:button.dataset.summaryDetail;this._render();this.shadowRoot.querySelector(`[data-summary-detail="${button.dataset.summaryDetail}"]`)?.focus();}));
+    const summaryDetail=this.shadowRoot.querySelector('#summary-detail');
+    if(summaryDetail&&this._summaryDetail){
+      const alertStatus=summaryAlerts(this._state('alert_level'),this._weather());
+      if(this._summaryDetail==='alerts'&&alertStatus.status==='unknown')summaryDetail.innerHTML=`<div class="message" role="status">${escapeHTML(this._t('No se pueden comprobar los avisos ahora'))}</div>`;
+      else{const reusable=previousSummaryDetail?._config?.mode===this._summaryDetail&&previousSummaryDetail?._config?.entry_id===this._location.entry_id;const detail=reusable?previousSummaryDetail:document.createElement('euskalmet-local-card');if(!reusable)detail.setConfig({...this._config,mode:this._summaryDetail,entry_id:this._location.entry_id});detail.hass=this._hass;summaryDetail.append(detail);}
     }
     this.shadowRoot.querySelectorAll('[data-outing-activity],[data-outing-minutes],[data-outing-start]').forEach(b=>b.addEventListener('click',()=>{let attr;if(b.dataset.outingActivity){this._outingActivity=b.dataset.outingActivity;this._outingSelected=null;attr='data-outing-activity';}else if(b.dataset.outingMinutes){this._outingMinutes=Number(b.dataset.outingMinutes);this._outingSelected=null;attr='data-outing-minutes';}else{this._outingSelected=Number(b.dataset.outingStart);attr='data-outing-start';}const value=b.getAttribute(attr);this._render();this.shadowRoot.querySelector(`[${attr}="${value}"]`)?.focus();}));
     this.shadowRoot.querySelectorAll('[data-wash-day]').forEach(button=>button.addEventListener('click',()=>{this._washSelected=button.dataset.washDay;this._render();this.shadowRoot.querySelector(`[data-wash-day="${this._washSelected}"]`)?.focus();}));
@@ -588,7 +640,7 @@ class EuskalmetLocalEditor extends HTMLElement {
   }
   _render(){
     if(!this._config)return;
-    const modes=[['dashboard','Panel completo'],['overview','Tiempo actual'],['hourly','Próximas 24 horas'],['daily','Próximos días'],['hourly_chart','Gráfico de próximas 24 horas'],['daily_tiles','Semana visual'],['planning','Planifica las próximas horas'],['drying','¿Puedo tender fuera?'],['outing','La mejor hora para salir'],['vehicle_wash','¿Cuándo lavar mi vehículo?'],['summaries','Resumen de hoy'],['microclimate','Microclima'],['history','Histórico mensual'],['radar','Radar'],['alerts','Avisos'],['comparison','Comparación de temperatura'],['environment','Costa y ambiente']];
+    const modes=[['dashboard','Panel completo'],['day_summary','Tu día con Eguraldi'],['overview','Tiempo actual'],['hourly','Próximas 24 horas'],['daily','Próximos días'],['hourly_chart','Gráfico de próximas 24 horas'],['daily_tiles','Semana visual'],['planning','Planifica las próximas horas'],['drying','¿Puedo tender fuera?'],['outing','La mejor hora para salir'],['vehicle_wash','¿Cuándo lavar mi vehículo?'],['summaries','Resumen de hoy'],['microclimate','Microclima'],['history','Histórico mensual'],['radar','Radar'],['alerts','Avisos'],['comparison','Comparación de temperatura'],['environment','Costa y ambiente']];
     const locations=this._locations||[];
     this.innerHTML=`<style>.eg-editor{display:grid;gap:16px;padding:8px 0}.eg-editor label{display:grid;gap:7px;font-size:14px}.eg-editor select,.eg-editor input{font:inherit;padding:10px;border:1px solid var(--divider-color,#888);border-radius:10px;background:var(--card-background-color,#fff);color:var(--primary-text-color,#111);width:100%;box-sizing:border-box}.eg-editor p{font-size:12px;color:var(--secondary-text-color);margin:0}</style><div class="eg-editor"><label>${escapeHTML(this._t("Vista"))}<select id="eg-mode">${modes.map(([id,label])=>`<option value="${id}">${escapeHTML(this._t(label))}</option>`).join('')}</select></label><label>${escapeHTML(this._t("Ubicación"))}<select id="eg-location"><option value="">${this._t(locations.length===1?'Automática · única ubicación':'Elegir en la tarjeta')}</option>${locations.map(loc=>`<option value="${escapeHTML(loc.entry_id)}">${escapeHTML(loc.locality)}${loc.location_source==='home_assistant'?this._t(' · ubicación de HA'):''}</option>`).join('')}</select></label><p>${this._t(this._loadError?'No se han podido cargar las ubicaciones. Vuelve a abrir el editor.':this._locations?(locations.length?'La ubicación elegida se guardará con esta tarjeta.':'Añade una ubicación en la integración Eguraldi.'):'Cargando ubicaciones…')}</p><div id="eg-extra"></div></div>`;
     const mode=this.querySelector('#eg-mode');mode.value=this._config.mode||'dashboard';mode.addEventListener('change',()=>this._save({mode:mode.value}));
@@ -605,7 +657,7 @@ class EuskalmetLocalEditor extends HTMLElement {
       mapStyle.value=this._config.map_style||'satellite';mapStyle.addEventListener('change',()=>this._save({map_style:mapStyle.value}));mapLabel.append(mapStyle);extra.append(mapLabel);
       const zoom=extra.querySelector('input');zoom.value=String(this._config.zoom??10);zoom.addEventListener('change',()=>{const value=Number(zoom.value);if(Number.isFinite(value)&&value>=3&&value<=16)this._save({zoom:value});});
     }
-    if(['drying','dashboard'].includes(this._config.mode)){
+    if(['drying','dashboard','day_summary'].includes(this._config.mode)){
       const sources=Object.entries(this._hass?.states||{}).filter(([id,state])=>id.startsWith('weather.')&&(Number(state.attributes?.supported_features||0)&2)&&!locations.some(l=>l.entities.weather===id));
       extra.innerHTML=`<label>${escapeHTML(this._t('Humedad horaria complementaria'))}<select id="eg-drying-humidity"><option value="">${escapeHTML(this._t('Solo Euskalmet'))}</option>${sources.map(([id,state])=>`<option value="${escapeHTML(id)}">${escapeHTML(state.attributes.friendly_name||id)}</option>`).join('')}</select></label><p>${escapeHTML(this._t('Opcional: elige una previsión horaria de la misma localidad. Solo se utiliza su humedad.'))}</p>`;
       const source=extra.querySelector('select');

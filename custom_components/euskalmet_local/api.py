@@ -1020,6 +1020,7 @@ class EuskalmetAPI:
 
         return {
             "active": False,
+            "complete": False,
             "severity": "NONE",
             "count": 0,
             "causes": [],
@@ -1097,6 +1098,18 @@ class EuskalmetAPI:
             return_exceptions=True,
         )
 
+        for response in responses:
+            if isinstance(
+                response, (asyncio.CancelledError, EuskalmetAuthenticationError)
+            ):
+                raise response
+        complete = len(keys) == len(index) and all(
+            isinstance(response, dict)
+            and str(response.get("severity", "")).upper() in severity_order
+            and isinstance(response.get("items"), list)
+            for response in responses
+        )
+
         if keys and all(isinstance(response, Exception) for response in responses):
             raise EuskalmetAPIError("No se pudo descargar ningún aviso meteorológico")
 
@@ -1169,6 +1182,7 @@ class EuskalmetAPI:
                         descriptions_by_language[language].append(translated)
 
         return {
+            "complete": complete,
             "active": highest
             in {
                 "YELLOW",

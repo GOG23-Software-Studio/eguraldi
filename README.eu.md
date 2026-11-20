@@ -17,6 +17,14 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 
 [Ikusi mugikorreko ikuspegia](docs/preview-mobile.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
 
+## Zure eguna Eguraldirekin
+
+Zure herrirako laburpen praktikoa: kalera irteteko tarterik onena, arropa zabaltzeko tartea, ibilgailua garbitzeko eguna eta abisu ofizialak. Bloke bakoitzak xehetasunak irekitzen ditu paneletik irten gabe. Baldintza okerrak, orientazio partziala eta datu erabilgaitzak bereizten ditu; ordutegiek beti erakusten dute data.
+
+![Eguneko laburpen praktikoa, simulatutako datuekin](docs/day-summary-eu.jpg)
+
+[Mugikorreko ikuspegia](docs/day-summary-mobile-eu.jpg) · [Konfigurazioa eta mugak](docs/DAY_SUMMARY.md) (gaztelaniaz). Editorean **Zure eguna Eguraldirekin** (`mode: day_summary`) eta panel osoko **Zure eguna** fitxan eskuragarri.
+
 ## Noiz garbitu nire ibilgailua?
 
 Konparatu hurrengo zazpi egunak edozein ibilgailu garbitzeko. Euririk gabe iragarritako egun segida luzeenaren lehen eguna nabarmentzen du, gutxienez bi egun jarraian badaude. Egun bakoitza kontsulta dezakezu, iragarpena non aldatzen den edo datuak non falta diren ikusteko.
@@ -123,6 +131,7 @@ mode: dashboard
 | Ikuspegia | `mode` |
 | --- | --- |
 | Panel osoa | `dashboard` |
+| Zure eguna Eguraldirekin | `day_summary` |
 | Uneko eguraldia | `overview` |
 | Hurrengo 24 orduak | `hourly` |
 | Hurrengo egunak | `daily` |

@@ -11,6 +11,7 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, MEASURES
 from .coordinator import EuskalmetCoordinator
@@ -20,6 +21,7 @@ from .entity import (
     pollen_device_info,
     summary_device_info,
 )
+from .forecast_quality import alerts_are_fresh
 from .formatting import degrees_to_compass
 from .pollen import pollen_species_value, registered_pollen_species
 from .quality import valid_humidity
@@ -1036,6 +1038,12 @@ class EuskalmetAlertLevelSensor(
         super().__init__(coordinator)
 
         self._attr_unique_id = f"{coordinator.config_entry_id}_alert_level"
+
+    @property
+    def available(self) -> bool:
+        return super().available and alerts_are_fresh(
+            self.coordinator, dt_util.utcnow()
+        )
 
     @property
     def device_info(self) -> DeviceInfo:

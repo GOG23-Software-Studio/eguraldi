@@ -12,7 +12,7 @@ function setup(){
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-alert-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-comparison-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-microclimate-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
-  for(const file of ['eguraldi-laundry-settings.js','eguraldi-drying-model.js','eguraldi-vehicle-wash-model.js','eguraldi-drying-style.js','eguraldi-outing-model.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replaceAll('export ',''),dom.getInternalVMContext());
+  for(const file of ['eguraldi-laundry-settings.js','eguraldi-drying-model.js','eguraldi-vehicle-wash-model.js','eguraldi-drying-style.js','eguraldi-outing-model.js','eguraldi-day-summary-model.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replaceAll('export ',''),dom.getInternalVMContext());
   vm.runInContext(source+'\nwindow.logic={forecastRows,iconName,isNight,numeric,escapeHTML};',dom.getInternalVMContext());
   return dom;
 }
@@ -597,4 +597,23 @@ test('recommendations expire by metadata time even before a new HA state arrives
  h.states['weather.test']={...state,attributes:{...state.attributes,forecast_hourly_stale:false,forecast_hourly_updated:new Date(Date.now()-3*3600000).toISOString()}};
  card.setConfig({mode:'drying'});card.hass=h;dom.window.document.body.append(card);await flush();assert.equal(card._forecast('hourly').length,0);assert.match(card.shadowRoot.textContent,/Recomendaciones en pausa/);
  h.states['weather.test'].attributes.forecast_hourly_updated=new Date(Date.now()+60000).toISOString();card._render();assert.ok(card._forecast('hourly').length>0);card.remove();dom.window.close();
+});
+
+
+test('day summary opens matching detail cards, keeps locality and translates without new recommendations',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass(),count={};let loc={...location,entities:{...location.entities,alert_level:'sensor.alert'}};
+ h.callWS=async()=>[loc];h.states['sensor.alert']={state:'none',attributes:{alerts:[]}};h.states['weather.test']={...h.states['weather.test'],attributes:{...h.states['weather.test'].attributes,alerts_updated:new Date().toISOString(),alerts_stale:false}};
+ const original=h.connection.subscribeMessage;h.connection.subscribeMessage=async(cb,msg)=>{if(msg.type==='subscribe_events'){if(!count.events)count.events=cb;return ()=>{};}return original(cb,msg);};
+ card.setConfig({mode:'day_summary'});card.hass=h;dom.window.document.body.append(card);await flush();assert.equal(card.shadowRoot.querySelectorAll('.summary-row').length,4);assert.match(card.shadowRoot.textContent,/Sin avisos activos/);
+ card.shadowRoot.querySelector('[data-summary-detail=outing]').click();await flush();let child=card.shadowRoot.querySelector('#summary-detail > euskalmet-local-card');assert.equal(child._config.mode,'outing');assert.equal(child._config.entry_id,'test');
+ card.shadowRoot.querySelector('[data-summary-detail=outing]').click();assert.equal(card.shadowRoot.querySelector('#summary-detail'),null);
+ card.hass={...h,locale:{language:'eu'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/Zure eguna/);
+ loc={...loc,locality:'Bilbao',locality_id:'new'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-kicker').textContent,/Bilbao/);
+ card.remove();dom.window.close();
+});
+test('day summary does not claim no alerts or good weather when sources are stale',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass();
+ h.states['weather.test']={...h.states['weather.test'],attributes:{...h.states['weather.test'].attributes,forecast_daily_stale:true,forecast_hourly_stale:true,alerts_stale:true}};
+ card.setConfig({mode:'day_summary'});card.hass=h;dom.window.document.body.append(card);await flush();assert.equal(card.shadowRoot.querySelectorAll('.summary-row.unknown').length,4);assert.doesNotMatch(card.shadowRoot.textContent,/Sin avisos activos/);
+ card.shadowRoot.querySelector('[data-summary-detail=alerts]').click();assert.match(card.shadowRoot.querySelector('#summary-detail').textContent,/No se pueden comprobar/);card.remove();dom.window.close();
 });

@@ -1362,3 +1362,98 @@ def test_reauthentication_keeps_identity_location_options_and_training(
         await hass.async_block_till_done()
 
     asyncio.run(scenario())
+
+
+def test_summary_alerts_distinguish_empty_success_from_partial_or_invalid_downloads():
+    from unittest.mock import AsyncMock
+
+    from custom_components.euskalmet_local.api import EuskalmetAPI, EuskalmetAPIError
+
+    async def scenario():
+        api = EuskalmetAPI(
+            session=None, email="test@example.invalid", private_key="TEST_ONLY"
+        )
+        api._request = AsyncMock(return_value=[])
+        empty = await api.get_alerts()
+        assert empty["complete"] is True and empty["active"] is False
+        api._request = AsyncMock(return_value={})
+        assert (await api.get_alerts())["complete"] is False
+        api._request = AsyncMock(
+            side_effect=[
+                [{"key": "a"}, {"key": "b"}],
+                {"severity": "YELLOW", "items": []},
+                EuskalmetAPIError("offline"),
+            ]
+        )
+        partial = await api.get_alerts()
+        assert partial["complete"] is False
+        api._request = AsyncMock(
+            side_effect=[[{"key": "a"}], {"severity": "UNEXPECTED", "items": []}]
+        )
+        assert (await api.get_alerts())["complete"] is False
+
+    asyncio.run(scenario())
+
+
+def test_summary_alert_freshness_marks_recent_failed_or_incomplete_checks(
+    tmp_path, monkeypatch
+):
+    from datetime import UTC, datetime, timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.euskalmet_local.weather import EuskalmetWeather
+
+    async def scenario():
+        now = datetime(2026, 11, 20, 12, tzinfo=UTC)
+        monkeypatch.setattr(dt_util, "utcnow", lambda: now)
+        source = SimpleNamespace(
+            config_entry_id="demo",
+            data={"alerts": {"complete": True}},
+            alerts_updated=now,
+            _failed_endpoints=set(),
+            api=SimpleNamespace(location="demo", region="r", zone="z"),
+        )
+        weather = EuskalmetWeather(source)
+        weather.hass = HomeAssistant(str(tmp_path))
+        assert weather.extra_state_attributes["alerts_stale"] is False
+        source._failed_endpoints.add("alerts")
+        assert weather.extra_state_attributes["alerts_stale"] is True
+        source._failed_endpoints.clear()
+        source.data["alerts"]["complete"] = False
+        assert weather.extra_state_attributes["alerts_stale"] is True
+        source.data["alerts"]["complete"] = True
+        source.alerts_updated = now - timedelta(minutes=46)
+        assert weather.extra_state_attributes["alerts_stale"] is True
+
+    asyncio.run(scenario())
+
+
+def test_standard_alert_entities_become_unavailable_when_checks_expire(monkeypatch):
+    from datetime import UTC, datetime, timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.euskalmet_local.binary_sensor import (
+        EuskalmetAlertBinarySensor,
+    )
+    from custom_components.euskalmet_local.sensor import EuskalmetAlertLevelSensor
+
+    now = datetime(2026, 11, 20, 12, tzinfo=UTC)
+    monkeypatch.setattr(dt_util, "utcnow", lambda: now)
+    source = SimpleNamespace(
+        config_entry_id="demo",
+        data={"alerts": {"complete": True, "severity": "NONE"}},
+        alerts_updated=now,
+        last_update_success=True,
+        _failed_endpoints=set(),
+    )
+    entities = [EuskalmetAlertLevelSensor(source), EuskalmetAlertBinarySensor(source)]
+    assert all(entity.available for entity in entities)
+    source.alerts_updated = now - timedelta(minutes=46)
+    assert not any(entity.available for entity in entities)
+    source.alerts_updated = now
+    source._failed_endpoints.add("alerts")
+    assert not any(entity.available for entity in entities)
+    source._failed_endpoints.clear()
+    assert all(entity.available for entity in entities)

@@ -102,6 +102,7 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
         self.hourly_forecast_updated: datetime | None = None
         self._alerts: dict[str, Any] | None = None
         self._alerts_attempted: datetime | None = None
+        self.alerts_updated: datetime | None = None
         self._ocean: dict[str, Any] | None = None
         self._ocean_attempted: datetime | None = None
         self._tides: dict[str, Any] | None = None
@@ -403,6 +404,7 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
             )
             if not isinstance(alerts_result, Exception):
                 self._alerts = alerts
+                self.alerts_updated = now_utc
         else:
             alerts = self._alerts or self.api._empty_alerts()
 

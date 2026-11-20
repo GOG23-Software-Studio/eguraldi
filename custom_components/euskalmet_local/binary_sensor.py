@@ -8,9 +8,11 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .coordinator import EuskalmetCoordinator
 from .entity import device_info
+from .forecast_quality import alerts_are_fresh
 
 PARALLEL_UPDATES = 0
 
@@ -44,6 +46,12 @@ class EuskalmetAlertBinarySensor(
         super().__init__(coordinator)
 
         self._attr_unique_id = f"{coordinator.config_entry_id}_weather_alert"
+
+    @property
+    def available(self) -> bool:
+        return super().available and alerts_are_fresh(
+            self.coordinator, dt_util.utcnow()
+        )
 
     @property
     def device_info(self) -> DeviceInfo:

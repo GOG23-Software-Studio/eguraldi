@@ -26,6 +26,14 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 </details>
 
+## Tu día con Eguraldi
+
+Un resumen práctico para tu localidad: mejor franja para salir, ventana para tender, día para lavar el vehículo y avisos oficiales. Cada bloque abre su detalle sin salir del panel. Distingue entre condiciones poco favorables, orientación parcial y datos no disponibles; los horarios siempre incluyen su fecha.
+
+![Resumen práctico del día con datos simulados](docs/day-summary.jpg)
+
+[Vista móvil](docs/day-summary-mobile.jpg) · [Configuración y límites](docs/DAY_SUMMARY.md). Disponible en el editor como **Tu día con Eguraldi** (`mode: day_summary`) y en la pestaña **Tu día** del panel completo.
+
 ## ¿Cuándo lavar mi vehículo?
 
 Compara los próximos siete días para lavar cualquier vehículo. Destaca el primer día de la secuencia más larga con previsión sin lluvia, con al menos dos días consecutivos. Puedes consultar cada día y ver dónde cambia la previsión o faltan datos.
@@ -147,6 +155,7 @@ mode: dashboard
 | Vista | `mode` |
 | --- | --- |
 | Panel completo | `dashboard` |
+| Tu día con Eguraldi | `day_summary` |
 | Tiempo actual | `overview` |
 | Próximas 24 horas | `hourly` |
 | Próximos días | `daily` |

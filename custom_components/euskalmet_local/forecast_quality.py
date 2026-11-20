@@ -34,3 +34,15 @@ def forecast_is_fresh(coordinator, kind, now):
         and trends["set"]
         and recent(data.get("at"), now, timedelta(hours=12), timedelta(minutes=5))
     )
+
+
+def alerts_are_fresh(coordinator, now):
+    data = (getattr(coordinator, "data", None) or {}).get("alerts")
+    return bool(
+        isinstance(data, dict)
+        and data.get("complete", True) is not False
+        and recent(
+            getattr(coordinator, "alerts_updated", None), now, timedelta(minutes=45)
+        )
+        and "alerts" not in getattr(coordinator, "_failed_endpoints", set())
+    )

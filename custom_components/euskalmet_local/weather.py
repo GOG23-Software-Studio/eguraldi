@@ -23,7 +23,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, MANUFACTURER
 from .coordinator import EuskalmetCoordinator
-from .forecast_quality import forecast_is_fresh
+from .forecast_quality import alerts_are_fresh, forecast_is_fresh
 from .formatting import spanish_weather_condition
 from .quality import valid_humidity
 
@@ -304,6 +304,11 @@ class EuskalmetWeather(
             freshness[f"forecast_{kind}_stale"] = not forecast_is_fresh(
                 self.coordinator, kind, now
             )
+        alerts_updated = getattr(self.coordinator, "alerts_updated", None)
+        freshness["alerts_updated"] = (
+            alerts_updated.isoformat() if alerts_updated else None
+        )
+        freshness["alerts_stale"] = not alerts_are_fresh(self.coordinator, now)
         return {
             **freshness,
             "condicion": spanish_weather_condition(self.condition),
