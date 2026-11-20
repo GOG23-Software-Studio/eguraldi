@@ -19,7 +19,7 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 
 ## Noiz garbitu nire ibilgailua?
 
-Konparatu hurrengo zazpi egunak eta aukeratu **Autoa**, **Motoa** edo **Beste ibilgailu bat**. Euririk gabe iragarritako egun segida luzeenaren lehen eguna nabarmentzen du, gutxienez bi egun jarraian badaude. Egun bakoitza kontsulta dezakezu, iragarpena non aldatzen den edo datuak non falta diren ikusteko.
+Konparatu hurrengo zazpi egunak edozein ibilgailu garbitzeko. Euririk gabe iragarritako egun segida luzeenaren lehen eguna nabarmentzen du, gutxienez bi egun jarraian badaude. Egun bakoitza kontsulta dezakezu, iragarpena non aldatzen den edo datuak non falta diren ikusteko.
 
 Ez du bermatzen zenbat ordu izango diren euririk gabe edo ibilgailuak zenbat iraungo duen garbi. Euskalmet-ek ez du euri probabilitaterik edo haizerik ematen eguneko iragarpenean. Ibilgailu guztiek irizpide bera erabiltzen dute. [Metodoa eta konfigurazioa](docs/VEHICLE_WASH.md) (gaztelaniaz).
 

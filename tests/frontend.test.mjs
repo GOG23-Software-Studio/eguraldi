@@ -542,15 +542,15 @@ test('laundry settings keeps validation errors and does not silently save',async
 });
 
 
-test('vehicle washing controls translate, follow locality and persist the editor profile',async()=>{
+test('generic vehicle washing translates, follows locality and ignores legacy profiles',async()=>{
  const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h= hass(),count={};let loc={...location};
  h.callWS=async()=>[loc];h.connection.subscribeMessage=async(cb,msg)=>{if(msg.type==='subscribe_events'){count.events=cb;return ()=>{};}cb({forecast:msg.forecast_type==='daily'?Array.from({length:7},(_,i)=>({datetime:new Date(now+i*86400000).toISOString(),condition:i===0?'rainy':'sunny',temperature:17,templow:9})):forecasts});return ()=>{};};
  card.setConfig({mode:'vehicle_wash',wash_vehicle:'motorcycle'});card.hass=h;dom.window.document.body.append(card);await flush();
- assert.equal(card.shadowRoot.querySelectorAll('.wash-day').length,7);assert.match(card.shadowRoot.querySelector('h2').textContent,/moto/);assert.match(card.shadowRoot.querySelector('.wash-detail').textContent,/Viento diario no disponible/);
- card.shadowRoot.querySelector('[data-wash-vehicle=car]').click();assert.match(card.shadowRoot.querySelector('h2').textContent,/coche/);
+ assert.equal(card.shadowRoot.querySelectorAll('.wash-day').length,7);assert.match(card.shadowRoot.querySelector('h2').textContent,/vehículo/);assert.match(card.shadowRoot.querySelector('.wash-detail').textContent,/Viento diario no disponible/);
+ assert.equal(card.shadowRoot.querySelector('[data-wash-vehicle]'),null);
  card.shadowRoot.querySelectorAll('[data-wash-day]')[3].click();assert.equal(card.shadowRoot.querySelectorAll('.wash-day.selected').length,1);
- card.hass={...h,locale:{language:'eu'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/autoa/);
+ card.hass={...h,locale:{language:'eu'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/ibilgailua/);
  loc={...loc,locality:'Bilbao',locality_id:'bilbao'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-kicker').textContent,/Bilbao/);
- const editor=dom.window.document.createElement('euskalmet-local-editor');editor.setConfig({mode:'vehicle_wash'});editor.hass=h;dom.window.document.body.append(editor);await flush();let saved;editor.addEventListener('config-changed',e=>saved=e.detail.config);
- const select=editor.querySelector('#eg-wash-vehicle');select.value='motorcycle';select.dispatchEvent(new dom.window.Event('change'));assert.equal(saved.wash_vehicle,'motorcycle');card.remove();dom.window.close();
+ const editor=dom.window.document.createElement('euskalmet-local-editor');editor.setConfig({mode:'vehicle_wash'});editor.hass=h;dom.window.document.body.append(editor);await flush();
+ assert.equal(editor.querySelector('#eg-wash-vehicle'),null);card.remove();dom.window.close();
 });

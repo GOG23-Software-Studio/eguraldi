@@ -28,7 +28,7 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 ## ¿Cuándo lavar mi vehículo?
 
-Compara los próximos siete días y elige entre **Coche**, **Moto** u **Otro vehículo**. Destaca el primer día de la secuencia más larga con previsión sin lluvia, con al menos dos días consecutivos. Puedes consultar cada día y ver dónde cambia la previsión o faltan datos.
+Compara los próximos siete días para lavar cualquier vehículo. Destaca el primer día de la secuencia más larga con previsión sin lluvia, con al menos dos días consecutivos. Puedes consultar cada día y ver dónde cambia la previsión o faltan datos.
 
 No promete horas de tiempo seco ni cuánto durará limpio: Euskalmet no ofrece probabilidad de lluvia ni viento en la previsión diaria. Todos los vehículos usan el mismo criterio. [Método y configuración](docs/VEHICLE_WASH.md).
 

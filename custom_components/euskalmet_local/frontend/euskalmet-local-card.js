@@ -1,16 +1,16 @@
-import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.6.0';
-import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.6.0';
+import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.6.1';
+import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.6.1';
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.6.0';
-import './eguraldi-comparison-card.js?v=0.6.0';
-import './eguraldi-microclimate-card.js?v=0.6.0';
-import './euskalmet-history-card.js?v=0.6.0-controls';
-import './euskalmet-radar-map-card.js?v=0.6.0';
+import './euskalmet-alert-card.js?v=0.6.1';
+import './eguraldi-comparison-card.js?v=0.6.1';
+import './eguraldi-microclimate-card.js?v=0.6.1';
+import './euskalmet-history-card.js?v=0.6.1-controls';
+import './euskalmet-radar-map-card.js?v=0.6.1';
 
-import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.6.0';
-import {dryingPlan} from './eguraldi-drying-model.js?v=0.6.0';
+import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.6.1';
+import {dryingPlan} from './eguraldi-drying-model.js?v=0.6.1';
 
-import {outingPlan} from './eguraldi-outing-model.js?v=0.6.0';
+import {outingPlan} from './eguraldi-outing-model.js?v=0.6.1';
 
 const EU_TEXT = {
   "No hay un día con margen suficiente en la previsión":"Ez dago tarte nahikoa duen egunik iragarpenean",
@@ -241,7 +241,7 @@ export class EuskalmetLocalCard extends HTMLElement {
   constructor(){super();this.attachShadow({mode:'open'});this._generation=0;this._forecasts={};this._unsubs=[];this._tab='hourly';}
   setConfig(config){
     if(!['dashboard','overview','hourly','daily','hourly_chart','daily_tiles','planning','drying','outing','vehicle_wash',...EXTRA_MODES].includes(config.mode||'dashboard'))throw Error(this._t('Modo no válido'));
-    this._stop();this._config={...config,mode:config.mode||'dashboard'};this._location=null;this._locations=null;this._forecasts={};this._humidityForecast=[];this._humidityBinding=null;this._dryingSelected=null;this._dryingDuration=null;this._outingSelected=null;this._washVehicle=null;this._washSelected=null;this._outingActivity=null;this._outingMinutes=null;this._error=null;this._start();this._render();
+    this._stop();this._config={...config,mode:config.mode||'dashboard'};this._location=null;this._locations=null;this._forecasts={};this._humidityForecast=[];this._humidityBinding=null;this._dryingSelected=null;this._dryingDuration=null;this._outingSelected=null;this._washSelected=null;this._outingActivity=null;this._outingMinutes=null;this._error=null;this._start();this._render();
   }
   set hass(value){const previous=this._hass;this._hass=value;this._start();const changed=!previous||!this._location||Object.values(this._location.entities).some(id=>previous.states[id]!==value.states[id])||previous.states[this._config?.humidity_forecast_entity]!==value.states[this._config?.humidity_forecast_entity]||previous.config?.time_zone!==value.config?.time_zone||egLocale(previous)!==egLocale(value);if(changed&&!this._renderScheduled){this._renderScheduled=true;queueMicrotask(()=>{this._renderScheduled=false;this._render();});}}
   connectedCallback(){this._start();this._dryingClock=setInterval(()=>{if(['drying','outing','vehicle_wash'].includes(this._config?.mode)||['drying','outing','vehicle_wash'].includes(this._tab))this._render();},60000);}
@@ -374,15 +374,14 @@ export class EuskalmetLocalCard extends HTMLElement {
   }
   _vehicleWash(){
     const weather=this._state('weather'),usable=weather&&!['unknown','unavailable'].includes(weather.state),zone=this._hass?.config?.time_zone||'Europe/Madrid';
-    const plan=vehicleWashPlan(usable?this._forecasts.daily:[],{timeZone:zone,units:this._weather()}),vehicle=this._washVehicle||this._config.wash_vehicle||'car';
-    const title={car:'¿Cuándo lavar mi coche?',motorcycle:'¿Cuándo lavar mi moto?',other:'¿Cuándo lavar mi vehículo?'}[vehicle]||'¿Cuándo lavar mi vehículo?';
+    const plan=vehicleWashPlan(usable?this._forecasts.daily:[],{timeZone:zone,units:this._weather()});
     const date=key=>this._time(key+'T12:00:00Z',{weekday:'long',day:'numeric',month:'short',timeZone:'UTC'}),label=day=>day.index===0?this._t('Hoy'):day.index===1?this._t('Mañana'):this._time(day.key+'T12:00:00Z',{weekday:'short',day:'numeric',timeZone:'UTC'});
     const selected=plan.days.find(d=>d.key===this._washSelected)||plan.best||plan.days[0];
     const status=day=>!day.eligible?'Elige otro día':day.status==='dry'?({good:'Recomendable',short:'Poco margen',limited:'Previsión limitada'}[day.recommendation]):({wet:'Mejor esperar',avoid:'Mejor esperar',unknown:'Sin datos suficientes'}[day.status]);
     const reason=day=>day.reason==='rain'?'Lluvia o condiciones adversas previstas':day.reason==='wind'?'Viento fuerte previsto':day.reason==='cold'?'Frío intenso previsto':day.status==='unknown'?'Falta previsión para este día':'Estado del cielo sin lluvia prevista';
     const window=day=>day.run?(day.run===1?this._t('Un día con previsión sin lluvia'):this._t('{days} días seguidos con previsión sin lluvia',{days:day.run})):this._t('No se identifica un periodo sin lluvia');
     const ending=day=>!day.stop||day.stop.status==='unknown'?this._t('Sin datos para prolongar la comparación'):day.stop.status==='wet'?this._t('La previsión cambia a lluvia el {day}',{day:date(day.stop.key)}):this._t('Condiciones menos favorables el {day}',{day:date(day.stop.key)});
-    return `<section class="wash"><div class="forecast-kicker">${escapeHTML(this._t('Planifica el lavado'))} · ${escapeHTML(this._location.locality)}</div><h2>${escapeHTML(this._t(title))}</h2><div class="wash-controls" role="group" aria-label="${escapeHTML(this._t('Vehículo'))}">${[['car','Coche'],['motorcycle','Moto'],['other','Otro vehículo']].map(([id,name])=>`<button data-wash-vehicle="${id}" aria-pressed="${vehicle===id}">${escapeHTML(this._t(name))}</button>`).join('')}</div><div class="wash-hero ${plan.best?'good':'limited'}"><div><span>${escapeHTML(this._t(plan.best?'Mejor día de los próximos siete':'Mejor esperar'))}</span><strong>${escapeHTML(plan.best?date(plan.best.key):this._t('No hay un día con margen suficiente en la previsión'))}</strong>${plan.best?`<p>${escapeHTML(window(plan.best))}</p><small>${escapeHTML(ending(plan.best))}</small>`:''}</div>${plan.best?this._icon(plan.best.condition,plan.best.key+'T12:00:00Z'):''}</div><div class="wash-week">${plan.days.map(day=>`<button class="wash-day ${day.status} ${day.recommendation||''} ${day.key===selected.key?'selected':''}" data-wash-day="${day.key}" aria-pressed="${day.key===selected.key}"><time>${escapeHTML(label(day))}</time>${this._icon(day.condition,day.key+'T12:00:00Z')}<span class="wash-temperatures"><strong>${fmt(day.high,0)}°</strong><span>${fmt(day.low,0)}°</span></span><small>${escapeHTML(this._t(status(day)))}</small></button>`).join('')}</div><div class="wash-detail"><h3>${escapeHTML(date(selected.key))}</h3><strong>${escapeHTML(this._t(reason(selected)))}</strong>${selected.status==='dry'?`<p>${escapeHTML(window(selected))}</p><span>${escapeHTML(ending(selected))}</span>`:''}<p>${selected.wind===null?escapeHTML(this._t('Viento diario no disponible')):escapeHTML(this._t('Viento previsto'))+': '+fmt(selected.wind,0)+' km/h'}</p></div><details class="dry-method"><summary>${escapeHTML(this._t('Cómo se elige el día'))}</summary>${['Se prioriza la secuencia más larga de días con un estado del cielo sin lluvia. En caso de empate, se elige el primero.','A partir de las 18:00 de HA se recomienda otro día para lavar.',
+    return `<section class="wash"><div class="forecast-kicker">${escapeHTML(this._t('Planifica el lavado'))} · ${escapeHTML(this._location.locality)}</div><h2>${escapeHTML(this._t('¿Cuándo lavar mi vehículo?'))}</h2><div class="wash-hero ${plan.best?'good':'limited'}"><div><span>${escapeHTML(this._t(plan.best?'Mejor día de los próximos siete':'Mejor esperar'))}</span><strong>${escapeHTML(plan.best?date(plan.best.key):this._t('No hay un día con margen suficiente en la previsión'))}</strong>${plan.best?`<p>${escapeHTML(window(plan.best))}</p><small>${escapeHTML(ending(plan.best))}</small>`:''}</div>${plan.best?this._icon(plan.best.condition,plan.best.key+'T12:00:00Z'):''}</div><div class="wash-week">${plan.days.map(day=>`<button class="wash-day ${day.status} ${day.recommendation||''} ${day.key===selected.key?'selected':''}" data-wash-day="${day.key}" aria-pressed="${day.key===selected.key}"><time>${escapeHTML(label(day))}</time>${this._icon(day.condition,day.key+'T12:00:00Z')}<span class="wash-temperatures"><strong>${fmt(day.high,0)}°</strong><span>${fmt(day.low,0)}°</span></span><small>${escapeHTML(this._t(status(day)))}</small></button>`).join('')}</div><div class="wash-detail"><h3>${escapeHTML(date(selected.key))}</h3><strong>${escapeHTML(this._t(reason(selected)))}</strong>${selected.status==='dry'?`<p>${escapeHTML(window(selected))}</p><span>${escapeHTML(ending(selected))}</span>`:''}<p>${selected.wind===null?escapeHTML(this._t('Viento diario no disponible')):escapeHTML(this._t('Viento previsto'))+': '+fmt(selected.wind,0)+' km/h'}</p></div><details class="dry-method"><summary>${escapeHTML(this._t('Cómo se elige el día'))}</summary>${['Se prioriza la secuencia más larga de días con un estado del cielo sin lluvia. En caso de empate, se elige el primero.','A partir de las 18:00 de HA se recomienda otro día para lavar.',
 'Se necesitan al menos dos días consecutivos; los huecos y el final de la previsión limitan la comparación. No se supone tiempo seco después.','La previsión diaria de Euskalmet no facilita probabilidad de lluvia ni viento diario. No se inventan esos valores. Si el proveedor aporta viento fuerte o frío intenso, se descarta ese día.','Coche, moto y otros vehículos usan el mismo criterio meteorológico. No predice cuánto durará limpio el vehículo ni si habrá lluvia en cada hora.'].map(text=>`<p>${escapeHTML(this._t(text))}</p>`).join('')}</details></section>`;
   }
   _outing(){
@@ -452,7 +451,6 @@ export class EuskalmetLocalCard extends HTMLElement {
       }
     }
     this.shadowRoot.querySelectorAll('[data-outing-activity],[data-outing-minutes],[data-outing-start]').forEach(b=>b.addEventListener('click',()=>{let attr;if(b.dataset.outingActivity){this._outingActivity=b.dataset.outingActivity;this._outingSelected=null;attr='data-outing-activity';}else if(b.dataset.outingMinutes){this._outingMinutes=Number(b.dataset.outingMinutes);this._outingSelected=null;attr='data-outing-minutes';}else{this._outingSelected=Number(b.dataset.outingStart);attr='data-outing-start';}const value=b.getAttribute(attr);this._render();this.shadowRoot.querySelector(`[${attr}="${value}"]`)?.focus();}));
-    this.shadowRoot.querySelectorAll('[data-wash-vehicle]').forEach(button=>button.addEventListener('click',()=>{this._washVehicle=button.dataset.washVehicle;this._render();this.shadowRoot.querySelector(`[data-wash-vehicle="${this._washVehicle}"]`)?.focus();}));
     this.shadowRoot.querySelectorAll('[data-wash-day]').forEach(button=>button.addEventListener('click',()=>{this._washSelected=button.dataset.washDay;this._render();this.shadowRoot.querySelector(`[data-wash-day="${this._washSelected}"]`)?.focus();}));
     this.shadowRoot.querySelector('[data-laundry-config]')?.addEventListener('click',()=>{
       if(this._laundrySettings)return;
@@ -566,10 +564,6 @@ class EuskalmetLocalEditor extends HTMLElement {
       if(this._config.map_style&&!['satellite','dark','light'].includes(this._config.map_style)){const option=document.createElement('option');option.value=this._config.map_style;option.textContent=this._config.map_style;mapStyle.append(option);}
       mapStyle.value=this._config.map_style||'satellite';mapStyle.addEventListener('change',()=>this._save({map_style:mapStyle.value}));mapLabel.append(mapStyle);extra.append(mapLabel);
       const zoom=extra.querySelector('input');zoom.value=String(this._config.zoom??10);zoom.addEventListener('change',()=>{const value=Number(zoom.value);if(Number.isFinite(value)&&value>=3&&value<=16)this._save({zoom:value});});
-    }
-    if(this._config.mode==='vehicle_wash'){
-      extra.innerHTML=`<label>${escapeHTML(this._t('Vehículo'))}<select id="eg-wash-vehicle">${[['car','Coche'],['motorcycle','Moto'],['other','Otro vehículo']].map(([id,name])=>`<option value="${id}">${escapeHTML(this._t(name))}</option>`).join('')}</select></label>`;
-      const select=extra.querySelector('select');select.value=this._config.wash_vehicle||'car';select.addEventListener('change',()=>this._save({wash_vehicle:select.value}));
     }
     if(['drying','dashboard'].includes(this._config.mode)){
       const sources=Object.entries(this._hass?.states||{}).filter(([id,state])=>id.startsWith('weather.')&&(Number(state.attributes?.supported_features||0)&2)&&!locations.some(l=>l.entities.weather===id));

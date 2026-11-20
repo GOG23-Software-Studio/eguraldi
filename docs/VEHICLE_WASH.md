@@ -4,17 +4,16 @@ Desde Eguraldi 0.6.0. Vista `vehicle_wash`, disponible en el editor visual y en 
 
 ## Uso
 
-Elige **Coche**, **Moto** u **Otro vehículo**. El editor permite guardar el tipo inicial; los botones de la tarjeta permiten cambiarlo durante la consulta. La selección cambia el título, sin inventar reglas meteorológicas distintas para cada vehículo.
+La vista es genérica para cualquier vehículo, sin elegir coche, moto u otro tipo. El criterio meteorológico es el mismo.
 
 Se muestran siete días de calendario en la zona horaria de HA, incluido hoy. Pulsa un día para ver su valoración y la secuencia disponible. El nombre principal sigue siendo tu localidad; cambiar de localidad actualiza la tarjeta automáticamente.
 
 ```yaml
 type: custom:euskalmet-local-card
 mode: vehicle_wash
-wash_vehicle: motorcycle
 ```
 
-`wash_vehicle`: `car` (predeterminado), `motorcycle` u `other`. Con varias localidades, selecciona una en el editor o usa `entry_id`.
+Con varias localidades, selecciona una en el editor o usa `entry_id`. Las configuraciones antiguas con `wash_vehicle` siguen siendo compatibles: se ignora esa opción.
 
 ## Criterio
 
