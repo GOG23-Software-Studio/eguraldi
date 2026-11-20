@@ -554,3 +554,47 @@ test('generic vehicle washing translates, follows locality and ignores legacy pr
  const editor=dom.window.document.createElement('euskalmet-local-editor');editor.setConfig({mode:'vehicle_wash'});editor.hass=h;dom.window.document.body.append(editor);await flush();
  assert.equal(editor.querySelector('#eg-wash-vehicle'),null);card.remove();dom.window.close();
 });
+
+
+test('forecast subscription failure does not block the other type and retries without duplicates',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass(),calls={hourly:0,daily:0},unsubs=[];let retry;
+ dom.window.setTimeout=fn=>{retry=fn;return 77;};dom.window.clearTimeout=()=>{};
+ h.connection.subscribeMessage=async(cb,msg)=>{if(msg.type==='subscribe_events')return ()=>{};calls[msg.forecast_type]++;if(msg.forecast_type==='hourly'&&calls.hourly===1)throw Error('offline');cb({forecast:forecasts});return ()=>unsubs.push(msg.forecast_type);};
+ card.setConfig({mode:'hourly'});card.hass=h;dom.window.document.body.append(card);await flush();
+ assert.equal(calls.hourly,1);assert.equal(calls.daily,1);assert.equal(card._forecasts.hourly.length,0);assert.equal(card._forecasts.daily.length,24);assert.match(card.shadowRoot.textContent,/Se reintentará/);
+ retry();await flush();assert.equal(calls.hourly,2);assert.equal(calls.daily,1);assert.equal(card._forecasts.hourly.length,24);
+ card.remove();assert.deepEqual(unsubs.sort(),['daily','hourly']);dom.window.close();
+});
+
+test('old forecast metadata pauses recommendations while current observations remain visible',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass();
+ card.setConfig({mode:'vehicle_wash'});card.hass=h;dom.window.document.body.append(card);await flush();assert.equal(card.shadowRoot.querySelectorAll('.wash-day').length,7);
+ const state=h.states['weather.test'];card.hass={...h,states:{...h.states,'weather.test':{...state,attributes:{...state.attributes,forecast_daily_stale:true}}}};await flush();
+ assert.ok(card._forecast('daily').length===0);assert.match(card.shadowRoot.textContent,/Recomendaciones en pausa/);assert.match(card.shadowRoot.textContent,/Esperando una previsión válida/);assert.equal(card.shadowRoot.querySelectorAll('.wash-day.unknown').length,7);
+ card.hass={...h,states:{...h.states,'weather.test':{...state,attributes:{...state.attributes,forecast_daily_stale:false,forecast_daily_updated:new Date().toISOString()}}}};await flush();assert.ok(card._forecast('daily').length>0);
+ card.remove();dom.window.close();
+});
+
+test('disconnect clears forecast cache and ignores an old pending subscription',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass();let resolve,oldCallback,unsubscribed=0;
+ h.connection.subscribeMessage=async(cb,msg)=>{if(msg.type==='subscribe_events')return ()=>{};oldCallback=cb;return new Promise(r=>resolve=r);};
+ card.setConfig({mode:'hourly'});card.hass=h;dom.window.document.body.append(card);await flush();card.remove();oldCallback({forecast:forecasts});resolve(()=>unsubscribed++);await flush();assert.deepEqual(JSON.parse(JSON.stringify(card._forecasts)),{});assert.equal(unsubscribed,1);dom.window.close();
+});
+
+
+test('a failed locality catalogue retries and releases its previous event subscription',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass(),counter={};let calls=0,retry;
+ dom.window.setTimeout=fn=>{retry=fn;return 12;};dom.window.clearTimeout=()=>{};
+ h.callWS=async()=>{if(++calls===1)throw Error('temporarily offline');return [location];};
+ const original=h.connection.subscribeMessage;h.connection.subscribeMessage=async(cb,msg)=>{if(msg.type==='subscribe_events'){counter.events=(counter.events||0)+1;return ()=>counter.closed=(counter.closed||0)+1;}return original(cb,msg);};
+ card.setConfig({mode:'hourly'});card.hass=h;dom.window.document.body.append(card);await flush();assert.equal(calls,1);
+ card.hass={...h};await flush();assert.equal(calls,1);retry();await flush();assert.equal(calls,2);assert.equal(counter.events,2);assert.equal(counter.closed,1);assert.equal(card.shadowRoot.querySelectorAll('.hour').length,24);card.remove();assert.equal(counter.closed,2);dom.window.close();
+});
+
+
+test('recommendations expire by metadata time even before a new HA state arrives',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass(),state=h.states['weather.test'];
+ h.states['weather.test']={...state,attributes:{...state.attributes,forecast_hourly_stale:false,forecast_hourly_updated:new Date(Date.now()-3*3600000).toISOString()}};
+ card.setConfig({mode:'drying'});card.hass=h;dom.window.document.body.append(card);await flush();assert.equal(card._forecast('hourly').length,0);assert.match(card.shadowRoot.textContent,/Recomendaciones en pausa/);
+ h.states['weather.test'].attributes.forecast_hourly_updated=new Date(Date.now()+60000).toISOString();card._render();assert.ok(card._forecast('hourly').length>0);card.remove();dom.window.close();
+});

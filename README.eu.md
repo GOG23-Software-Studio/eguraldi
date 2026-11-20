@@ -158,6 +158,10 @@ Radarrak gainerako txartelen atzeko planoa eta kontrolen estiloa erabiltzen ditu
 
 Konparazioak HAko bost minutuko tarte osatuen estatistikak erabiltzen ditu: serie bakoitzaren minimoak, maximoak eta batezbestekoak. Batez besteko aldea tarte komunekin soilik kalkulatzen da, unitate berean. Hileko historikoak eguneko laburpen ofizialak erakusten ditu, daturik gabeko egunetan hutsuneak utziz eta uneko hilabeteko etorkizuneko egunak marraztu gabe.
 
+## Datuen indarraldia eta berreskurapena
+
+Orduko eta eguneko iragarpenen indarraldia behaketetatik bereizita kudeatzen da. Iraungitzen badira, gomendioak eteten dira eta HAko iragarpen estandarrek ez dituzte datu zaharrak itzultzen. Txartelak automatikoki berriro saiatzen dira huts egindako harpidetzekin. [Jokabidea, diagnostikoak eta berrikuspenaren mugak](docs/RELIABILITY.md) (gaztelaniaz).
+
 ## Datuen esanahia eta mugak
 
 Estazioak bere kokapenean eta altitudean neurtzen du. Tenperatura argitaratzen duten estazio aktiboak hautatzen dira, 120 km baino gutxiagora; beste magnitude batzuk falta daitezke. Hurbiltasunak ez ditu etxeko baldintza berdinak bermatzen.

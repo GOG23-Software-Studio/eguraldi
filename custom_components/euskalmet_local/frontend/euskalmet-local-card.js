@@ -1,18 +1,24 @@
-import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.6.1';
-import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.6.1';
+import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.6.2';
+import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.6.2';
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.6.1';
-import './eguraldi-comparison-card.js?v=0.6.1';
-import './eguraldi-microclimate-card.js?v=0.6.1';
-import './euskalmet-history-card.js?v=0.6.1-controls';
-import './euskalmet-radar-map-card.js?v=0.6.1';
+import './euskalmet-alert-card.js?v=0.6.2';
+import './eguraldi-comparison-card.js?v=0.6.2';
+import './eguraldi-microclimate-card.js?v=0.6.2';
+import './euskalmet-history-card.js?v=0.6.2-controls';
+import './euskalmet-radar-map-card.js?v=0.6.2';
 
-import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.6.1';
-import {dryingPlan} from './eguraldi-drying-model.js?v=0.6.1';
+import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.6.2';
+import {dryingPlan} from './eguraldi-drying-model.js?v=0.6.2';
 
-import {outingPlan} from './eguraldi-outing-model.js?v=0.6.1';
+import {outingPlan} from './eguraldi-outing-model.js?v=0.6.2';
 
 const EU_TEXT = {
+  "Esperando una previsión válida":"Baliozko iragarpen baten zain",
+  "No se han podido cargar los datos de esta localidad. Se reintentará automáticamente.":"Ezin izan dira herri honetako datuak kargatu. Automatikoki berriro saiatuko da.",
+  "No se ha podido cargar esta previsión. Se reintentará automáticamente.": "Ezin izan da iragarpena kargatu. Automatikoki berriro saiatuko da.",
+  "Datos meteorológicos no disponibles.": "Datu meteorologikoak ez daude erabilgarri.",
+  "Previsión antigua o no disponible. Recomendaciones en pausa.": "Iragarpen zaharra edo erabilgaitza. Gomendioak etenda.",
+
   "No hay un día con margen suficiente en la previsión":"Ez dago tarte nahikoa duen egunik iragarpenean",
   "Un día con previsión sin lluvia":"Egun bat euririk gabe iragarrita",
   "Elige otro día":"Aukeratu beste egun bat",
@@ -152,7 +158,6 @@ const EU_TEXT = {
   "Esta tarjeta todavía no está disponible.": "Txartel hau ez dago oraindik eskuragarri.",
   "Modo no válido": "Modua ez da baliozkoa",
   "La entidad meteorológica no está disponible.": "Eguraldi-entitatea ez dago eskuragarri.",
-  "No se ha podido cargar la previsión. Comprueba la integración y vuelve a abrir la tarjeta.": "Ezin izan da iragarpena kargatu. Egiaztatu integrazioa eta ireki txartela berriro.",
   "Panel completo": "Panel osoa",
   "Tiempo actual": "Uneko eguraldia",
   "Próximas 24 horas": "Hurrengo 24 orduak",
@@ -246,9 +251,9 @@ export class EuskalmetLocalCard extends HTMLElement {
   set hass(value){const previous=this._hass;this._hass=value;this._start();const changed=!previous||!this._location||Object.values(this._location.entities).some(id=>previous.states[id]!==value.states[id])||previous.states[this._config?.humidity_forecast_entity]!==value.states[this._config?.humidity_forecast_entity]||previous.config?.time_zone!==value.config?.time_zone||egLocale(previous)!==egLocale(value);if(changed&&!this._renderScheduled){this._renderScheduled=true;queueMicrotask(()=>{this._renderScheduled=false;this._render();});}}
   connectedCallback(){this._start();this._dryingClock=setInterval(()=>{if(['drying','outing','vehicle_wash'].includes(this._config?.mode)||['drying','outing','vehicle_wash'].includes(this._tab))this._render();},60000);}
   disconnectedCallback(){clearInterval(this._dryingClock);this._stop();}
-  _stop(){this._laundrySettings?.close();this._generation++;this._extraRevision=(this._extraRevision||0)+1;this._extraPending=null;this._humidityForecast=[];this._dryingSelected=null;for(const unsubscribe of this._unsubs.splice(0))unsubscribe();this._starting=false;}
+  _stop(){clearTimeout(this._locationRetry);this._locationRetry=null;clearTimeout(this._forecastRetry);this._forecastRetry=null;this._forecastPending=new Set();this._forecastSubscriptions=new Set();this._forecasts={};this._receivedAt={};this._forecastErrors={};this._laundrySettings?.close();this._generation++;this._extraRevision=(this._extraRevision||0)+1;this._extraPending=null;this._humidityForecast=[];this._dryingSelected=null;for(const unsubscribe of this._unsubs.splice(0))unsubscribe();this._starting=false;}
   async _start(){
-    if(!this._hass||!this._config||!this.isConnected||this._starting||this._unsubs.length)return;
+    if(!this._hass||!this._config||!this.isConnected||this._starting||this._locationRetry||this._unsubs.length)return;
     this._starting=true;const generation=this._generation;
     try{
       const unsubscribeEvents=await this._hass.connection.subscribeMessage(event=>{
@@ -270,13 +275,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       if(EXTRA_MODES.includes(this._config.mode)){this._render();return;}
       const weather=this._location.entities.weather;
       if(!weather)throw Error('La entidad meteorológica no está disponible.');
-      for(const type of ['hourly','daily']){
-        const unsubscribe=await this._hass.connection.subscribeMessage(event=>{
-          if(generation!==this._generation)return;
-          this._forecasts[type]=event.forecast||[];this._receivedAt??={};this._receivedAt[type]=Date.now();this._forecastErrors??={};delete this._forecastErrors[type];this._render();
-        },{type:'weather/subscribe_forecast',forecast_type:type,entity_id:weather});
-        if(generation!==this._generation){unsubscribe();return;}this._unsubs.push(unsubscribe);
-      }
+      for(const type of ['hourly','daily'])await this._subscribeForecast(type,generation);
       const humidityEntity=this._config.humidity_forecast_entity;
       const binding=JSON.stringify([this._location.locality,this._location.latitude,this._location.longitude]);
       this._humidityBinding??=binding;
@@ -287,8 +286,49 @@ export class EuskalmetLocalCard extends HTMLElement {
           if(generation!==this._generation){unsubscribe();return;}this._unsubs.push(unsubscribe);
         }catch{if(generation===this._generation){this._humidityForecast=[];this._render();}}
       }
-    }catch(error){if(generation===this._generation){this._error='No se ha podido cargar la previsión. Comprueba la integración y vuelve a abrir la tarjeta.';this._render();}}
+    }catch(error){if(generation===this._generation){this._error='No se han podido cargar los datos de esta localidad. Se reintentará automáticamente.';this._locationRetry=setTimeout(()=>{if(generation===this._generation&&this.isConnected){this._stop();this._error=null;this._start();}},30000);this._render();}}
     finally{if(generation===this._generation)this._starting=false;}
+  }
+  async _subscribeForecast(type,generation){
+    const pending=this._forecastPending??=new Set(),subscriptions=this._forecastSubscriptions??=new Set();
+    if(generation!==this._generation||pending.has(type)||subscriptions.has(type))return;
+    pending.add(type);
+    try{
+      const unsubscribe=await this._hass.connection.subscribeMessage(event=>{
+        if(generation!==this._generation)return;
+        this._forecasts[type]=Array.isArray(event.forecast)?event.forecast:[];
+        this._receivedAt??={};this._receivedAt[type]=Date.now();
+        this._forecastErrors??={};delete this._forecastErrors[type];this._render();
+      },{type:'weather/subscribe_forecast',forecast_type:type,entity_id:this._location.entities.weather});
+      if(generation!==this._generation){unsubscribe();return;}
+      subscriptions.add(type);this._unsubs.push(unsubscribe);
+      this._forecastErrors??={};delete this._forecastErrors[type];
+    }catch{
+      if(generation!==this._generation)return;
+      this._forecasts[type]=[];this._forecastErrors??={};this._forecastErrors[type]=true;
+      if(!this._forecastRetry)this._forecastRetry=setTimeout(()=>{
+        this._forecastRetry=null;if(generation!==this._generation||!this.isConnected)return;
+        for(const failed of ['hourly','daily'])if(this._forecastErrors?.[failed])this._subscribeForecast(failed,generation);
+      },30000);
+    }finally{pending.delete(type);if(generation===this._generation)this._render();}
+  }
+  _forecastStale(type){
+    const attributes=this._weather();if(attributes[`forecast_${type}_stale`]===true)return true;
+    const stamp=attributes[`forecast_${type}_updated`];
+    if(stamp){const age=Date.now()-Date.parse(stamp);return !Number.isFinite(age)||age< -300000||age>(type==='hourly'?2:6)*3600000;}
+    return false;
+  }
+  _forecast(type){
+    const state=this._state('weather');
+    return !state||['unknown','unavailable'].includes(state.state)||this._forecastStale(type)||this._forecastErrors?.[type]?[]:this._forecasts[type]||[];
+  }
+  _forecastNotice(mode){
+    const selected=mode==='dashboard'?this._tab:mode;
+    const type=['daily','daily_tiles','vehicle_wash'].includes(selected)?'daily':['hourly','hourly_chart','planning','drying','outing'].includes(selected)?'hourly':null;
+    if(!type||!this._location)return '';
+    const state=this._state('weather');
+    const text=this._forecastErrors?.[type]?'No se ha podido cargar esta previsión. Se reintentará automáticamente.':!state||['unknown','unavailable'].includes(state.state)?'Datos meteorológicos no disponibles.':this._forecastStale(type)?'Previsión antigua o no disponible. Recomendaciones en pausa.':null;
+    return text?`<div class="message" role="status">${escapeHTML(this._t(text))}</div>`:'';
   }
   _t(text,values){return egText(this._hass,text,values);}
   _state(key){return this._hass?.states[this._location?.entities[key]];}
@@ -317,13 +357,13 @@ export class EuskalmetLocalCard extends HTMLElement {
     return `<section class="hero"><div class="eyebrow">EGURALDI</div><h2 class="place">${escapeHTML(this._location.locality)}</h2><div class="muted measurement-source">${escapeHTML(this._measurementSource())}</div><div class="current"><div class="big">${fmt(a.temperature)}<small> ${escapeHTML(a.temperature_unit||'°C')}</small></div>${this._icon(weather?.state,Date.now())}</div><div>${escapeHTML(this._t(CONDITIONS[weather?.state]||'Esperando observaciones'))}</div><div class="metrics"><div>${fmt(a.wind_speed)} ${escapeHTML(a.wind_speed_unit||'km/h')}<small>${escapeHTML(this._t("Viento"))}</small></div><div>${fmt(this._state('precipitation_today')?.state)} mm<small>${escapeHTML(this._t("Lluvia hoy"))}</small></div><div>${fmt(sourceHumidity)} %<small>${escapeHTML(this._t("Humedad"))}</small></div></div>${this._microEntry()}</section>`;
   }
   _hourly(){
-    const forecast=forecastRows(this._forecasts.hourly),units=this._weather();
+    const forecast=forecastRows(this._forecast('hourly')),units=this._weather();
     return `<section><h2>${escapeHTML(this._location.locality)} · ${escapeHTML(this._t('próximas 24 horas'))}</h2>${forecast.length?`<div class="hour-grid">${forecast.map(f=>`<div class="hour"><div class="sky">${this._icon(f.condition,f.datetime)}</div><div class="date">${escapeHTML(this._time(f.datetime,{day:'numeric',month:'short'}))}</div><time datetime="${escapeHTML(f.datetime)}">${escapeHTML(this._time(f.datetime,{hour:'2-digit',minute:'2-digit'}))}</time><div class="temp">${fmt(f.temperature,0)}°</div><div class="wind">${fmt(f.wind_speed,0)} ${escapeHTML(units.wind_speed_unit||'km/h')}</div><div class="rain">${numeric(f.precipitation)!==null?fmt(f.precipitation)+' '+escapeHTML(units.precipitation_unit||'mm'):'—'}</div></div>`).join('')}</div>`:`<div class="message">${escapeHTML(this._t("Esperando previsión horaria…"))}</div>`}</section>`;
   }
   _daily(){
     const zone=this._hass?.config?.time_zone||'Europe/Madrid';
     const dayKey=value=>new Intl.DateTimeFormat('sv-SE',{timeZone:zone}).format(new Date(value));
-    const today=dayKey(Date.now()),forecast=(this._forecasts.daily||[]).filter(f=>Number.isFinite(Date.parse(f.datetime))&&dayKey(f.datetime)>=today).slice(0,7);
+    const today=dayKey(Date.now()),forecast=(this._forecast('daily')||[]).filter(f=>Number.isFinite(Date.parse(f.datetime))&&dayKey(f.datetime)>=today).slice(0,7);
     const vals=forecast.flatMap(f=>[numeric(f.templow),numeric(f.temperature)]).filter(v=>v!==null),lo=vals.length?Math.min(...vals):0,hi=vals.length?Math.max(...vals):1,span=Math.max(hi-lo,1);
     return `<section><h2>${escapeHTML(this._location.locality)} · ${escapeHTML(this._t('próximos días'))}</h2>${forecast.length?`<div class="days">${forecast.map(f=>{
       const low=numeric(f.templow),high=numeric(f.temperature),left=low===null?0:Math.max(0,Math.min(100,(low-lo)/span*100)),width=low===null||high===null?0:Math.max(0,Math.min(100-left,(high-low)/span*100));
@@ -340,7 +380,7 @@ export class EuskalmetLocalCard extends HTMLElement {
     return {unit:useAmount?(this._weather().precipitation_unit||'mm'):'%',label:useAmount?'Lluvia prevista':'Probabilidad de lluvia',value:f=>{const n=numeric(f?.[key]);return n!==null&&n>=0&&(useAmount||n<=100)?n:null;}};
   }
   _hourlyChart(){
-    const raw=forecastRows(this._forecasts.hourly),anchor=Math.ceil(Date.now()/3600000)*3600000;
+    const raw=forecastRows(this._forecast('hourly')),anchor=Math.ceil(Date.now()/3600000)*3600000;
     const indexed=new Map(raw.map(f=>[Math.floor(Date.parse(f.datetime)/3600000)*3600000,f]));
     const slots=Array.from({length:24},(_,i)=>({datetime:anchor+i*3600000,forecast:indexed.get(anchor+i*3600000)}));
     const rain=this._rainMetric(raw),temps=slots.map(s=>numeric(s.forecast?.temperature)).filter(n=>n!==null);
@@ -362,7 +402,7 @@ export class EuskalmetLocalCard extends HTMLElement {
   }
   _forecastDays(){
     const zone=this._hass?.config?.time_zone||'Europe/Madrid',key=value=>new Intl.DateTimeFormat('sv-SE',{timeZone:zone}).format(new Date(value));
-    const today=key(Date.now());return (this._forecasts.daily||[]).filter(f=>Number.isFinite(Date.parse(f.datetime))&&key(f.datetime)>=today).sort((a,b)=>Date.parse(a.datetime)-Date.parse(b.datetime)).slice(0,7);
+    const today=key(Date.now());return (this._forecast('daily')||[]).filter(f=>Number.isFinite(Date.parse(f.datetime))&&key(f.datetime)>=today).sort((a,b)=>Date.parse(a.datetime)-Date.parse(b.datetime)).slice(0,7);
   }
   _dailyTiles(){
     const days=this._forecastDays(),rain=this._rainMetric(days),zone=this._hass?.config?.time_zone||'Europe/Madrid';
@@ -374,18 +414,18 @@ export class EuskalmetLocalCard extends HTMLElement {
   }
   _vehicleWash(){
     const weather=this._state('weather'),usable=weather&&!['unknown','unavailable'].includes(weather.state),zone=this._hass?.config?.time_zone||'Europe/Madrid';
-    const plan=vehicleWashPlan(usable?this._forecasts.daily:[],{timeZone:zone,units:this._weather()});
+    const plan=vehicleWashPlan(usable?this._forecast('daily'):[],{timeZone:zone,units:this._weather()});
     const date=key=>this._time(key+'T12:00:00Z',{weekday:'long',day:'numeric',month:'short',timeZone:'UTC'}),label=day=>day.index===0?this._t('Hoy'):day.index===1?this._t('Mañana'):this._time(day.key+'T12:00:00Z',{weekday:'short',day:'numeric',timeZone:'UTC'});
-    const selected=plan.days.find(d=>d.key===this._washSelected)||plan.best||plan.days[0];
+    const selected=plan.days.find(d=>d.key===this._washSelected)||plan.best||plan.days[0],hasData=plan.days.some(day=>day.status!=='unknown');
     const status=day=>!day.eligible?'Elige otro día':day.status==='dry'?({good:'Recomendable',short:'Poco margen',limited:'Previsión limitada'}[day.recommendation]):({wet:'Mejor esperar',avoid:'Mejor esperar',unknown:'Sin datos suficientes'}[day.status]);
     const reason=day=>day.reason==='rain'?'Lluvia o condiciones adversas previstas':day.reason==='wind'?'Viento fuerte previsto':day.reason==='cold'?'Frío intenso previsto':day.status==='unknown'?'Falta previsión para este día':'Estado del cielo sin lluvia prevista';
     const window=day=>day.run?(day.run===1?this._t('Un día con previsión sin lluvia'):this._t('{days} días seguidos con previsión sin lluvia',{days:day.run})):this._t('No se identifica un periodo sin lluvia');
     const ending=day=>!day.stop||day.stop.status==='unknown'?this._t('Sin datos para prolongar la comparación'):day.stop.status==='wet'?this._t('La previsión cambia a lluvia el {day}',{day:date(day.stop.key)}):this._t('Condiciones menos favorables el {day}',{day:date(day.stop.key)});
-    return `<section class="wash"><div class="forecast-kicker">${escapeHTML(this._t('Planifica el lavado'))} · ${escapeHTML(this._location.locality)}</div><h2>${escapeHTML(this._t('¿Cuándo lavar mi vehículo?'))}</h2><div class="wash-hero ${plan.best?'good':'limited'}"><div><span>${escapeHTML(this._t(plan.best?'Mejor día de los próximos siete':'Mejor esperar'))}</span><strong>${escapeHTML(plan.best?date(plan.best.key):this._t('No hay un día con margen suficiente en la previsión'))}</strong>${plan.best?`<p>${escapeHTML(window(plan.best))}</p><small>${escapeHTML(ending(plan.best))}</small>`:''}</div>${plan.best?this._icon(plan.best.condition,plan.best.key+'T12:00:00Z'):''}</div><div class="wash-week">${plan.days.map(day=>`<button class="wash-day ${day.status} ${day.recommendation||''} ${day.key===selected.key?'selected':''}" data-wash-day="${day.key}" aria-pressed="${day.key===selected.key}"><time>${escapeHTML(label(day))}</time>${this._icon(day.condition,day.key+'T12:00:00Z')}<span class="wash-temperatures"><strong>${fmt(day.high,0)}°</strong><span>${fmt(day.low,0)}°</span></span><small>${escapeHTML(this._t(status(day)))}</small></button>`).join('')}</div><div class="wash-detail"><h3>${escapeHTML(date(selected.key))}</h3><strong>${escapeHTML(this._t(reason(selected)))}</strong>${selected.status==='dry'?`<p>${escapeHTML(window(selected))}</p><span>${escapeHTML(ending(selected))}</span>`:''}<p>${selected.wind===null?escapeHTML(this._t('Viento diario no disponible')):escapeHTML(this._t('Viento previsto'))+': '+fmt(selected.wind,0)+' km/h'}</p></div><details class="dry-method"><summary>${escapeHTML(this._t('Cómo se elige el día'))}</summary>${['Se prioriza la secuencia más larga de días con un estado del cielo sin lluvia. En caso de empate, se elige el primero.','A partir de las 18:00 de HA se recomienda otro día para lavar.',
+    return `<section class="wash"><div class="forecast-kicker">${escapeHTML(this._t('Planifica el lavado'))} · ${escapeHTML(this._location.locality)}</div><h2>${escapeHTML(this._t('¿Cuándo lavar mi vehículo?'))}</h2><div class="wash-hero ${plan.best?'good':'limited'}"><div><span>${escapeHTML(this._t(plan.best?'Mejor día de los próximos siete':hasData?'Mejor esperar':'Sin datos suficientes'))}</span><strong>${escapeHTML(plan.best?date(plan.best.key):this._t(hasData?'No hay un día con margen suficiente en la previsión':'Esperando una previsión válida'))}</strong>${plan.best?`<p>${escapeHTML(window(plan.best))}</p><small>${escapeHTML(ending(plan.best))}</small>`:''}</div>${plan.best?this._icon(plan.best.condition,plan.best.key+'T12:00:00Z'):''}</div><div class="wash-week">${plan.days.map(day=>`<button class="wash-day ${day.status} ${day.recommendation||''} ${day.key===selected.key?'selected':''}" data-wash-day="${day.key}" aria-pressed="${day.key===selected.key}"><time>${escapeHTML(label(day))}</time>${this._icon(day.condition,day.key+'T12:00:00Z')}<span class="wash-temperatures"><strong>${fmt(day.high,0)}°</strong><span>${fmt(day.low,0)}°</span></span><small>${escapeHTML(this._t(status(day)))}</small></button>`).join('')}</div><div class="wash-detail"><h3>${escapeHTML(date(selected.key))}</h3><strong>${escapeHTML(this._t(reason(selected)))}</strong>${selected.status==='dry'?`<p>${escapeHTML(window(selected))}</p><span>${escapeHTML(ending(selected))}</span>`:''}<p>${selected.wind===null?escapeHTML(this._t('Viento diario no disponible')):escapeHTML(this._t('Viento previsto'))+': '+fmt(selected.wind,0)+' km/h'}</p></div><details class="dry-method"><summary>${escapeHTML(this._t('Cómo se elige el día'))}</summary>${['Se prioriza la secuencia más larga de días con un estado del cielo sin lluvia. En caso de empate, se elige el primero.','A partir de las 18:00 de HA se recomienda otro día para lavar.',
 'Se necesitan al menos dos días consecutivos; los huecos y el final de la previsión limitan la comparación. No se supone tiempo seco después.','La previsión diaria de Euskalmet no facilita probabilidad de lluvia ni viento diario. No se inventan esos valores. Si el proveedor aporta viento fuerte o frío intenso, se descarta ese día.','Coche, moto y otros vehículos usan el mismo criterio meteorológico. No predice cuánto durará limpio el vehículo ni si habrá lluvia en cada hora.'].map(text=>`<p>${escapeHTML(this._t(text))}</p>`).join('')}</details></section>`;
   }
   _outing(){
-    const weather=this._state('weather'),usable=weather&&!['unknown','unavailable'].includes(weather.state),plan=outingPlan(usable?this._forecasts.hourly:[],{activity:this._outingActivity||this._config.outing_activity||'walk',minutes:this._outingMinutes||Number(this._config.outing_minutes)||60,units:this._weather(),night:stamp=>isNight(stamp,this._location.latitude,this._location.longitude)});
+    const weather=this._state('weather'),usable=weather&&!['unknown','unavailable'].includes(weather.state),plan=outingPlan(usable?this._forecast('hourly'):[],{activity:this._outingActivity||this._config.outing_activity||'walk',minutes:this._outingMinutes||Number(this._config.outing_minutes)||60,units:this._weather(),night:stamp=>isNight(stamp,this._location.latitude,this._location.longitude)});
     const day=stamp=>this._time(stamp,{day:'numeric',month:'short'}),clock=stamp=>this._time(stamp,{hour:'2-digit',minute:'2-digit'}),range=w=>`${day(w.start)} · ${clock(w.start)}–${day(w.start)!==day(w.end)?day(w.end)+' · ':''}${clock(w.end)}`;
     const best=plan.best,selected=plan.windows.find(w=>w.start===this._outingSelected)||best||plan.windows[0],labels={good:'Condiciones favorables',fair:'Condiciones aceptables',avoid:'Evitar',unknown:'Sin datos suficientes'},reasons={storm:'Tormenta o condiciones adversas',wind:'Viento demasiado fuerte',extreme:'Temperatura poco adecuada para esta actividad',rain:'Franja con lluvia',fog:'Niebla',rain_possible:'Probabilidad de lluvia o lluvia débil',cool:'Temperatura baja',night:'Noche o poca luz',breezy:'Viento molesto'};
     const rows=plan.windows.filter(w=>w.start%3600000===0||w.start===best?.start||w.start===selected?.start);
@@ -402,7 +442,7 @@ export class EuskalmetLocalCard extends HTMLElement {
   _drying(){
     const humidityEntity=this._config.humidity_forecast_entity,other=this._hass?.states[humidityEntity],weather=this._state('weather'),usable=weather&&!['unknown','unavailable'].includes(weather.state);
     const supplemental=!this._humidityMismatch&&other&&!['unknown','unavailable'].includes(other.state)?this._humidityForecast||[]:[];
-    const plan=dryingPlan(usable?this._forecasts.hourly:[],{hours:this._dryingDuration||Number(this._config.drying_hours)||3,units:this._weather(),humidityForecast:supplemental,night:stamp=>isNight(stamp,this._location.latitude,this._location.longitude)});
+    const plan=dryingPlan(usable?this._forecast('hourly'):[],{hours:this._dryingDuration||Number(this._config.drying_hours)||3,units:this._weather(),humidityForecast:supplemental,night:stamp=>isNight(stamp,this._location.latitude,this._location.longitude)});
     const labels={good:'Condiciones favorables',fair:'Condiciones aceptables',limited:'Ventana orientativa',slow:'Secado lento',avoid:'Evitar',unknown:'Sin datos suficientes'};
     const reasons={rain:'Lluvia o tormenta prevista',wind:'Viento demasiado fuerte',cold:'Frío intenso',humidity:'Humedad muy alta o niebla',missing_humidity:'Humedad horaria no disponible: orientación parcial.',humid:'Humedad alta',cool:'Temperatura baja',calm:'Poco viento',breeze:'La brisa favorece el secado',night:'Noche: menor potencial de secado',chance:'Posibilidad de lluvia'};
     const day=stamp=>this._time(stamp,{day:'numeric',month:'short'}),clock=stamp=>this._time(stamp,{hour:'2-digit',minute:'2-digit'});
@@ -412,7 +452,7 @@ export class EuskalmetLocalCard extends HTMLElement {
     return `<section class="drying">${this._forecastHeader('¿Puedo tender fuera?','Planifica el secado')}${this._laundry()}<div class="dry-controls"><span>${escapeHTML(this._t('Buscar una ventana de'))}</span><div>${[2,3,4].map(h=>`<button data-drying-duration="${h}" aria-pressed="${plan.duration===h}">${h} h</button>`).join('')}</div></div><div class="dry-hero ${best?(best.limited?'limited':best.score>=65?'good':'fair'):'avoid'}"><div><span class="dry-kicker">${escapeHTML(this._t(best?(best.limited?'Ventana orientativa':'Mejor ventana'):'Mejor esperar'))}</span><strong>${best?`<small class="dry-window-date">${escapeHTML(day(best.start))}</small>${escapeHTML(clock(best.start))}–${escapeHTML(clock(best.end))}${day(best.start)!==day(best.end)?`<small class="dry-window-date">${escapeHTML(day(best.end))}</small>`:''}`:escapeHTML(this._t('No hay una franja de {hours} h con condiciones suficientes.',{hours:plan.duration}))}</strong><span class="dry-verdict">${best?escapeHTML(this._t(best.limited?'Humedad horaria no disponible: orientación parcial.':best.score>=65?'Condiciones favorables':'Condiciones aceptables')):''}</span></div>${best?this._icon(best.slots[0].condition,best.start):''}</div>${best?`<div class="dry-window-summary">${facts({rain:best.slots.reduce((n,p)=>n+p.rain,0),humidity:best.limited?null:best.slots.reduce((n,p)=>n+p.humidity,0)/best.slots.length,temperature:best.slots.reduce((n,p)=>n+p.temperature,0)/best.slots.length,wind:Math.max(...best.slots.map(p=>p.wind))},true)}</div>`:''}${best&&plan.alternatives.length?`<div class="dry-alternatives"><span>${escapeHTML(this._t('Otras opciones'))}</span>${plan.alternatives.map(w=>`<button data-drying-hour="${w.start}">${escapeHTML(range(w))}${w.limited?' · '+escapeHTML(this._t('Ventana orientativa')):''}</button>`).join('')}</div>`:''}<div class="dry-source">${escapeHTML(this._t('Previsión de Euskalmet'))}${this._humidityMismatch?' · '+escapeHTML(this._t('Revisa el complemento de humedad para esta localidad')):humidityEntity?' · '+escapeHTML(this._t('Complemento de humedad: {source}',{source:(String(other?.attributes?.attribution||'').includes('met.no')?'Met.no · ':'')+(other?.attributes?.friendly_name||humidityEntity)})):''}</div><div class="dry-legend">${['good','fair','limited','slow','avoid','unknown'].map(key=>`<span class="${key}">${escapeHTML(this._t(labels[key]))}</span>`).join('')}</div><h3>${escapeHTML(this._t('Próximas horas'))}</h3><div class="dry-hours">${plan.slots.map(p=>`<button class="dry-hour ${p.status} ${p.stamp===selected?.stamp?'selected':''}" data-drying-hour="${p.stamp}" aria-pressed="${p.stamp===selected?.stamp}" aria-label="${escapeHTML(this._time(p.stamp,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+' · '+this._t(labels[p.status]))}"><time>${escapeHTML(this._time(p.stamp,{hour:'2-digit',minute:'2-digit'}))}</time>${this._icon(p.condition,p.stamp)}<strong>${fmt(p.temperature,0)}°</strong><span class="dry-hour-wind">${fmt(p.wind,0)} km/h</span><span class="dry-status-dot" aria-hidden="true"></span><small>${escapeHTML(this._time(p.stamp,{day:'numeric',month:'short'}))}</small></button>`).join('')}</div>${selected?`<div class="dry-detail"><div class="dry-detail-head"><h3>${escapeHTML(this._t('Detalle de la hora'))} · ${escapeHTML(this._time(selected.stamp,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}</h3><span class="${selected.status}">${escapeHTML(this._t(labels[selected.status]))}</span></div>${facts(selected)}<div class="dry-reasons">${(selected.status==='unknown'?['Faltan lluvia, temperatura o viento']:selected.reasons.length?selected.reasons.map(r=>reasons[r]):['Sin lluvia prevista']).map(r=>`<span>${escapeHTML(this._t(r))}</span>`).join('')}</div></div>`:''}<details class="dry-method"><summary>${escapeHTML(this._t('Cómo se calcula'))}</summary>${['Se comparan franjas de horas completas. No se calcula cuánto tardará tu ropa en secarse.','La lluvia prevista, la niebla, el frío intenso y el viento fuerte descartan una hora. El resto se ordena por temperatura, humedad, brisa y noche.','Sin humedad horaria no se muestra una recomendación favorable. La humedad actual no se usa como previsión.','Reglas orientativas de Eguraldi, sin garantía de secado.'].map(p=>`<p>${escapeHTML(this._t(p))}</p>`).join('')}</details></section>`;
   }
   _planning(){
-    const rows=forecastRows(this._forecasts.hourly).filter(f=>Date.parse(f.datetime)<=Date.now()+24*3600000),hours=rows.slice(0,8),rain=this._rainMetric(rows),wet=rows.find(f=>(rain.value(f)??0)>0);
+    const rows=forecastRows(this._forecast('hourly')).filter(f=>Date.parse(f.datetime)<=Date.now()+24*3600000),hours=rows.slice(0,8),rain=this._rainMetric(rows),wet=rows.find(f=>(rain.value(f)??0)>0);
     const rainText=wet?this._t('Desde las {time}',{time:this._time(wet.datetime,{hour:'2-digit',minute:'2-digit'})}):rows.some(f=>rain.value(f)!==null)?this._t('Sin lluvia en las horas con datos'):this._t('Lluvia sin datos publicados');
     const next12=rows.filter(f=>Date.parse(f.datetime)<=Date.now()+12*3600000),gusts=next12.map(f=>numeric(f.wind_gust_speed)).filter(n=>n!==null&&n>=0),winds=next12.map(f=>numeric(f.wind_speed)).filter(n=>n!==null&&n>=0);
     const values=gusts.length?gusts:winds,windLabel=gusts.length?'Racha máxima · próximas 12 h':'Viento máximo previsto · próximas 12 h',windUnit=this._weather().wind_speed_unit||'km/h';
@@ -434,7 +474,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       const mode=this._config.mode;
       html=mode==='overview'?this._overview():mode==='hourly'?this._hourly():mode==='daily'?this._daily():mode==='hourly_chart'?this._hourlyChart():mode==='daily_tiles'?this._dailyTiles():mode==='planning'?this._planning():mode==='drying'?this._drying():mode==='outing'?this._outing():mode==='vehicle_wash'?this._vehicleWash():this._overview()+`<section class="divider"><nav class="tabs" aria-label="${this._t('Vista del tiempo')}">${[['hourly','24 horas'],['daily','Próximos días'],['microclimate','Microclima'],['drying','Tender fuera'],['outing','Salir'],['vehicle_wash','Lavar vehículo'],['radar','Radar'],['history','Histórico'],['alerts','Avisos']].map(([id,label])=>`<button data-tab="${id}" class="${this._tab===id?'active':''}" aria-pressed="${this._tab===id}">${escapeHTML(this._t(label))}</button>`).join('')}</nav><div id="content"></div></section>`;
     }
-    this.shadowRoot.innerHTML=`<style>${CSS}${FORECAST_CSS}${DRYING_CSS}</style><ha-card>${html}${this._error?`<div class="message error">${escapeHTML(this._t(this._error))}</div>`:''}</ha-card>`;
+    this.shadowRoot.innerHTML=`<style>${CSS}${FORECAST_CSS}${DRYING_CSS}</style><ha-card>${this._forecastNotice(this._config.mode)}${html}${this._error?`<div class="message error">${escapeHTML(this._t(this._error))}</div>`:''}</ha-card>`;
     const microHost=this.shadowRoot.querySelector('#overview-micro-card');
     if(microHost){const micro=document.createElement('eguraldi-microclimate-card');micro.setConfig({entity:this._location.entities.microclimate_status,enabled:true,station_name:this._location.station,compact:true});micro.hass=this._hass;microHost.append(micro);this.shadowRoot.querySelector('#overview-micro').addEventListener('toggle',event=>{this._microExpanded=event.currentTarget.open;});}
     this.shadowRoot.querySelector('[data-planning-radar]')?.addEventListener('click',()=>{this._planningRadar=!this._planningRadar;this._render();});

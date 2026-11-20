@@ -979,6 +979,12 @@ class EuskalmetAPI:
             return_exceptions=True,
         )
 
+        for result in results:
+            if isinstance(
+                result, (asyncio.CancelledError, EuskalmetAuthenticationError)
+            ):
+                raise result
+
         documents: list[tuple[datetime, dict[str, Any]]] = []
         errors: list[Exception] = []
         for target, result in zip(targets, results, strict=True):

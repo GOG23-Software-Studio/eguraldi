@@ -1041,3 +1041,324 @@ def test_laundry_quiet_stale_failed_and_persistent_targets(tmp_path, monkeypatch
         await hass.async_block_till_done()
 
     asyncio.run(scenario())
+
+
+def test_forecast_cache_expires_and_standard_weather_recovers(tmp_path, monkeypatch):
+    from datetime import UTC, datetime, timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.euskalmet_local.weather import EuskalmetWeather
+
+    async def scenario():
+        now = datetime(2026, 11, 20, 12, tzinfo=UTC)
+        monkeypatch.setattr(dt_util, "utcnow", lambda: now)
+        source = SimpleNamespace(
+            config_entry_id="demo",
+            locality="Demo",
+            hourly_forecast_updated=now,
+            daily_forecast_updated=now,
+            data={
+                "forecast_daily": [
+                    {
+                        "date": "2026-11-21",
+                        "weather": {"id": "00"},
+                        "temperatureRange": {"min": 8, "max": 16},
+                    }
+                ],
+                "forecast_hourly": {
+                    "at": now.isoformat(),
+                    "for": now.isoformat(),
+                    "trends": {
+                        "set": [
+                            {"range": "[13:00..14:00)", "temperature": {"value": 16}}
+                        ]
+                    },
+                },
+            },
+            api=SimpleNamespace(location="demo", region="test", zone="test"),
+        )
+        weather = EuskalmetWeather(source)
+        weather.hass = HomeAssistant(str(tmp_path))
+        assert len(await weather.async_forecast_daily()) == 1
+        source.daily_forecast_updated = now - timedelta(hours=7)
+        assert await weather.async_forecast_daily() == []
+        assert weather.extra_state_attributes["forecast_daily_stale"] is True
+        source.hourly_forecast_updated = now - timedelta(hours=3)
+        assert await weather.async_forecast_hourly() == []
+        assert weather.extra_state_attributes["forecast_hourly_stale"] is True
+        assert source.data["forecast_daily"]  # Internal cache kept for diagnosis.
+        source.daily_forecast_updated = now
+        assert len(await weather.async_forecast_daily()) == 1
+        assert weather.extra_state_attributes["forecast_daily_stale"] is False
+
+    asyncio.run(scenario())
+
+
+def test_optional_authentication_is_not_silently_cached():
+    from homeassistant.exceptions import ConfigEntryAuthFailed
+
+    from custom_components.euskalmet_local.api import EuskalmetAuthenticationError
+    from custom_components.euskalmet_local.coordinator import EuskalmetCoordinator
+
+    source = EuskalmetCoordinator.__new__(EuskalmetCoordinator)
+    source._failed_endpoints = set()
+    source.data = {"forecast_daily": [{"date": "cached"}]}
+    with pytest.raises(ConfigEntryAuthFailed):
+        source._optional_result(
+            "forecast_daily", EuskalmetAuthenticationError("401"), []
+        )
+    assert not source._failed_endpoints
+
+
+def test_hourly_api_preserves_authentication_and_cancellation(monkeypatch):
+    from unittest.mock import AsyncMock
+
+    from custom_components.euskalmet_local.api import (
+        EuskalmetAPI,
+        EuskalmetAuthenticationError,
+    )
+
+    async def scenario():
+        source = EuskalmetAPI(
+            session=None, email="test@example.invalid", private_key="TEST_ONLY"
+        )
+        for exception in (
+            EuskalmetAuthenticationError("401"),
+            asyncio.CancelledError(),
+        ):
+            source._request = AsyncMock(side_effect=exception)
+            with pytest.raises(type(exception)):
+                await source.get_hourly_forecast()
+
+    asyncio.run(scenario())
+
+
+def test_coordinator_shutdown_cancels_refresh_before_closing_api(tmp_path, monkeypatch):
+    from unittest.mock import AsyncMock
+
+    from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+
+    from custom_components.euskalmet_local.coordinator import EuskalmetCoordinator
+
+    async def scenario():
+        hass = HomeAssistant(str(tmp_path))
+        source = EuskalmetCoordinator.__new__(EuskalmetCoordinator)
+        DataUpdateCoordinator.__init__(
+            source,
+            hass,
+            __import__("logging").getLogger(__name__),
+            name="test",
+            config_entry=None,
+        )
+        source.api = SimpleNamespace(close=AsyncMock())
+        unsub = __import__("unittest.mock", fromlist=["Mock"]).Mock()
+        source._unsub_refresh = unsub
+        await source.async_shutdown()
+        assert source._shutdown_requested
+        unsub.assert_called_once()
+        source.api.close.assert_awaited_once()
+        await hass.async_block_till_done()
+
+    asyncio.run(scenario())
+
+
+def test_diagnostics_report_freshness_without_locations_or_recipients():
+    import json
+
+    from custom_components.euskalmet_local.diagnostics import (
+        async_get_config_entry_diagnostics,
+    )
+
+    async def scenario():
+        entry = SimpleNamespace(
+            version=2,
+            data={
+                "email": "PRIVATE_EMAIL",
+                "private_key": "PRIVATE_KEY",
+                "locality": "PRIVATE_TOWN",
+                "station_name": "PRIVATE_STATION",
+                "latitude": 43.123456,
+                "station_longitude": -3.987654,
+            },
+            options={
+                "laundry_target": "PRIVATE_PHONE",
+                "microclimate_sensor": "sensor.PRIVATE_SENSOR",
+            },
+            runtime_data=SimpleNamespace(
+                data={}, last_update_success=False, _failed_endpoints={"forecast_daily"}
+            ),
+        )
+        result = await async_get_config_entry_diagnostics(None, entry)
+        encoded = json.dumps(result)
+        for secret in (
+            "PRIVATE_EMAIL",
+            "PRIVATE_KEY",
+            "PRIVATE_TOWN",
+            "PRIVATE_STATION",
+            "PRIVATE_PHONE",
+            "PRIVATE_SENSOR",
+            "43.123456",
+            "-3.987654",
+        ):
+            assert secret not in encoded
+        assert result["forecasts"]["daily"]["stale"] is True
+        assert result["failed_endpoints"] == ["forecast_daily"]
+
+    asyncio.run(scenario())
+
+
+def test_successful_observations_never_refresh_failed_forecast_age(
+    tmp_path, monkeypatch
+):
+    from datetime import UTC, datetime, timedelta
+    from unittest.mock import AsyncMock
+
+    import custom_components.euskalmet_local.coordinator as module
+    from custom_components.euskalmet_local.api import EuskalmetAPIError
+    from custom_components.euskalmet_local.forecast_quality import forecast_is_fresh
+
+    async def scenario():
+        now = datetime(2026, 11, 20, 12, tzinfo=UTC)
+        first = now
+
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return now if tz else now.replace(tzinfo=None)
+
+        monkeypatch.setattr(module, "datetime", Clock)
+        api = SimpleNamespace(
+            time_zone=UTC,
+            close=AsyncMock(),
+            _empty_alerts=lambda: {},
+            _empty_radar=lambda: {},
+        )
+        for method in (
+            "get_all_measurements",
+            "get_aggregated_day_summary",
+            "get_aggregated_month_summary",
+            "get_alerts",
+            "get_ocean_forecast",
+            "get_tides",
+            "get_radar_report",
+            "get_pollen_measurements",
+            "get_astro_calendar",
+        ):
+            setattr(api, method, AsyncMock(return_value={}))
+        api.get_daily_forecast = AsyncMock(return_value=[{"date": "2026-11-21"}])
+        api.get_hourly_forecast = AsyncMock(
+            return_value={"at": now.isoformat(), "trends": {"set": [{}]}}
+        )
+        monkeypatch.setattr(module, "EuskalmetAPI", lambda **kwargs: api)
+        monkeypatch.setattr(module, "async_get_clientsession", lambda hass: None)
+        hass = HomeAssistant(str(tmp_path))
+        entry = SimpleNamespace(
+            data={"locality": "Demo"}, async_on_unload=lambda cb: None
+        )
+        source = module.EuskalmetCoordinator(
+            hass,
+            entry,
+            "demo@example.invalid",
+            "TEST_ONLY",
+            "r",
+            "z",
+            "demo",
+            "TEST",
+            "Demo",
+            "TEST",
+            43.3,
+            -3.0,
+        )
+        source.data = await source._async_update_data()
+        assert source.hourly_forecast_updated == first
+        assert source.daily_forecast_updated == first
+        api.get_daily_forecast.side_effect = EuskalmetAPIError("offline")
+        api.get_hourly_forecast.side_effect = EuskalmetAPIError("offline")
+        api.get_all_measurements.return_value = {"temperature": {"value": 19}}
+        now += timedelta(hours=7)
+        source.data = await source._async_update_data()
+        assert source.data["current"]["temperature"]["value"] == 19
+        assert source.hourly_forecast_updated == first
+        assert source.daily_forecast_updated == first
+        assert not forecast_is_fresh(source, "hourly", now)
+        assert not forecast_is_fresh(source, "daily", now)
+        assert {"forecast_daily", "forecast_hourly"} <= source._failed_endpoints
+        api.get_daily_forecast.side_effect = None
+        api.get_hourly_forecast.side_effect = None
+        now += timedelta(hours=2)
+        api.get_hourly_forecast.return_value = {
+            "at": now.isoformat(),
+            "trends": {"set": [{}]},
+        }
+        source.data = await source._async_update_data()
+        assert forecast_is_fresh(source, "hourly", now)
+        assert forecast_is_fresh(source, "daily", now)
+        assert not {"forecast_daily", "forecast_hourly"} & source._failed_endpoints
+        await source.async_shutdown()
+        await hass.async_block_till_done()
+
+    asyncio.run(scenario())
+
+
+def test_reauthentication_keeps_identity_location_options_and_training(
+    tmp_path, monkeypatch
+):
+    from custom_components.euskalmet_local.api import EuskalmetAuthenticationError
+
+    async def scenario():
+        hass = HomeAssistant(str(tmp_path))
+        entry = SimpleNamespace(
+            entry_id="stable",
+            data={
+                "email": "old@example.invalid",
+                "private_key": "OLD",
+                "locality": "Demo",
+                "station_id": "TEST",
+            },
+            options={"microclimate_since": "KEEP", "laundry_enabled": False},
+        )
+        flow = config_flow.EuskalmetConfigFlow()
+        flow.hass = hass
+        updates = []
+        monkeypatch.setattr(flow, "_get_reauth_entry", lambda: entry)
+        monkeypatch.setattr(flow, "async_show_form", lambda **kwargs: kwargs)
+        monkeypatch.setattr(
+            flow,
+            "async_update_reload_and_abort",
+            lambda e, **kwargs: (
+                updates.append((e, kwargs))
+                or {"type": "abort", "reason": "reauth_successful"}
+            ),
+        )
+        monkeypatch.setattr(config_flow, "_is_valid_private_key", lambda value: True)
+        monkeypatch.setattr(config_flow, "async_get_clientsession", lambda hass: None)
+        rejected = True
+
+        async def regions():
+            if rejected:
+                raise EuskalmetAuthenticationError("401")
+            return []
+
+        monkeypatch.setattr(
+            config_flow,
+            "EuskalmetAPI",
+            lambda **kwargs: SimpleNamespace(get_regions=regions),
+        )
+        result = await flow.async_step_reauth_confirm(
+            {"email": "new@example.invalid", "private_key": "TEST_ONLY"}
+        )
+        assert result["errors"]["base"] == "invalid_auth"
+        assert not updates and entry.data["private_key"] == "OLD"
+        rejected = False
+        result = await flow.async_step_reauth_confirm(
+            {"email": "new@example.invalid", "private_key": "TEST_ONLY"}
+        )
+        assert result["reason"] == "reauth_successful"
+        assert updates[0][0] is entry
+        assert set(updates[0][1]["data_updates"]) == {"email", "private_key"}
+        assert entry.options["microclimate_since"] == "KEEP"
+        assert entry.data["locality"] == "Demo"
+        await hass.async_block_till_done()
+
+    asyncio.run(scenario())

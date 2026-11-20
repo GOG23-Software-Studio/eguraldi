@@ -23,6 +23,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, MANUFACTURER
 from .coordinator import EuskalmetCoordinator
+from .forecast_quality import forecast_is_fresh
 from .formatting import spanish_weather_condition
 from .quality import valid_humidity
 
@@ -155,7 +156,9 @@ class EuskalmetWeather(
     def _hourly_data(self) -> dict:
         """Obtener el documento completo de previsión horaria."""
 
-        if not self.coordinator.data:
+        if not self.coordinator.data or not forecast_is_fresh(
+            self.coordinator, "hourly", dt_util.utcnow()
+        ):
             return {}
 
         hourly = self.coordinator.data.get(
@@ -273,6 +276,9 @@ class EuskalmetWeather(
         if not self.coordinator.data:
             return None
 
+        if not forecast_is_fresh(self.coordinator, "daily", dt_util.utcnow()):
+            return None
+
         weather = self.coordinator.data.get("weather")
 
         if not isinstance(weather, dict):
@@ -288,7 +294,18 @@ class EuskalmetWeather(
 
         hourly = self._hourly_data()
 
+        now = dt_util.utcnow()
+        freshness = {}
+        for kind in ("hourly", "daily"):
+            updated = getattr(self.coordinator, f"{kind}_forecast_updated", None)
+            freshness[f"forecast_{kind}_updated"] = (
+                updated.isoformat() if updated else None
+            )
+            freshness[f"forecast_{kind}_stale"] = not forecast_is_fresh(
+                self.coordinator, kind, now
+            )
         return {
+            **freshness,
             "condicion": spanish_weather_condition(self.condition),
             "prevision_emitida": hourly.get("at"),
             "prevision_valida": hourly.get("for"),
@@ -350,7 +367,9 @@ class EuskalmetWeather(
 
         forecast: list[Forecast] = []
 
-        if not self.coordinator.data:
+        if not self.coordinator.data or not forecast_is_fresh(
+            self.coordinator, "daily", dt_util.utcnow()
+        ):
             return forecast
 
         daily = sorted(

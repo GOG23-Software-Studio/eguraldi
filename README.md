@@ -182,6 +182,10 @@ El radar comparte el fondo y los controles de las demás tarjetas. Las barras di
 
 La comparación utiliza estadísticas de HA en intervalos completos de cinco minutos: mínimas, máximas y medias de cada serie, y diferencia media solo en intervalos coincidentes. Las dos series usan la misma unidad. El histórico mensual muestra resúmenes diarios oficiales, con huecos en los días sin datos y sin extender el gráfico a los días futuros del mes actual.
 
+## Vigencia y recuperación de datos
+
+Las previsiones horarias y diarias tienen una vigencia independiente de las observaciones. Si caducan, se pausan las recomendaciones y las previsiones estándar de HA dejan de devolver esos datos antiguos. Las tarjetas reintentan las suscripciones fallidas automáticamente. [Comportamiento, diagnósticos y límites de la revisión](docs/RELIABILITY.md).
+
 ## Qué representan los datos
 
 La estación mide en su propia ubicación y altitud. Se eligen estaciones meteorológicas activas con temperatura disponible y a menos de 120 km; otras magnitudes pueden faltar. La cercanía no garantiza condiciones idénticas a las de casa.

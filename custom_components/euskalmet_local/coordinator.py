@@ -96,6 +96,7 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
         self._year_month_attempted: dict[int, datetime] = {}
         self._daily_forecast: list[dict[str, Any]] | None = None
         self._daily_forecast_attempted: datetime | None = None
+        self.daily_forecast_updated: datetime | None = None
         self._hourly_forecast: dict[str, Any] | None = None
         self._hourly_forecast_attempted: datetime | None = None
         self.hourly_forecast_updated: datetime | None = None
@@ -138,6 +139,8 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
 
         try:
             await self.api.get_station_capabilities()
+        except EuskalmetAuthenticationError as err:
+            raise ConfigEntryAuthFailed(str(err)) from err
         except EuskalmetAPIError as err:
             _LOGGER.warning(
                 "No se pudieron detectar las magnitudes de %s: %s",
@@ -155,6 +158,9 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
 
         if isinstance(result, asyncio.CancelledError):
             raise result
+
+        if isinstance(result, EuskalmetAuthenticationError):
+            raise ConfigEntryAuthFailed(str(result)) from result
 
         # The daily summary can be absent briefly just after midnight. Do not
         # report an expected 404 or retain yesterday's accumulated values.
@@ -348,6 +354,12 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
             astro_result,
         ) = results
 
+        for result in results:
+            if isinstance(result, asyncio.CancelledError):
+                raise result
+            if isinstance(result, EuskalmetAuthenticationError):
+                raise ConfigEntryAuthFailed(str(result)) from result
+
         if isinstance(current_result, asyncio.CancelledError):
             raise current_result
 
@@ -367,6 +379,7 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
             )
             if not isinstance(daily_result, Exception):
                 self._daily_forecast = daily
+                self.daily_forecast_updated = now_utc
         else:
             daily = self._daily_forecast or []
 
@@ -510,6 +523,10 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
                 return_exceptions=True,
             )
             for month, result in zip(missing_months, loaded, strict=True):
+                if isinstance(result, asyncio.CancelledError):
+                    raise result
+                if isinstance(result, EuskalmetAuthenticationError):
+                    raise ConfigEntryAuthFailed(str(result)) from result
                 if not isinstance(result, Exception):
                     self._year_months[month] = result
 
@@ -534,4 +551,5 @@ class EuskalmetCoordinator(DataUpdateCoordinator):
     async def async_shutdown(self) -> None:
         """Cerrar recursos del cliente."""
 
+        await super().async_shutdown()
         await self.api.close()

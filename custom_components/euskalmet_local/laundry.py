@@ -115,7 +115,11 @@ class LaundryCoordinator(DataUpdateCoordinator):
             return {}
         provider = self.entry.runtime_data
         fresh = getattr(provider, "hourly_forecast_updated", None)
-        if not fresh or not timedelta(0) <= now - fresh <= timedelta(hours=2):
+        if (
+            getattr(provider, "last_update_success", True) is False
+            or not fresh
+            or not timedelta(0) <= now - fresh <= timedelta(hours=2)
+        ):
             self.status = "no_forecast"
             return {}
         document = (provider.data or {}).get("forecast_hourly") or {}

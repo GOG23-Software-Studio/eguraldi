@@ -64,3 +64,8 @@ npm test
 - Paquete: verifica archivos de ejecución, licencias, exclusión de caché y suma SHA-256; rechaza claves PEM antes de crear el ZIP.
 - CI valida HA 2026.11.1, HACS y hassfest. La versión mínima declarada no tiene una matriz de compatibilidad completa.
 - La disponibilidad mediante repositorio personalizado no implica aprobación en el catálogo general de HACS.
+
+
+## Revisión de fiabilidad · 20 de noviembre de 2026
+
+Corregidas la caducidad independiente de previsiones, la recuperación de suscripciones, la propagación de errores de autenticación y la cancelación del coordinador al descargar la integración. Se amplían los diagnósticos sin incluir ubicación o destinatarios. [Fallos reproducidos, comportamiento y límites de la revisión](docs/RELIABILITY.md).
