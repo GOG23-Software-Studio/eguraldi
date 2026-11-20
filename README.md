@@ -26,6 +26,16 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 </details>
 
+## ¿Cuándo lavar mi vehículo?
+
+Compara los próximos siete días y elige entre **Coche**, **Moto** u **Otro vehículo**. Destaca el primer día de la secuencia más larga con previsión sin lluvia, con al menos dos días consecutivos. Puedes consultar cada día y ver dónde cambia la previsión o faltan datos.
+
+No promete horas de tiempo seco ni cuánto durará limpio: Euskalmet no ofrece probabilidad de lluvia ni viento en la previsión diaria. Todos los vehículos usan el mismo criterio. [Método y configuración](docs/VEHICLE_WASH.md).
+
+![Mejor día para lavar el vehículo, con datos simulados](docs/vehicle-wash.jpg)
+
+[Vista móvil](docs/vehicle-wash-mobile.jpg). Disponible en el editor como **¿Cuándo lavar mi vehículo?** (`mode: vehicle_wash`) y en la pestaña **Lavar vehículo** del panel completo.
+
 ## La mejor hora para salir
 
 Elige **Paseo**, **Deporte** o **Con niños**, y una duración de **30, 60 o 90 minutos**. La tarjeta busca una franja favorable en las próximas 24 horas, propone hasta dos alternativas, orienta sobre paraguas y chaqueta e indica el primer empeoramiento posterior de lluvia, temperatura o viento, dentro de las seis horas siguientes con datos.
@@ -147,6 +157,7 @@ mode: dashboard
 | Microclima | `microclimate` |
 | Tender fuera | `drying` |
 | La mejor hora para salir | `outing` |
+| Lavar vehículo | `vehicle_wash` |
 | Histórico mensual | `history` |
 | Radar | `radar` |
 | Avisos | `alerts` |

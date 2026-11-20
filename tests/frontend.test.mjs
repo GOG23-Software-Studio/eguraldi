@@ -12,7 +12,7 @@ function setup(){
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-alert-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-comparison-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-microclimate-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
-  for(const file of ['eguraldi-laundry-settings.js','eguraldi-drying-model.js','eguraldi-drying-style.js','eguraldi-outing-model.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replaceAll('export ',''),dom.getInternalVMContext());
+  for(const file of ['eguraldi-laundry-settings.js','eguraldi-drying-model.js','eguraldi-vehicle-wash-model.js','eguraldi-drying-style.js','eguraldi-outing-model.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replaceAll('export ',''),dom.getInternalVMContext());
   vm.runInContext(source+'\nwindow.logic={forecastRows,iconName,isNight,numeric,escapeHTML};',dom.getInternalVMContext());
   return dom;
 }
@@ -288,6 +288,7 @@ test('Basque short dates work even when the browser lacks Basque locale data',()
   dom.window.Intl.DateTimeFormat=function(locale,options){return new Native(locale==='eu-ES'?'es-ES':locale,options);};
   const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'daily'});card.hass={...hass(),locale:{language:'eu'}};
   assert.equal(card._time('2026-11-15T12:00:00Z',{weekday:'short'}),'ig.');
+  assert.equal(card._time('2026-11-15T12:00:00Z',{weekday:'long'}),'igandea');
   assert.match(card._time('2026-11-15T12:00:00Z',{day:'numeric',month:'short'}),/aza\./);
   dom.window.close();
 });
@@ -538,4 +539,18 @@ test('laundry settings keeps validation errors and does not silently save',async
  const popup=dom.window.eval('openLaundrySettings')({hass:ha,entryId:'scoped',locality:'Demo',t:text=>text});await flush();
  const root=dom.window.document.body.firstElementChild.shadowRoot;root.querySelector('[name=laundry_enabled]').checked=true;root.querySelector('form').dispatchEvent(new dom.window.Event('submit',{cancelable:true}));await flush();
  assert.match(root.querySelector('[role=alert]').textContent,/Selecciona un destino/);assert.equal(root.querySelector('[name=laundry_enabled]').checked,true);assert.equal(root.querySelector('#save').disabled,false);popup.close();dom.window.close();
+});
+
+
+test('vehicle washing controls translate, follow locality and persist the editor profile',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h= hass(),count={};let loc={...location};
+ h.callWS=async()=>[loc];h.connection.subscribeMessage=async(cb,msg)=>{if(msg.type==='subscribe_events'){count.events=cb;return ()=>{};}cb({forecast:msg.forecast_type==='daily'?Array.from({length:7},(_,i)=>({datetime:new Date(now+i*86400000).toISOString(),condition:i===0?'rainy':'sunny',temperature:17,templow:9})):forecasts});return ()=>{};};
+ card.setConfig({mode:'vehicle_wash',wash_vehicle:'motorcycle'});card.hass=h;dom.window.document.body.append(card);await flush();
+ assert.equal(card.shadowRoot.querySelectorAll('.wash-day').length,7);assert.match(card.shadowRoot.querySelector('h2').textContent,/moto/);assert.match(card.shadowRoot.querySelector('.wash-detail').textContent,/Viento diario no disponible/);
+ card.shadowRoot.querySelector('[data-wash-vehicle=car]').click();assert.match(card.shadowRoot.querySelector('h2').textContent,/coche/);
+ card.shadowRoot.querySelectorAll('[data-wash-day]')[3].click();assert.equal(card.shadowRoot.querySelectorAll('.wash-day.selected').length,1);
+ card.hass={...h,locale:{language:'eu'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/autoa/);
+ loc={...loc,locality:'Bilbao',locality_id:'bilbao'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-kicker').textContent,/Bilbao/);
+ const editor=dom.window.document.createElement('euskalmet-local-editor');editor.setConfig({mode:'vehicle_wash'});editor.hass=h;dom.window.document.body.append(editor);await flush();let saved;editor.addEventListener('config-changed',e=>saved=e.detail.config);
+ const select=editor.querySelector('#eg-wash-vehicle');select.value='motorcycle';select.dispatchEvent(new dom.window.Event('change'));assert.equal(saved.wash_vehicle,'motorcycle');card.remove();dom.window.close();
 });

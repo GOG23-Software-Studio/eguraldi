@@ -17,6 +17,16 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 
 [Ikusi mugikorreko ikuspegia](docs/preview-mobile.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
 
+## Noiz garbitu nire ibilgailua?
+
+Konparatu hurrengo zazpi egunak eta aukeratu **Autoa**, **Motoa** edo **Beste ibilgailu bat**. Euririk gabe iragarritako egun segida luzeenaren lehen eguna nabarmentzen du, gutxienez bi egun jarraian badaude. Egun bakoitza kontsulta dezakezu, iragarpena non aldatzen den edo datuak non falta diren ikusteko.
+
+Ez du bermatzen zenbat ordu izango diren euririk gabe edo ibilgailuak zenbat iraungo duen garbi. Euskalmet-ek ez du euri probabilitaterik edo haizerik ematen eguneko iragarpenean. Ibilgailu guztiek irizpide bera erabiltzen dute. [Metodoa eta konfigurazioa](docs/VEHICLE_WASH.md) (gaztelaniaz).
+
+![Ibilgailua garbitzeko egunik onena, simulatutako datuekin](docs/vehicle-wash-eu.jpg)
+
+[Mugikorreko ikuspegia](docs/vehicle-wash-mobile-eu.jpg). Editorean **Noiz garbitu nire ibilgailua?** (`mode: vehicle_wash`) eta panel osoko **Ibilgailua garbitu** fitxan eskuragarri.
+
 ## Kalera irteteko ordurik onena
 
 Aukeratu **Paseoa**, **Kirola** edo **Umeekin**, eta **30, 60 edo 90 minutuko** iraupena. Txartelak hurrengo 24 orduetako tarte onena eta bi aukera gehigarri bilatzen ditu. Aterkiari eta jakari buruzko orientazioa ematen du eta, ondorengo sei orduetan datuak badaude, euriaren, tenperaturaren edo haizearen lehen okerragotzea erakusten du.
@@ -123,6 +133,7 @@ mode: dashboard
 | Mikroklima | `microclimate` |
 | Arropa zabaldu | `drying` |
 | Kalera irteteko ordurik onena | `outing` |
+| Ibilgailua garbitu | `vehicle_wash` |
 | Hileko historikoa | `history` |
 | Radarra | `radar` |
 | Abisuak | `alerts` |
