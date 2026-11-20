@@ -1,7 +1,7 @@
 /* Compose existing models; do not introduce a second recommendation algorithm. */
-import {outingPlan} from './eguraldi-outing-model.js?v=0.7.0';
-import {dryingPlan} from './eguraldi-drying-model.js?v=0.7.0';
-import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.7.0';
+import {outingPlan} from './eguraldi-outing-model.js?v=0.7.1';
+import {dryingPlan} from './eguraldi-drying-model.js?v=0.7.1';
+import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.7.1';
 export function daySummaryPlan({hourly=[],daily=[],units={},humidityForecast=[],now=Date.now(),timeZone='Europe/Madrid',night=()=>false,minutes=60,activity='walk',hours=3}={}){
   const outing=outingPlan(hourly,{now,minutes,activity,units,night});
   const drying=dryingPlan(hourly,{now,hours,units,humidityForecast,night});

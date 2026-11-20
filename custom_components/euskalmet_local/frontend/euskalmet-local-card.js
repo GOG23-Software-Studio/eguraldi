@@ -1,17 +1,17 @@
-import {daySummaryPlan,summaryAlerts} from './eguraldi-day-summary-model.js?v=0.7.0';
-import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.7.0';
-import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.7.0';
+import {daySummaryPlan,summaryAlerts} from './eguraldi-day-summary-model.js?v=0.7.1';
+import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.7.1';
+import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.7.1';
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.7.0';
-import './eguraldi-comparison-card.js?v=0.7.0';
-import './eguraldi-microclimate-card.js?v=0.7.0';
-import './euskalmet-history-card.js?v=0.7.0-controls';
-import './euskalmet-radar-map-card.js?v=0.7.0';
+import './euskalmet-alert-card.js?v=0.7.1';
+import './eguraldi-comparison-card.js?v=0.7.1';
+import './eguraldi-microclimate-card.js?v=0.7.1';
+import './euskalmet-history-card.js?v=0.7.1-controls';
+import './euskalmet-radar-map-card.js?v=0.7.1';
 
-import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.7.0';
-import {dryingPlan} from './eguraldi-drying-model.js?v=0.7.0';
+import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.7.1';
+import {dryingPlan} from './eguraldi-drying-model.js?v=0.7.1';
 
-import {outingPlan} from './eguraldi-outing-model.js?v=0.7.0';
+import {outingPlan} from './eguraldi-outing-model.js?v=0.7.1';
 
 const EU_TEXT = {
   "Volver al resumen":"Itzuli laburpenera",
@@ -455,7 +455,10 @@ export class EuskalmetLocalCard extends HTMLElement {
       {id:'vehicle_wash',label:'Lavar vehículo',status:washing.status,headline:washing.plan.best?this._time(washing.plan.best.key+'T12:00:00Z',{weekday:'long',day:'numeric',month:'short',timeZone:'UTC'}):this._t(washing.status==='unknown'?'Sin previsión diaria suficiente':'No hay dos días seguidos con margen suficiente'),note:this._t('Comparación de los próximos siete días'),icon:washing.plan.best?.condition,stamp:washing.plan.best?washing.plan.best.key+'T12:00:00Z':null},
       {id:'alerts',label:'Avisos de tu localidad',status:alerts.status,headline:this._t(alerts.status==='unknown'?'No se pueden comprobar los avisos ahora':alerts.status==='clear'?'Sin avisos activos':levels[alerts.level]),note:this._t('Avisos oficiales de Euskalmet'),icon:null,stamp:null},
     ];
-    return `<section class="day-summary">${this._forecastHeader('Tu día con Eguraldi','Decide de un vistazo')}<div class="summary-horizon">${escapeHTML(this._t('Salir y tender: 24 h · lavar: 7 días'))}</div><div class="summary-grid">${rows.map(row=>`<button class="summary-row ${row.status} ${row.id==='alerts'?'alert-'+alerts.level:''}" data-summary-detail="${row.id}" aria-expanded="${this._summaryDetail===row.id}"><div class="summary-label"><span>${escapeHTML(this._t(row.label))}</span><span class="summary-badge">${escapeHTML(this._t(labels[row.status]))}</span></div><div class="summary-main"><strong>${escapeHTML(row.headline)}</strong>${row.icon?this._icon(row.icon,row.stamp):`<span class="summary-symbol" aria-hidden="true">${row.id==='alerts'?(alerts.status==='clear'?'✓':alerts.status==='active'?'!':'?'):'—'}</span>`}</div><small>${escapeHTML(row.note)}</small><span class="summary-open">${escapeHTML(this._t(this._summaryDetail===row.id?'Cerrar detalle':'Ver detalle'))} ${this._summaryDetail===row.id?'−':'↗'}</span></button>`).join('')}</div>${this._summaryDetail?`<div class="summary-detail" id="summary-detail"></div>`:''}<details class="dry-method"><summary>${escapeHTML(this._t('Qué resume esta tarjeta'))}</summary><p>${escapeHTML(this._t('Reutiliza las recomendaciones de salir, tender y lavar. Las horas pueden pertenecer a hoy o mañana y siempre muestran su fecha.'))}</p><p>${escapeHTML(this._t('Si faltan datos o han caducado, no se presenta una recomendación favorable. Los avisos solo se confirman con una consulta vigente.'))}</p></details></section>`;
+    return `<section class="day-summary"><div class="summary-overview">${this._forecastHeader('Tu día con Eguraldi','Decide de un vistazo')}<div class="summary-horizon">${escapeHTML(this._t('Salir y tender: 24 h · lavar: 7 días'))}</div><div class="summary-grid">${rows.map(row=>`<button class="summary-row ${row.status} ${row.id==='alerts'?'alert-'+alerts.level:''}" data-summary-detail="${row.id}" aria-expanded="${this._summaryDetail===row.id}"><div class="summary-label"><span>${escapeHTML(this._t(row.label))}</span><span class="summary-badge">${escapeHTML(this._t(labels[row.status]))}</span></div><div class="summary-main"><strong>${escapeHTML(row.headline)}</strong>${row.icon?this._icon(row.icon,row.stamp):`<span class="summary-symbol" aria-hidden="true">${row.id==='alerts'?(alerts.status==='clear'?'✓':alerts.status==='active'?'!':'?'):'—'}</span>`}</div><small>${escapeHTML(row.note)}</small><span class="summary-open">${escapeHTML(this._t(this._summaryDetail===row.id?'Cerrar detalle':'Ver detalle'))} ${this._summaryDetail===row.id?'−':'↗'}</span></button>`).join('')}</div></div>${this._summaryDetail?`<div class="summary-detail" id="summary-detail"></div>`:''}<details class="dry-method"><summary>${escapeHTML(this._t('Qué resume esta tarjeta'))}</summary><p>${escapeHTML(this._t('Reutiliza las recomendaciones de salir, tender y lavar. Las horas pueden pertenecer a hoy o mañana y siempre muestran su fecha.'))}</p><p>${escapeHTML(this._t('Si faltan datos o han caducado, no se presenta una recomendación favorable. Los avisos solo se confirman con una consulta vigente.'))}</p></details></section>`;
+  }
+  _bindSummaryButtons(){
+    this.shadowRoot.querySelectorAll('[data-summary-detail]').forEach(button=>button.onclick=()=>{this._summaryDetail=this._summaryDetail===button.dataset.summaryDetail?null:button.dataset.summaryDetail;this._render();this.shadowRoot.querySelector(`[data-summary-detail="${button.dataset.summaryDetail}"]`)?.focus({preventScroll:true});if(this._summaryDetail){this.shadowRoot.querySelector('[data-summary-close]')?.focus({preventScroll:true});this.shadowRoot.querySelector('#summary-detail')?.scrollIntoView?.({block:'start',behavior:'auto'});}});
   }
   _vehicleWash(){
     const weather=this._state('weather'),usable=weather&&!['unknown','unavailable'].includes(weather.state),zone=this._hass?.config?.time_zone||'Europe/Madrid';
@@ -507,7 +510,18 @@ export class EuskalmetLocalCard extends HTMLElement {
   _render(){
     if(!this.shadowRoot||!this._config)return;
     if(this._location&&EXTRA_MODES.includes(this._config.mode)){this._renderExtra();return;}
+    const summaryIdentity=JSON.stringify([this._location?.entry_id,this._location?.locality_id,this._location?.locality,this._location?.station_id]);
+    const summaryView=this._config.mode==='day_summary'||this._config.mode==='dashboard'&&this._tab==='day_summary';
+    const summaryHost=this.shadowRoot.querySelector('.day-summary');
     const previousSummaryDetail=this.shadowRoot.querySelector('#summary-detail > euskalmet-local-card');
+    if(summaryView&&summaryHost&&this._summaryDetail&&previousSummaryDetail?._config?.mode===this._summaryDetail&&summaryHost.dataset.summaryIdentity===summaryIdentity&&!this._error){
+      // New forecast subscribers can update all listeners. Keep the mounted detail
+      // connected while refreshing the overview, so this cannot resubscribe in a loop.
+      const fresh=document.createElement('div');fresh.innerHTML=this._daySummary();
+      summaryHost.querySelector('.summary-overview').replaceChildren(...fresh.querySelector('.summary-overview').childNodes);
+      const method=summaryHost.querySelector('details');method.innerHTML=fresh.querySelector('details').innerHTML;
+      this._bindSummaryButtons();previousSummaryDetail.hass=this._hass;return;
+    }
     const previousPlanningRadar=this.shadowRoot.querySelector('#planning-radar > euskalmet-local-card');
     const previousExtra=this.shadowRoot.querySelector('#content > euskalmet-local-card');
     const extraMode=this._tab==='microclimate'?'microclimate':this._tab==='history'?'history':this._tab==='radar'?'radar':'alerts';
@@ -536,7 +550,9 @@ export class EuskalmetLocalCard extends HTMLElement {
         card.hass=this._hass;content.append(card);
       }
     }
-    this.shadowRoot.querySelectorAll('[data-summary-detail]').forEach(button=>button.addEventListener('click',()=>{this._summaryDetail=this._summaryDetail===button.dataset.summaryDetail?null:button.dataset.summaryDetail;this._render();this.shadowRoot.querySelector(`[data-summary-detail="${button.dataset.summaryDetail}"]`)?.focus({preventScroll:true});if(this._summaryDetail){this.shadowRoot.querySelector('[data-summary-close]')?.focus({preventScroll:true});this.shadowRoot.querySelector('#summary-detail')?.scrollIntoView?.({block:'start',behavior:'auto'});}}));
+    const renderedSummary=this.shadowRoot.querySelector('.day-summary');
+    if(renderedSummary)renderedSummary.dataset.summaryIdentity=summaryIdentity;
+    this._bindSummaryButtons();
     const summaryDetail=this.shadowRoot.querySelector('#summary-detail');
     if(summaryDetail&&this._summaryDetail){
       const alertStatus=summaryAlerts(this._state('alert_level'),this._weather());

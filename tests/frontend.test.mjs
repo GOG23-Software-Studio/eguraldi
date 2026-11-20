@@ -617,3 +617,14 @@ test('day summary does not claim no alerts or good weather when sources are stal
  card.setConfig({mode:'day_summary'});card.hass=h;dom.window.document.body.append(card);await flush();assert.equal(card.shadowRoot.querySelectorAll('.summary-row.unknown').length,4);assert.doesNotMatch(card.shadowRoot.textContent,/Sin avisos activos/);
  card.shadowRoot.querySelector('[data-summary-detail=alerts]').click();assert.match(card.shadowRoot.querySelector('#summary-detail').textContent,/No se pueden comprobar/);card.remove();dom.window.close();
 });
+
+
+test('summary detail stays mounted when a new subscriber broadcasts to every forecast listener',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('euskalmet-local-card'),h=hass(),listeners={hourly:[],daily:[]};let subscriptions=0;
+ h.connection.subscribeMessage=async(cb,msg)=>{if(msg.type==='subscribe_events')return ()=>{};subscriptions++;if(subscriptions>10)throw Error('subscription loop');const list=listeners[msg.forecast_type];list.push(cb);for(const fn of [...list])fn({forecast:forecasts});return ()=>{const index=list.indexOf(cb);if(index>=0)list.splice(index,1);};};
+ card.setConfig({mode:'day_summary'});card.hass=h;dom.window.document.body.append(card);await flush();
+ card.shadowRoot.querySelector('[data-summary-detail=outing]').click();await flush();await flush();const detail=card.shadowRoot.querySelector('#summary-detail > euskalmet-local-card');assert.ok(detail);assert.equal(subscriptions,4);
+ card.hass={...h,states:{...h.states,'weather.test':{...h.states['weather.test'],attributes:{...h.states['weather.test'].attributes,temperature:15}}}};await flush();
+ assert.equal(card.shadowRoot.querySelector('#summary-detail > euskalmet-local-card'),detail);assert.equal(subscriptions,4);assert.ok(detail._forecast('hourly').length);
+ card.shadowRoot.querySelector('[data-summary-close]').click();assert.equal(card.shadowRoot.querySelector('#summary-detail'),null);assert.equal(listeners.hourly.length,1);card.remove();dom.window.close();
+});
