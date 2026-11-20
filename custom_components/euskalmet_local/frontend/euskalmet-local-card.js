@@ -14,6 +14,7 @@ import {dryingPlan} from './eguraldi-drying-model.js?v=0.7.0';
 import {outingPlan} from './eguraldi-outing-model.js?v=0.7.0';
 
 const EU_TEXT = {
+  "Volver al resumen":"Itzuli laburpenera",
   "Consulta vigente":"Kontsulta eguneratua",
   "Tu día con Eguraldi": "Zure eguna Eguraldirekin",
   "Tu día": "Zure eguna",
@@ -535,13 +536,15 @@ export class EuskalmetLocalCard extends HTMLElement {
         card.hass=this._hass;content.append(card);
       }
     }
-    this.shadowRoot.querySelectorAll('[data-summary-detail]').forEach(button=>button.addEventListener('click',()=>{this._summaryDetail=this._summaryDetail===button.dataset.summaryDetail?null:button.dataset.summaryDetail;this._render();this.shadowRoot.querySelector(`[data-summary-detail="${button.dataset.summaryDetail}"]`)?.focus();}));
+    this.shadowRoot.querySelectorAll('[data-summary-detail]').forEach(button=>button.addEventListener('click',()=>{this._summaryDetail=this._summaryDetail===button.dataset.summaryDetail?null:button.dataset.summaryDetail;this._render();this.shadowRoot.querySelector(`[data-summary-detail="${button.dataset.summaryDetail}"]`)?.focus({preventScroll:true});if(this._summaryDetail){this.shadowRoot.querySelector('[data-summary-close]')?.focus({preventScroll:true});this.shadowRoot.querySelector('#summary-detail')?.scrollIntoView?.({block:'start',behavior:'auto'});}}));
     const summaryDetail=this.shadowRoot.querySelector('#summary-detail');
     if(summaryDetail&&this._summaryDetail){
       const alertStatus=summaryAlerts(this._state('alert_level'),this._weather());
-      if(this._summaryDetail==='alerts'&&alertStatus.status==='unknown')summaryDetail.innerHTML=`<div class="message" role="status">${escapeHTML(this._t('No se pueden comprobar los avisos ahora'))}</div>`;
+      summaryDetail.innerHTML=`<button class="summary-back" data-summary-close>${escapeHTML(this._t('Volver al resumen'))} ↑</button>`;
+      if(this._summaryDetail==='alerts'&&alertStatus.status==='unknown')summaryDetail.innerHTML+=`<div class="message" role="status">${escapeHTML(this._t('No se pueden comprobar los avisos ahora'))}</div>`;
       else{const reusable=previousSummaryDetail?._config?.mode===this._summaryDetail&&previousSummaryDetail?._config?.entry_id===this._location.entry_id;const detail=reusable?previousSummaryDetail:document.createElement('euskalmet-local-card');if(!reusable)detail.setConfig({...this._config,mode:this._summaryDetail,entry_id:this._location.entry_id});detail.hass=this._hass;summaryDetail.append(detail);}
     }
+    this.shadowRoot.querySelector('[data-summary-close]')?.addEventListener('click',()=>{const selected=this._summaryDetail;this._summaryDetail=null;this._render();const button=this.shadowRoot.querySelector(`[data-summary-detail="${selected}"]`);button?.focus({preventScroll:true});button?.scrollIntoView?.({block:'center',behavior:'auto'});});
     this.shadowRoot.querySelectorAll('[data-outing-activity],[data-outing-minutes],[data-outing-start]').forEach(b=>b.addEventListener('click',()=>{let attr;if(b.dataset.outingActivity){this._outingActivity=b.dataset.outingActivity;this._outingSelected=null;attr='data-outing-activity';}else if(b.dataset.outingMinutes){this._outingMinutes=Number(b.dataset.outingMinutes);this._outingSelected=null;attr='data-outing-minutes';}else{this._outingSelected=Number(b.dataset.outingStart);attr='data-outing-start';}const value=b.getAttribute(attr);this._render();this.shadowRoot.querySelector(`[${attr}="${value}"]`)?.focus();}));
     this.shadowRoot.querySelectorAll('[data-wash-day]').forEach(button=>button.addEventListener('click',()=>{this._washSelected=button.dataset.washDay;this._render();this.shadowRoot.querySelector(`[data-wash-day="${this._washSelected}"]`)?.focus();}));
     this.shadowRoot.querySelector('[data-laundry-config]')?.addEventListener('click',()=>{

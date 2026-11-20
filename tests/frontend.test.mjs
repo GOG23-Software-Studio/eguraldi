@@ -606,7 +606,7 @@ test('day summary opens matching detail cards, keeps locality and translates wit
  const original=h.connection.subscribeMessage;h.connection.subscribeMessage=async(cb,msg)=>{if(msg.type==='subscribe_events'){if(!count.events)count.events=cb;return ()=>{};}return original(cb,msg);};
  card.setConfig({mode:'day_summary'});card.hass=h;dom.window.document.body.append(card);await flush();assert.equal(card.shadowRoot.querySelectorAll('.summary-row').length,4);assert.match(card.shadowRoot.textContent,/Sin avisos activos/);
  card.shadowRoot.querySelector('[data-summary-detail=outing]').click();await flush();let child=card.shadowRoot.querySelector('#summary-detail > euskalmet-local-card');assert.equal(child._config.mode,'outing');assert.equal(child._config.entry_id,'test');
- card.shadowRoot.querySelector('[data-summary-detail=outing]').click();assert.equal(card.shadowRoot.querySelector('#summary-detail'),null);
+ card.shadowRoot.querySelector('[data-summary-close]').click();assert.equal(card.shadowRoot.querySelector('#summary-detail'),null);
  card.hass={...h,locale:{language:'eu'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/Zure eguna/);
  loc={...loc,locality:'Bilbao',locality_id:'new'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-kicker').textContent,/Bilbao/);
  card.remove();dom.window.close();

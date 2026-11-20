@@ -7,7 +7,7 @@ Desde 0.7.0. Vista `day_summary` del editor visual y pestaña **Tu día** del pa
 - **Lavar vehículo:** el mejor día entre los próximos siete, con los límites de la previsión diaria ya explicados en la tarjeta de lavado.
 - **Avisos de tu localidad:** nivel oficial vigente o estado de datos no disponibles.
 
-Cada bloque abre o cierra su tarjeta de detalle dentro del resumen, sin cambiar de panel. Los detalles mantienen la misma localidad. Los horarios incluyen fecha: una franja puede corresponder a hoy o mañana y no se etiqueta falsamente como «hoy». Los modelos de recomendación son los mismos que en las tarjetas independientes, no un algoritmo nuevo.
+Cada bloque abre su tarjeta de detalle dentro del resumen, sin cambiar de panel. La vista se desplaza hasta el detalle y el botón **Volver al resumen** permite regresar al bloque elegido. Los detalles mantienen la misma localidad. Los horarios incluyen fecha: una franja puede corresponder a hoy o mañana y no se etiqueta falsamente como «hoy». Los modelos de recomendación son los mismos que en las tarjetas independientes, no un algoritmo nuevo.
 
 ```yaml
 type: custom:euskalmet-local-card
