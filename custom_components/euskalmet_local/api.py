@@ -1075,6 +1075,7 @@ class EuskalmetAPI:
             return self._empty_alerts()
 
         severity_order = {
+            "GREEN": 0,
             "NONE": 0,
             "YELLOW": 1,
             "ORANGE": 2,
@@ -1106,7 +1107,12 @@ class EuskalmetAPI:
         complete = len(keys) == len(index) and all(
             isinstance(response, dict)
             and str(response.get("severity", "")).upper() in severity_order
-            and isinstance(response.get("items"), list)
+            and (
+                response.get("items") in (None, [])
+                if str(response.get("severity", "")).upper() == "GREEN"
+                else isinstance(response.get("items"), list)
+                and all(isinstance(item, dict) for item in response["items"])
+            )
             for response in responses
         )
 
@@ -1129,6 +1135,8 @@ class EuskalmetAPI:
                 continue
 
             severity = str(alert.get("severity", "NONE")).upper()
+            if severity == "GREEN":
+                severity = "NONE"
 
             if severity_order.get(
                 severity,

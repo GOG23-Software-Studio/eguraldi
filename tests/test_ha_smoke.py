@@ -1494,3 +1494,56 @@ def test_alert_links_keep_exactly_one_api_prefix():
             assert result["descriptions_by_language"]["eu"] == ["Euria"]
 
     asyncio.run(scenario())
+
+
+def test_official_green_documents_without_items_are_verified_clear():
+    from unittest.mock import AsyncMock
+
+    from custom_components.euskalmet_local.api import EuskalmetAPI
+
+    async def scenario():
+        api = EuskalmetAPI(
+            session=None, email="test@example.invalid", private_key="TEST_ONLY"
+        )
+        green = {
+            "severity": "GREEN",
+            "zoneId": api.alert_zone,
+            "at": "2026-11-21",
+            "for": "2026-11-21",
+        }
+        api._request = AsyncMock(
+            side_effect=[[{"key": "euskalmet/alerts/today"}], green]
+        )
+        result = await api.get_alerts()
+        assert result["complete"] is True
+        assert result["severity"] == "NONE" and result["active"] is False
+        assert result["count"] == 0
+        for items in [None, []]:
+            api._request = AsyncMock(
+                side_effect=[[{"key": "a"}], {**green, "items": items}]
+            )
+            assert (await api.get_alerts())["complete"] is True
+        for document in [
+            {"severity": "NONE"},
+            {"severity": "YELLOW"},
+            {"severity": "INVALID"},
+            {"severity": "GREEN", "items": [{}]},
+            {"severity": "RED", "items": [None]},
+        ]:
+            api._request = AsyncMock(side_effect=[[{"key": "a"}], document])
+            assert (await api.get_alerts())["complete"] is False
+        api._request = AsyncMock(
+            side_effect=[
+                [{"key": "a"}, {"key": "b"}],
+                green,
+                {"severity": "RED", "items": [{"cause": "WIND"}]},
+            ]
+        )
+        result = await api.get_alerts()
+        assert (
+            result["complete"] is True
+            and result["severity"] == "RED"
+            and result["active"] is True
+        )
+
+    asyncio.run(scenario())
