@@ -309,6 +309,9 @@ class EuskalmetWeather(
             alerts_updated.isoformat() if alerts_updated else None
         )
         freshness["alerts_stale"] = not alerts_are_fresh(self.coordinator, now)
+        freshness["alerts_validation"] = (self.coordinator.data or {}).get(
+            "alerts", {}
+        ).get("validation")
         return {
             **freshness,
             "condicion": spanish_weather_condition(self.condition),

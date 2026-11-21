@@ -1183,6 +1183,21 @@ class EuskalmetAPI:
 
         return {
             "complete": complete,
+            "validation": {
+                "index_count": len(index),
+                "key_count": len(keys),
+                "documents": [
+                    {
+                        "type": type(response).__name__,
+                        "severity": str(response.get("severity", "MISSING")),
+                        "items_type": type(response.get("items")).__name__,
+                        "fields": sorted(response),
+                    }
+                    if isinstance(response, dict)
+                    else {"type": type(response).__name__}
+                    for response in responses
+                ],
+            },
             "active": highest
             in {
                 "YELLOW",
