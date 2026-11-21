@@ -628,3 +628,21 @@ test('summary detail stays mounted when a new subscriber broadcasts to every for
  assert.equal(card.shadowRoot.querySelector('#summary-detail > euskalmet-local-card'),detail);assert.equal(subscriptions,4);assert.ok(detail._forecast('hourly').length);
  card.shadowRoot.querySelector('[data-summary-close]').click();assert.equal(card.shadowRoot.querySelector('#summary-detail'),null);assert.equal(listeners.hourly.length,1);card.remove();dom.window.close();
 });
+
+
+test('summary editor persists visible order and planning preferences without changing the source',async()=>{
+ const dom=setup(),editor=dom.window.document.createElement('euskalmet-local-editor');editor.setConfig({mode:'day_summary',entry_id:'test',humidity_forecast_entity:'weather.other'});editor.hass=hass();dom.window.document.body.append(editor);await flush();
+ let saved;editor.addEventListener('config-changed',e=>saved=e.detail.config);
+ const change=(selector,value)=>{const input=editor.querySelector(selector);input.value=value;input.dispatchEvent(new dom.window.Event('change'));};
+ change('#eg-outing_activity','family');change('#eg-outing_minutes','90');change('#eg-drying_hours','4');
+ editor.querySelector('[data-summary-block="vehicle_wash"]').click();
+ editor.querySelector('[data-summary-move="alerts"][data-direction="-1"]').click();
+ assert.deepEqual(Array.from(saved.summary_blocks),['outing','alerts','drying']);assert.equal(saved.outing_activity,'family');assert.equal(saved.outing_minutes,90);assert.equal(saved.drying_hours,4);assert.equal(saved.humidity_forecast_entity,'weather.other');assert.equal(saved.entry_id,'test');
+ const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig(saved);card.hass=hass();dom.window.document.body.append(card);await flush();
+ assert.deepEqual(Array.from(card.shadowRoot.querySelectorAll('[data-summary-detail]'),b=>b.dataset.summaryDetail),['outing','alerts','drying']);
+ assert.match(card.shadowRoot.textContent,/90 min/);assert.match(card.shadowRoot.textContent,/4 h/);assert.doesNotMatch(card.shadowRoot.querySelector('.summary-horizon').textContent,/7/);
+ card.setConfig({...saved,summary_blocks:['alerts','unknown','alerts']});await flush();assert.equal(card.shadowRoot.querySelectorAll('[data-summary-detail]').length,1);
+ card.setConfig({...saved,summary_blocks:[]});await flush();assert.match(card.shadowRoot.textContent,/Selecciona al menos/);
+ editor.hass={...hass(),language:'eu'};assert.match(editor.textContent,/Laburpenaren blokeak/);
+ card.remove();editor.remove();dom.window.close();
+});

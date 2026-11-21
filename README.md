@@ -32,6 +32,8 @@ Un resumen práctico para tu localidad: mejor franja para salir, ventana para te
 
 ![Resumen práctico del día con datos simulados](docs/day-summary.jpg)
 
+[Opciones del resumen](docs/day-summary-editor.jpg): bloques visibles, orden, actividad y duración de salida, y ventana para tender. Se guardan por tarjeta desde el editor visual.
+
 [Vista móvil](docs/day-summary-mobile.jpg) · [Configuración y límites](docs/DAY_SUMMARY.md). Disponible en el editor como **Tu día con Eguraldi** (`mode: day_summary`) y en la pestaña **Tu día** del panel completo.
 
 ## ¿Cuándo lavar mi vehículo?

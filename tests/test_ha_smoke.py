@@ -1457,3 +1457,40 @@ def test_standard_alert_entities_become_unavailable_when_checks_expire(monkeypat
     assert not any(entity.available for entity in entities)
     source._failed_endpoints.clear()
     assert all(entity.available for entity in entities)
+
+
+def test_alert_links_keep_exactly_one_api_prefix():
+    from unittest.mock import AsyncMock
+
+    from custom_components.euskalmet_local.api import EuskalmetAPI
+    from custom_components.euskalmet_local.const import API_BASE
+
+    async def scenario():
+        api = EuskalmetAPI(
+            session=None, email="test@example.invalid", private_key="TEST_ONLY"
+        )
+        suffix = "alerts/zones/cantabrian/forecast/at/2026/11/21/for/2026/11/21"
+        for key in [suffix, "euskalmet/" + suffix, "/euskalmet/" + suffix]:
+            api._request = AsyncMock(
+                side_effect=[
+                    [{"key": key}],
+                    {
+                        "severity": "YELLOW",
+                        "items": [
+                            {
+                                "cause": "RAIN",
+                                "descriptionByLang": {
+                                    "SPANISH": "Lluvia",
+                                    "BASQUE": "Euria",
+                                },
+                            }
+                        ],
+                    },
+                ]
+            )
+            result = await api.get_alerts()
+            assert api._request.call_args_list[1].args == (API_BASE + "/" + suffix,)
+            assert result["complete"] is True and result["severity"] == "YELLOW"
+            assert result["descriptions_by_language"]["eu"] == ["Euria"]
+
+    asyncio.run(scenario())

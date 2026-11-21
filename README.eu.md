@@ -23,6 +23,8 @@ Zure herrirako laburpen praktikoa: kalera irteteko tarterik onena, arropa zabalt
 
 ![Eguneko laburpen praktikoa, simulatutako datuekin](docs/day-summary-eu.jpg)
 
+[Laburpenaren aukerak](docs/day-summary-editor-eu.jpg): ikusgai dauden blokeak, ordena, irteerako jarduera eta iraupena, eta arropa esekitzeko tartea. Txartel bakoitzean gordetzen dira ikusizko editoretik.
+
 [Mugikorreko ikuspegia](docs/day-summary-mobile-eu.jpg) · [Konfigurazioa eta mugak](docs/DAY_SUMMARY.md) (gaztelaniaz). Editorean **Zure eguna Eguraldirekin** (`mode: day_summary`) eta panel osoko **Zure eguna** fitxan eskuragarri.
 
 ## Noiz garbitu nire ibilgailua?

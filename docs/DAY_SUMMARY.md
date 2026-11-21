@@ -16,7 +16,21 @@ mode: day_summary
 
 Con varias localidades, elige una en el editor o fija `entry_id`. El complemento opcional de humedad puede elegirse en el editor igual que en Tender fuera: debe ser una previsión de la misma localidad y solo se utiliza su humedad. Sin él no se inventa humedad futura ni se utiliza la lectura actual como pronóstico.
 
-Las opciones avanzadas existentes `drying_hours`, `outing_activity` y `outing_minutes` también se transmiten al detalle. Los controles dentro del detalle permiten explorar otras opciones, sin guardar cambios en el resumen ni en las demás tarjetas.
+Desde 0.8.0 el editor visual permite mostrar u ocultar cada bloque y cambiar su orden con las flechas, además de elegir actividad, duración de salida (30, 60 o 90 minutos) y ventana para tender (2, 3 o 4 horas). Se guardan por tarjeta; los detalles usan esas preferencias. Sin configuración se muestran los cuatro bloques en el orden original. Puedes desmarcarlos todos y el resumen te pedirá seleccionar alguno.
+
+```yaml
+summary_blocks:
+  - alerts
+  - outing
+  - drying
+outing_activity: walk
+outing_minutes: 60
+drying_hours: 3
+```
+
+`summary_blocks` acepta `outing`, `drying`, `vehicle_wash` y `alerts`, en el orden deseado. Los valores desconocidos y repetidos se ignoran.
+
+Las opciones `drying_hours`, `outing_activity` y `outing_minutes` también se transmiten al detalle. Los controles dentro del detalle permiten explorar otras opciones, sin guardar cambios en el resumen ni en las demás tarjetas.
 
 ## Datos ausentes y avisos
 

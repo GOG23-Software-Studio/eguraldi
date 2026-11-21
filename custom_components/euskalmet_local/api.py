@@ -1034,7 +1034,7 @@ class EuskalmetAPI:
 
         key = str(key).strip().lstrip("/")
 
-        if key.startswith("euskalmet_local/"):
+        if key.startswith("euskalmet/"):
             api_root = API_BASE.rstrip("/")
 
             if api_root.endswith("/euskalmet"):
