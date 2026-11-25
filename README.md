@@ -26,6 +26,10 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 </details>
 
+## Un mismo estilo en todas las tarjetas
+
+Cabeceras con localidad, tipografía, espaciados y colores coherentes; mínimas en azul y máximas en naranja. [Ver conjunto actualizado](docs/visual-consistency.jpg) · [Criterios de estilo](docs/VISUAL_STYLE.md).
+
 ## Cuatro diseños de avisos, a tu elección
 
 Elige por tarjeta desde el editor visual: **Lista**, **Banda en movimiento**, **Línea temporal** o **Titulares en una línea**. La banda y los titulares tienen pausa, detalle al pulsar y velocidad ajustable; respetan la reducción de movimiento.

@@ -175,7 +175,7 @@ class EuskalmetHistoryCard extends HTMLElement {
 
   formatValue(value) {
     return new Intl.NumberFormat(this.text().locale, {
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 1,
     }).format(value);
   }
 
@@ -475,7 +475,12 @@ class EuskalmetHistoryCard extends HTMLElement {
       @media(max-width:600px){ha-card{padding:14px}.controls{align-items:stretch}.controls .measure-picker{width:100%;max-width:none;flex-basis:100%}
         .date-tools{margin-left:0;width:100%}.date-tools .date-picker{flex:1}.chart-wrap{margin:0 -8px}.axis,.unit{font-size:20px}ha-card.embedded{padding:0 12px 16px}
         .legend{gap:2px}.legend-item{padding:5px 6px}}
-    </style>
+    
+:host{font-family:var(--primary-font-family,system-ui);font-size:13px;line-height:1.5}
+:host h2,:host .forecast-top h2{font-family:inherit;font-size:20px;font-weight:600;line-height:1.3;letter-spacing:0;margin:0 0 16px}
+:host h3{font-family:inherit;font-size:14px;font-weight:600;line-height:1.4}
+:host button,:host input,:host select{font-family:inherit}
+ha-card{border-radius:22px}ha-card.embedded{padding:0 20px 20px}:host .minima{color:#68cef3}:host .maxima{color:#ffbf83}@media(max-width:550px){:host h2{font-size:18px}:host .card.headline-card h2{font-size:12px}}:host .history-metrics>div:first-child strong{color:#68cef3}:host .history-metrics>div:last-child strong{color:#ffbf83}</style>
     <ha-card class="${this.config.embedded ? "embedded" : ""}">
       <header><div>${this.config.show_title === false ? "" : `<h2>${historyEscape(this.config.title || text.title)}</h2>`}${this.config.show_title === false ? "" : `<small>${month}</small>`}</div></header>
       <div class="controls">

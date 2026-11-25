@@ -37,14 +37,14 @@ test('station updates replace metadata in the mounted card and preserve locality
   h.callWS=async()=>[current];
   card.setConfig({mode:'overview',entry_id:'test'});card.hass=h;
   dom.window.document.body.append(card);await flush();
-  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella');
+  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella · Tiempo actual');
   assert.match(card.shadowRoot.querySelector('.measurement-source').textContent,/Arboleda.*1,9 km/);
   const oldEvents=count.events;
   current={...current,station:'Otra estación',station_id:'C999',distance_km:7.2};
   count.events({data:{entry_id:'another-entry'}});await flush();
   assert.match(card.shadowRoot.querySelector('.measurement-source').textContent,/Arboleda/);
   count.events({data:{entry_id:'test'}});await flush();
-  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella');
+  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella · Tiempo actual');
   assert.match(card.shadowRoot.querySelector('.measurement-source').textContent,/Otra estación.*7,2 km/);
   assert.equal(count.subscriptions,4);assert.equal(count.unsubscribed,2);
   oldEvents({data:{entry_id:'test'}});await flush();assert.equal(count.subscriptions,4);
@@ -65,7 +65,7 @@ test('summary cards refresh their source and values while keeping locality',asyn
   current={...current,station:'Galindo',station_id:'C038',distance_km:4.7};
   h.states['sensor.min']={state:'12',attributes:{unit_of_measurement:'°C'}};
   count.events({data:{entry_id:'test'}});await flush();
-  assert.equal(card.shadowRoot.querySelector('#extra-title').textContent,'Ortuella · resumen de hoy');
+  assert.equal(card.shadowRoot.querySelector('#extra-title').textContent,'Ortuella · Resumen de hoy');
   assert.match(card.shadowRoot.querySelector('#extra-source').textContent,/Galindo.*4,7 km/);
   assert.match(card.shadowRoot.querySelector('.rows').textContent,/12 °C/);
   assert.equal(count.subscriptions,0);card.remove();assert.equal(count.eventSubscriptions,count.eventUnsubscribed);dom.window.close();
@@ -155,7 +155,7 @@ test('HA source labels distance from HA while manual localities remain independe
   const dom=setup(),h=hass(),card=dom.window.document.createElement('euskalmet-local-card');
   h.callWS=async()=>[{...location,location_source:'home_assistant'}];
   card.setConfig({mode:'overview',entry_id:'test'});card.hass=h;dom.window.document.body.append(card);await flush();
-  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella');
+  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella · Tiempo actual');
   assert.match(card.shadowRoot.querySelector('.measurement-source').textContent,/de la ubicación de HA/);
   assert.doesNotMatch(card.shadowRoot.textContent,/Municipio detectado|La estación mide|Humedad fuera de rango/);
   card.remove();dom.window.close();
@@ -252,7 +252,7 @@ test('explicit locality takes priority over legacy weather entity',async()=>{
   h.callWS=async()=>[location,{...location,entry_id:'other',locality:'Bilbao',entities:{...location.entities,weather:'weather.other'}}];
   h.states['weather.other']=h.states['weather.test'];
   card.setConfig({mode:'overview',entry_id:'other',entity:'weather.test'});card.hass=h;dom.window.document.body.append(card);await flush();
-  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Bilbao');dom.window.close();
+  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Bilbao · Tiempo actual');dom.window.close();
 });
 
 
@@ -261,16 +261,16 @@ test('Basque cards follow the profile language without resubscribing or translat
   const current=hass(count);current.locale={language:'es'};
   const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({mode:'overview',entry_id:'test'});card.hass=current;dom.window.document.body.append(card);await flush();
   const before=count.subscriptions;card.hass={...current,locale:{language:'eu'}};await flush();
-  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella');
+  assert.equal(card.shadowRoot.querySelector('.place').textContent,'Ortuella · Uneko eguraldia');
   assert.match(card.shadowRoot.querySelector('.metrics').textContent,/Haizea.*Gaurko euria.*Hezetasuna/);
   assert.match(card.shadowRoot.querySelector('.measurement-source').textContent,/Neurketak: Arboleda/);
   assert.equal(count.subscriptions,before);
   for(const [mode,label] of [['hourly','hurrengo 24 orduak'],['daily','hurrengo egunak'],['summaries','gaurko laburpena'],['environment','kostaldea eta ingurumena']]){
-    card.setConfig({mode,entry_id:'test'});await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,new RegExp(label));
+    card.setConfig({mode,entry_id:'test'});await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,new RegExp(label,'i'));
     if(mode==='hourly')assert.equal(card.shadowRoot.querySelectorAll('.hour').length,24);
     if(mode==='daily')assert.equal(card.shadowRoot.querySelector('.day strong').textContent,'Gaur');
   }
-  card.hass={...current,locale:{language:'es'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/costa y ambiente/);
+  card.hass={...current,locale:{language:'es'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/Costa y ambiente/);
   dom.window.close();
 });
 test('Basque visual editor and historical controls update when profile language changes',async()=>{
@@ -463,7 +463,7 @@ test('drying view subscribes to optional humidity, updates entries, and releases
   card.shadowRoot.querySelector('[data-drying-duration="4"]').click();assert.equal(card._dryingDuration,4);
   const oldHumidity=callbacks['weather.rh:hourly'];
   let next={...location,locality:'Bilbao',station_id:'C999',entities:{...location.entities,weather:'weather.new'}};h.states['weather.new']=h.states['weather.test'];h.callWS=async()=>[next];callbacks.event({data:{entry_id:'test'}});await flush();
-  oldHumidity({forecast:[]});assert.equal(card._humidityMismatch,true);assert.equal(card._humidityForecast.length,0);assert.match(card.shadowRoot.querySelector('.forecast-kicker').textContent,/Bilbao/);
+  oldHumidity({forecast:[]});assert.equal(card._humidityMismatch,true);assert.equal(card._humidityForecast.length,0);assert.match(card.shadowRoot.querySelector('.forecast-top h2').textContent,/Bilbao/);
   h.states['weather.rh']={...h.states['weather.rh'],state:'unavailable'};card.hass={...h,states:{...h.states}};card._render();assert.match(card.shadowRoot.textContent,/orientativa|esperar/);
   card.remove();assert.equal(counter.subscribed,counter.unsubscribed);dom.window.close();
 });
@@ -481,7 +481,7 @@ test('outing controls update the view, translate and follow locality changes',as
  assert.ok(card.shadowRoot.querySelector('.outing'));assert.match(card.shadowRoot.textContent,/Previsión horaria/);
  card.shadowRoot.querySelector('[data-outing-activity="family"]').click();assert.equal(card._outingActivity,'family');
  card.shadowRoot.querySelector('[data-outing-minutes="90"]').click();assert.equal(card._outingMinutes,90);
- loc={...loc,locality:'Bilbao',station_id:'C999'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-kicker').textContent,/Bilbao/);
+ loc={...loc,locality:'Bilbao',station_id:'C999'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-top h2').textContent,/Bilbao/);
  card.hass={...h,locale:{language:'eu'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/Kalera irteteko/);
  card.remove();assert.equal(count.subscriptions,count.unsubscribed);dom.window.close();
 });
@@ -550,7 +550,7 @@ test('generic vehicle washing translates, follows locality and ignores legacy pr
  assert.equal(card.shadowRoot.querySelector('[data-wash-vehicle]'),null);
  card.shadowRoot.querySelectorAll('[data-wash-day]')[3].click();assert.equal(card.shadowRoot.querySelectorAll('.wash-day.selected').length,1);
  card.hass={...h,locale:{language:'eu'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/ibilgailua/);
- loc={...loc,locality:'Bilbao',locality_id:'bilbao'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-kicker').textContent,/Bilbao/);
+ loc={...loc,locality:'Bilbao',locality_id:'bilbao'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-top h2').textContent,/Bilbao/);
  const editor=dom.window.document.createElement('euskalmet-local-editor');editor.setConfig({mode:'vehicle_wash'});editor.hass=h;dom.window.document.body.append(editor);await flush();
  assert.equal(editor.querySelector('#eg-wash-vehicle'),null);card.remove();dom.window.close();
 });
@@ -608,7 +608,7 @@ test('day summary opens matching detail cards, keeps locality and translates wit
  card.shadowRoot.querySelector('[data-summary-detail=outing]').click();await flush();let child=card.shadowRoot.querySelector('#summary-detail > euskalmet-local-card');assert.equal(child._config.mode,'outing');assert.equal(child._config.entry_id,'test');
  card.shadowRoot.querySelector('[data-summary-close]').click();assert.equal(card.shadowRoot.querySelector('#summary-detail'),null);
  card.hass={...h,locale:{language:'eu'}};await flush();assert.match(card.shadowRoot.querySelector('h2').textContent,/Zure eguna/);
- loc={...loc,locality:'Bilbao',locality_id:'new'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-kicker').textContent,/Bilbao/);
+ loc={...loc,locality:'Bilbao',locality_id:'new'};count.events({data:{entry_id:'test'}});await flush();assert.match(card.shadowRoot.querySelector('.forecast-top h2').textContent,/Bilbao/);
  card.remove();dom.window.close();
 });
 test('day summary does not claim no alerts or good weather when sources are stale',async()=>{

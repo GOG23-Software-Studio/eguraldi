@@ -17,6 +17,10 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 
 [Ikusi mugikorreko ikuspegia](docs/preview-mobile.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
 
+## Estilo bera txartel guztietan
+
+Herria agertzen duten goiburuak, tipografia, tarteak eta kolore koherenteak; minimoak urdinez eta maximoak laranjaz. [Ikusi multzo eguneratua](docs/visual-consistency-eu.jpg) · [Estilo-irizpideak](docs/VISUAL_STYLE.md) (gaztelaniaz).
+
 ## Lau abisu-diseinu, zure aukeran
 
 Aukeratu txartel bakoitzean ikusizko editoretik: **Zerrenda**, **Banda mugikorra**, **Denbora-lerroa** edo **Titularrak lerro bakarrean**. Banda eta titularrak pausatu daitezke, xehetasunak ireki eta abiadura doitu; mugimendua murrizteko lehentasuna errespetatzen dute.

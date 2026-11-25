@@ -389,6 +389,8 @@ class EuskalmetRadarMapCard extends HTMLElement {
         .timeline{grid-column:1 / -1;grid-row:2;width:100%;min-width:0;margin:2px 0 3px}
       }
       @media(max-width:560px){.options{padding:4px 14px 16px}.legend-label{font-size:10px}.text-button{font-size:11px}.frame-time{font-size:11px}}
+
+      :host{font-size:13px;line-height:1.5}.title{font-size:20px;font-weight:600;line-height:1.3}.play{display:inline-flex;align-items:center;justify-content:center}.play ha-icon{--mdc-icon-size:20px;width:20px;height:20px}
     `;
 
     const t = this._text();
@@ -902,7 +904,10 @@ class EuskalmetRadarMapCard extends HTMLElement {
     if (!button) {
       return;
     }
-    button.textContent = this._playing ? "Ⅱ" : "▶";
+    const icon = document.createElement("ha-icon");
+    icon.setAttribute("icon", this._playing ? "mdi:pause" : "mdi:play");
+    icon.setAttribute("aria-hidden", "true");
+    button.replaceChildren(icon);
     button.setAttribute("aria-label", this._playing ? this._text().pause : this._text().play);
     if (this._playing) {
       this.shadowRoot.querySelector(".loading").textContent = this._text().playing;
