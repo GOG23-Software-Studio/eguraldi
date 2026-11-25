@@ -1,17 +1,17 @@
-import {daySummaryPlan,summaryAlerts} from './eguraldi-day-summary-model.js?v=0.11.1';
-import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.11.1';
-import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.11.1';
+import {daySummaryPlan,summaryAlerts} from './eguraldi-day-summary-model.js?v=0.11.2';
+import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.11.2';
+import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.11.2';
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.11.1';
-import './eguraldi-comparison-card.js?v=0.11.1';
-import './eguraldi-microclimate-card.js?v=0.11.1';
-import './euskalmet-history-card.js?v=0.11.1-controls';
-import './euskalmet-radar-map-card.js?v=0.11.1';
+import './euskalmet-alert-card.js?v=0.11.2';
+import './eguraldi-comparison-card.js?v=0.11.2';
+import './eguraldi-microclimate-card.js?v=0.11.2';
+import './euskalmet-history-card.js?v=0.11.2-controls';
+import './euskalmet-radar-map-card.js?v=0.11.2';
 
-import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.11.1';
-import {dryingPlan} from './eguraldi-drying-model.js?v=0.11.1';
+import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.11.2';
+import {dryingPlan} from './eguraldi-drying-model.js?v=0.11.2';
 
-import {outingPlan} from './eguraldi-outing-model.js?v=0.11.1';
+import {outingPlan} from './eguraldi-outing-model.js?v=0.11.2';
 
 const EU_TEXT = {
   "Volver al resumen":"Itzuli laburpenera",

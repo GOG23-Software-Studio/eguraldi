@@ -6,13 +6,13 @@
 
 Un proyecto de [GOG23 Software Studio](https://github.com/GOG23-Software-Studio) · Mantenido por [@oyogor1985](https://github.com/oyogor1985)
 
-El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, previsión por horas y días, avisos, radar y tarjetas incluidas.
+El tiempo de Euskalmet y la planificación del día en Home Assistant: Microclima con validación local, recomendaciones para salir, tender y lavar el vehículo, avisos de ropa tendida y tarjetas incluidas.
 
 [![Comprobaciones](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 
 [![Versión](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**Versión 0.4.2.** Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
+Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
 ![Tarjetas actuales de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
 
@@ -25,6 +25,19 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 ![Editor visual de Eguraldi, con datos simulados](docs/preview-editor.jpg)
 
 </details>
+
+## Qué aporta Eguraldi
+
+Eguraldi deriva de [Home Assistant Euskalmet, de Mitxol](https://github.com/mitxol/home-assistant-euskalmet), bajo licencia MIT. Conserva código de su base meteorológica y sus atribuciones. Comparte la API y las credenciales de Euskalmet; observaciones, previsiones, radar, históricos, mar y polen no se presentan como funciones exclusivas.
+
+Su desarrollo propio se centra en conectar esa información con cada hogar:
+
+- **Microclima:** compara la estación con un sensor exterior propio, aprende diferencias locales y reserva días separados para comprobar la mejora. Solo publica una estimación si supera los criterios; puede concluir «Sin mejora demostrada».
+- **Planificación cotidiana:** franjas para salir y tender, y comparación de los próximos siete días para lavar el vehículo. Son orientaciones con límites visibles, no garantías meteorológicas.
+- **Ropa tendida:** seguimiento y avisos dentro de HA, por localidad, con destino y umbrales configurables. Desactivados por defecto; requieren iniciar una sesión de ropa fuera.
+- **Localidad y panel:** ubicación de HA u otros municipios, estación cercana modificable, tarjetas propias y editores visuales. Incluye cuatro presentaciones de avisos y una vista que reúne las recomendaciones.
+
+[Comparación documentada con la original](docs/DIFFERENCES.md) · [Estado y preparación de la candidatura a HACS](docs/HACS_READINESS.md)
 
 ## Un mismo estilo en todas las tarjetas
 

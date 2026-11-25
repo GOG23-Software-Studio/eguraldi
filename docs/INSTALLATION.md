@@ -7,7 +7,7 @@
 3. Descarga la última versión y reinicia HA.
 4. En **Ajustes → Dispositivos y servicios → Añadir integración**, busca **Eguraldi**.
 
-No hace falta activar versiones preliminares para instalar 0.1.0.
+Eguraldi se instala actualmente como repositorio personalizado. No hace falta activar versiones preliminares para instalar la última versión estable. La preparación de una nueva candidatura no implica aprobación del catálogo general.
 
 ## Credenciales y ubicación
 

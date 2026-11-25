@@ -9,7 +9,7 @@ body:
     id: eguraldi_version
     attributes:
       label: Versión de Eguraldi
-      placeholder: 0.1.0
+      placeholder: Versión indicada en HACS
     validations:
       required: true
   - type: input

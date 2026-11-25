@@ -6,16 +6,29 @@
 
 [GOG23 Software Studio](https://github.com/GOG23-Software-Studio) proiektua · Mantentzailea: [@oyogor1985](https://github.com/oyogor1985)
 
-Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko eta eguneko iragarpenak, abisuak, radarra eta txartel integratuak.
+Euskalmeteko eguraldia eta eguneroko plangintza Home Assistanten: tokian egiaztatutako Mikroklima, kalera ateratzeko, arropa esekitzeko eta ibilgailua garbitzeko gomendioak, arropa esekiaren abisuak eta txartel integratuak.
 
 [![Egiaztapenak](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml/badge.svg)](https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml)
 [![Bertsioa](https://img.shields.io/github/v/release/GOG23-Software-Studio/eguraldi)](https://github.com/GOG23-Software-Studio/eguraldi/releases)
 
-**0.4.2 bertsioa.** Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
+Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
 [Ikusi mugikorreko ikuspegia](docs/preview-mobile.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
+
+## Eguraldiren ekarpena
+
+Eguraldi [Mitxolen Home Assistant Euskalmet](https://github.com/mitxol/home-assistant-euskalmet) proiektutik dator, MIT lizentziarekin. Oinarri meteorologikoaren kodea eta egiletza-oharrak mantentzen ditu. Euskalmeten APIa eta kredentzialak partekatzen ditu; neurketak, iragarpenak, radarra, historikoa, itsasoa eta polena ez dira Eguraldiren funtzio esklusiboak.
+
+Garapen propioa etxe bakoitzaren beharretan oinarritzen da:
+
+- **Mikroklima:** estazioa etxeko kanpoko sentsorearekin alderatzen du. Ikasteko datuak eta hobekuntza egiaztatzeko egunak bereizten ditu; baldintzak bete arte ez du estimaziorik argitaratzen. Emaitza «Hobekuntzarik ez da frogatu» izan daiteke.
+- **Eguneroko plangintza:** kalera ateratzeko eta arropa esekitzeko tarteak, eta ibilgailua garbitzeko hurrengo zazpi egunen alderaketa. Gomendio orientagarriak dira, ez berme meteorologikoak.
+- **Arropa esekia:** HA barruko jarraipena eta abisuak, herri bakoitzerako hartzailea eta atalaseak aukeratuta. Lehenespenez desaktibatuta; arropa kanpoan dagoela adierazi behar da.
+- **Herria eta panela:** HAren kokapena edo beste udalerri batzuk, alda daitekeen hurbileko estazioa, txartel propioak eta ikusizko editoreak. Abisuetarako lau diseinu eta gomendioak biltzen dituen ikuspegia ditu.
+
+[Jatorrizkoarekiko alderaketa](docs/DIFFERENCES.md) · [HACSerako hautagaitzaren egoera](docs/HACS_READINESS.md) (gaztelaniaz eta ingelesez).
 
 ## Estilo bera txartel guztietan
 

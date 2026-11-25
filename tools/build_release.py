@@ -30,42 +30,11 @@ def build(output_dir: Path | None = None):
             archive.write(path, path.relative_to(ROOT).as_posix())
         for name in ("LICENSE", "THIRD_PARTY_NOTICES.md", "README.md", "README.eu.md"):
             archive.write(ROOT / name, name)
-        for name in (
-            "INSTALLATION.md",
-            "MICROCLIMATE.md",
-            "DRYING.md",
-            "OUTING.md",
-            "outing.jpg",
-            "outing-eu.jpg",
-            "outing-mobile.jpg",
-            "outing-mobile-eu.jpg",
-            "drying.jpg",
-            "drying-eu.jpg",
-            "drying-mobile.jpg",
-            "drying-mobile-eu.jpg",
-            "studio-banner.svg",
-            "microclimate.jpg",
-            "microclimate-eu.jpg",
-            "microclimate-mobile.jpg",
-            "microclimate-mobile-eu.jpg",
-            "microclimate-learning.jpg",
-            "microclimate-learning-eu.jpg",
-            "preview.jpg",
-            "preview-eu.jpg",
-            "forecast-cards.jpg",
-            "forecast-cards-eu.jpg",
-            "history-comparison.jpg",
-            "history-comparison-eu.jpg",
-            "radar.jpg",
-            "radar-eu.jpg",
-            "summary.jpg",
-            "summary-eu.jpg",
-            "preview-mobile.jpg",
-            "preview-editor.jpg",
-        ):
-            path = ROOT / "docs" / name
-            if path.is_file():
-                archive.write(path, f"docs/{name}")
+        for path in sorted((ROOT / "docs").rglob("*")):
+            if path.is_file() and path.suffix.lower() in {
+                ".md", ".jpg", ".png", ".svg"
+            }:
+                archive.write(path, path.relative_to(ROOT).as_posix())
     digest = hashlib.sha256(output.read_bytes()).hexdigest()
     output.with_suffix(".zip.sha256").write_text(f"{digest}  {output.name}\n")
     print(f"{output.name}: {digest}")

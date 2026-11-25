@@ -61,4 +61,4 @@ view: timeline
 
 También dispone de editor visual para entidad, título, diseño y velocidad. No cambia las preferencias de otras tarjetas ni activa notificaciones.
 
-Desde 0.10.1 los detalles abiertos desde la banda, los titulares y la línea temporal se cierran a los **30 segundos**. En las vistas animadas se reanuda la reproducción automáticamente, salvo si el sistema reduce el movimiento o la tarjeta no está visible. Abrir otro aviso inicia sus propios 30 segundos; una actualización de datos no prolonga el plazo. Los controles utilizan iconos reales de pausa y reproducción.
+Desde 0.11.0 los detalles abiertos desde la banda, los titulares y la línea temporal se cierran a los **30 segundos**. En las vistas animadas se reanuda la reproducción automáticamente, salvo si el sistema reduce el movimiento o la tarjeta no está visible. Abrir otro aviso inicia sus propios 30 segundos; una actualización de datos no prolonga el plazo. Los controles utilizan iconos reales de pausa y reproducción.

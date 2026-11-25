@@ -21,12 +21,16 @@ jobs:
       - run: npm test
   home-assistant:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        homeassistant: ['2026.8.0', '2026.11.1']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
-      - run: pip install homeassistant==2026.11.1 pytest
+      - run: pip install homeassistant==${{ matrix.homeassistant }} pytest
       - run: python -c "import custom_components.euskalmet_local; import custom_components.euskalmet_local.config_flow; import custom_components.euskalmet_local.sensor; import custom_components.euskalmet_local.weather"
       - run: python -m pytest tests/test_ha_smoke.py
   validate:
