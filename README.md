@@ -140,7 +140,7 @@ https://github.com/GOG23-Software-Studio/eguraldi
 
 Necesitas **Home Assistant 2026.8 o posterior**, Internet y una cuenta gratuita de Open Data Euskadi. Si no llega el correo de activación, revisa spam o prueba **Iniciar sesión con Google**. El asistente incluye el enlace para descargar tus claves.
 
-Eguraldi se instala como **repositorio personalizado de HACS**. La [solicitud de inclusión en el catálogo general](https://github.com/hacs/default/pull/14144) se cerró el 17 de noviembre de 2026, sin aprobación, por su similitud con la integración Euskalmet original, que sigue activa. Esto no afecta a la instalación ni a las actualizaciones desde este repositorio personalizado.
+Eguraldi se instala como **repositorio personalizado de HACS**. La [solicitud de inclusión en el catálogo general](https://github.com/hacs/default/pull/14144) se cerró el 17 de noviembre de 2026, sin aprobación, por su similitud con la integración Euskalmet original, que sigue activa. Esto no afecta a la instalación ni a las actualizaciones desde este repositorio personalizado. La [nueva solicitud #14962](https://github.com/hacs/default/pull/14962) presenta la evolución funcional y la prueba de instalación desde Marketplace; está pendiente de revisión y todavía no implica inclusión en el catálogo general.
 
 [Guía de instalación, actualización y solución de problemas](docs/INSTALLATION.md)
 

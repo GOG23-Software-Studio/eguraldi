@@ -12,7 +12,7 @@ Revisión del 25 de noviembre de 2026. Estos resultados se refieren al commit y 
 
 ## Cambio del catálogo preparado
 
-[hacs-default.patch](hacs-default.patch) añade solo `GOG23-Software-Studio/eguraldi` a la lista `integration`. Base consultada: [`hacs/default@2275b7b47fb27d3eb474c7b2c055798bd45cffb9`](https://github.com/hacs/default/commit/2275b7b47fb27d3eb474c7b2c055798bd45cffb9). No se ha aplicado al repositorio de HACS ni se ha abierto una nueva PR. Al enviarlo hay que partir del `master` vigente y volver a comprobar orden, base y ausencia de otra candidatura.
+[hacs-default.patch](hacs-default.patch) añade solo `GOG23-Software-Studio/eguraldi` a la lista `integration`. Base consultada: [`hacs/default@2275b7b47fb27d3eb474c7b2c055798bd45cffb9`](https://github.com/hacs/default/commit/2275b7b47fb27d3eb474c7b2c055798bd45cffb9). La adición se propone en [hacs/default#14962](https://github.com/hacs/default/pull/14962), desde una rama nueva del fork personal, con edición por mantenedores habilitada. La solicitud está abierta y no se ha fusionado. Al enviarlo hay que partir del `master` vigente y volver a comprobar orden, base y ausencia de otra candidatura.
 
 ## Evidencia todavía no obtenida
 

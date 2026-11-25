@@ -122,7 +122,7 @@ Estekak ez badu funtzionatzen, gehitu `https://github.com/GOG23-Software-Studio/
 
 Home Assistant **2026.8 edo berriagoa**, Internet eta Open Data Euskadiko doako kontua behar dira. Aktibazio-mezua ez bada iristen, begiratu spam karpeta edo saiatu **Google bidez sartzen**. Laguntzaileak gakoak deskargatzeko esteka du.
 
-Eguraldi **HACSeko biltegi pertsonalizatu** gisa instalatzen da. Katalogo orokorrean sartzeko [eskaera](https://github.com/hacs/default/pull/14144) 2026ko azaroaren 17an itxi zen, onartu gabe, aktibo jarraitzen duen jatorrizko Euskalmet integrazioaren antzekoa delako. Horrek ez die eragiten biltegi pertsonalizatu honetako instalazioari eta eguneraketei.
+Eguraldi **HACSeko biltegi pertsonalizatu** gisa instalatzen da. Katalogo orokorrean sartzeko [eskaera](https://github.com/hacs/default/pull/14144) 2026ko azaroaren 17an itxi zen, onartu gabe, aktibo jarraitzen duen jatorrizko Euskalmet integrazioaren antzekoa delako. Horrek ez die eragiten biltegi pertsonalizatu honetako instalazioari eta eguneraketei. [#14962 eskaera berriak](https://github.com/hacs/default/pull/14962) funtzio berriak eta Marketplace bidezko instalazio-proba aurkezten ditu. Berrikuspenaren zain dago; oraindik ez dago katalogo orokorrean onartuta.
 
 [Instalazioari, eguneraketei eta arazoei buruzko gida (gaztelaniaz)](docs/INSTALLATION.md)
 

@@ -1,6 +1,6 @@
 # Add Eguraldi integration — household microclimate and planning
 
-Submission text prepared for a fresh PR to `hacs/default`. This file is not a submitted request. Use the current upstream PR template when sending and verify the release/CI links below at that time.
+Supporting submission material for [hacs/default#14962](https://github.com/hacs/default/pull/14962), opened on 25 November 2026 using the current upstream template. The PR contains the final checklist and exact release/CI links. It remains pending review; this document does not imply approval.
 
 ## Checklist
 

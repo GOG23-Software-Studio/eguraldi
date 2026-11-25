@@ -1,6 +1,6 @@
 # Preparación de la candidatura a HACS
 
-Revisión: 25 de noviembre de 2026. Estado: candidata 0.11.3 publicada y comprobaciones correctas; Eguraldi sigue disponible como repositorio personalizado. No se ha abierto una nueva solicitud con esta documentación. [Resultados y enlaces exactos](HACS_EVIDENCE.md).
+Revisión: 25 de noviembre de 2026. Estado: candidata 0.11.3 publicada y comprobaciones correctas; Eguraldi sigue disponible como repositorio personalizado. La [nueva solicitud #14962](https://github.com/hacs/default/pull/14962) está abierta, pendiente de revisión; no implica aprobación. [Resultados y enlaces exactos](HACS_EVIDENCE.md).
 
 ## Requisitos y evidencia
 
