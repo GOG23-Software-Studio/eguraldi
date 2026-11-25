@@ -13,6 +13,7 @@ import aiohttp
 import jwt
 from homeassistant.util import dt as dt_util
 
+from .alert_periods import alert_period
 from .astro import parse_astro_calendar
 from .const import (
     API_BASE,
@@ -1170,6 +1171,9 @@ class EuskalmetAPI:
                 alerts.append(
                     {
                         "severity": severity,
+                        **alert_period(
+                            translated_descriptions.get("es", ""), alert.get("for")
+                        ),
                         "cause": cause,
                         "description": description,
                         "descriptions_by_language": translated_descriptions,

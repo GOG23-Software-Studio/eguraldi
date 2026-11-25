@@ -26,6 +26,12 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 </details>
 
+## Avisos claros, por fenómeno y periodo
+
+![Avisos por nivel y periodo, con datos simulados](docs/alerts.jpg)
+
+Distingue **En vigor**, **Próximos** y **Finalizados**, con el color de cada fenómeno, fechas y horas locales. Agrupa periodos del mismo fenómeno y permite desplegar el comunicado oficial íntegro. Los datos sin horario verificable se muestran aparte. [Vista móvil](docs/alerts-mobile.jpg) · [Cómo se interpretan](docs/ALERTS.md).
+
 ## Tu día con Eguraldi
 
 Un resumen práctico para tu localidad: mejor franja para salir, ventana para tender, día para lavar el vehículo y avisos oficiales. Cada bloque abre su detalle sin salir del panel. Distingue entre condiciones poco favorables, orientación parcial y datos no disponibles; los horarios siempre incluyen su fecha.

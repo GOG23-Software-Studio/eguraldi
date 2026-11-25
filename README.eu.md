@@ -17,6 +17,12 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 
 [Ikusi mugikorreko ikuspegia](docs/preview-mobile.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
 
+## Abisu argiak, fenomenoaren eta aldiaren arabera
+
+![Abisuak mailaren eta aldiaren arabera, simulatutako datuekin](docs/alerts-eu.jpg)
+
+**Indarrean**, **Hurrengoak** eta **Amaitutakoak** bereizten ditu, fenomeno bakoitzaren kolorearekin, datekin eta tokiko orduekin. Komunikatu ofizial osoa zabal daiteke. Egiaztatutako ordutegirik gabeko datuak bereizita agertzen dira. [Mugikorreko ikuspegia](docs/alerts-mobile-eu.jpg) · [Interpretazioa](docs/ALERTS.md) (gaztelaniaz).
+
 ## Zure eguna Eguraldirekin
 
 Zure herrirako laburpen praktikoa: kalera irteteko tarterik onena, arropa zabaltzeko tartea, ibilgailua garbitzeko eguna eta abisu ofizialak. Bloke bakoitzak xehetasunak irekitzen ditu paneletik irten gabe. Baldintza okerrak, orientazio partziala eta datu erabilgaitzak bereizten ditu; ordutegiek beti erakusten dute data.

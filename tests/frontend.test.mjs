@@ -646,3 +646,20 @@ test('summary editor persists visible order and planning preferences without cha
  editor.hass={...hass(),language:'eu'};assert.match(editor.textContent,/Laburpenaren blokeak/);
  card.remove();editor.remove();dom.window.close();
 });
+
+
+test('alerts separate live future ended and unknown periods, translate causes and preserve official text safely',async()=>{
+ const dom=setup(),card=dom.window.document.createElement('eguraldi-alert-card'),h=hass();
+ dom.window.Date.now=()=>Date.parse('2026-11-25T16:00:00Z');
+ const rain={cause:'PERSISTENT_PRECIPITATIONS',severity:'ORANGE',level:'orange',zone:'BIZKAIA_INTERIOR',valid_for:'2026-11-24T23:00:00Z',starts_at:'2026-11-25T09:00:00+01:00',ends_at:'2026-11-26T00:00:00+01:00',description:'- Alerta Naranja desde las 09 hasta las 24 hora local. Más de 80 l/m². <img src=x onerror=alert(1)>',descriptions_by_language:{eu:'Alerta Laranja. 80 l/m² baino gehiago.'}};
+ const wind={...rain,cause:'WIND_ON_EXPOSED_ZONES',level:'yellow',starts_at:'2026-11-25T12:00:00+01:00',description:'Aviso Amarillo desde las 12 hasta las 24 hora local. Rachas de 100 km/h.'};
+ const upcoming={...rain,valid_for:'2026-11-25T23:00:00Z',starts_at:'2026-11-26T00:00:00+01:00',ends_at:'2026-11-26T09:00:00+01:00'};
+ h.states['sensor.alert']={state:'orange',attributes:{alerts:[rain,rain,wind,upcoming,{...wind,ends_at:'2026-11-25T15:00:00+01:00'},{...rain,level:null,starts_at:null,ends_at:null}]}};
+ card.setConfig({entity:'sensor.alert',show_title:false,embedded:true});card.hass=h;dom.window.document.body.append(card);await flush();
+ const root=card.shadowRoot;assert.deepEqual(Array.from(root.querySelectorAll('.section-title'),n=>n.textContent),['En vigor · 2','Próximos · 1','Horario sin confirmar · 1']);
+ assert.equal(root.querySelectorAll('article').length,5);assert.equal(root.querySelectorAll('.risk.yellow').length,2);assert.equal(root.querySelectorAll('.risk.orange').length,2);assert.match(root.textContent,/Lluvia persistente/);assert.doesNotMatch(root.textContent,/PERSISTENT_PRECIPITATIONS/);assert.match(root.textContent,/Mañana.*26 nov/);assert.equal(root.querySelectorAll('img').length,0);assert.equal(root.querySelector('.official').textContent,rain.description);
+ const details=root.querySelector('.period details');details.open=true;details.dispatchEvent(new dom.window.Event('toggle'));card._render();assert.equal(card.shadowRoot.querySelector('.period details').open,true);
+ card.hass={...h,locale:{language:'eu'}};assert.match(card.shadowRoot.textContent,/Euri iraunkorra/);assert.match(card.shadowRoot.textContent,/Indarrean/);assert.match(card.shadowRoot.textContent,/80 l\/m² baino gehiago/);
+ card.hass={...h,states:{...h.states,'sensor.alert':{...h.states['sensor.alert'],state:'unavailable'}}};assert.match(card.shadowRoot.textContent,/No se pueden comprobar/);assert.equal(card.shadowRoot.querySelectorAll('article').length,0);
+ card.remove();dom.window.close();
+});
