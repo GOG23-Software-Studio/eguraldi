@@ -711,3 +711,17 @@ test('alert details close after 30 seconds across renders and resume with real i
  card.shadowRoot.querySelector('.alert-message').click();assert.equal(timers.size,1);card.remove();assert.equal(timers.size,0);
  w.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});w.document.body.append(card);card.shadowRoot.querySelector('.alert-message').click();time+=30000;const reducedTimer=[...timers.values()][0];timers.clear();reducedTimer.fn();assert.equal(card.shadowRoot.querySelector('.alert-detail').hidden,true);assert.equal(card.shadowRoot.querySelector('[data-motion-toggle]').disabled,true);assert.equal(card._raf,undefined);card.remove();dom.window.close();
 });
+
+
+test('pointer focus keeps a moving alert under the pointer until its first click opens details',()=>{
+ const dom=setup(),w=dom.window,card=w.document.createElement('eguraldi-alert-card');
+ card.setConfig({entity:'sensor.alert',view:'headlines'});card.hass=alertViewsHass(dom);w.document.body.append(card);
+ const root=card.shadowRoot,button=root.querySelectorAll('.alert-message')[1],band=root.querySelector('.alert-band');
+ card._tickerOffset=45;card._paintTicker();const before=button.style.transform;
+ button.dispatchEvent(new w.MouseEvent('pointerdown',{bubbles:true,clientX:120}));button.focus();
+ assert.equal(card._tickerOffset,45);assert.equal(button.style.transform,before);
+ button.dispatchEvent(new w.MouseEvent('pointerup',{bubbles:true,clientX:120}));button.dispatchEvent(new w.MouseEvent('click',{bubbles:true,detail:1}));
+ assert.equal(root.querySelector('.alert-detail').hidden,false);
+ button.blur();button.focus();assert.notEqual(card._tickerOffset,45);
+ card.remove();dom.window.close();
+});

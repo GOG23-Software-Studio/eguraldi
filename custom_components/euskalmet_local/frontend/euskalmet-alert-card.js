@@ -144,7 +144,7 @@ class EuskalmetAlertCard extends HTMLElement {
   const position=index=>widths().slice(0,index).reduce((a,b)=>a+b,0);const move=direction=>{this._tickerPaused=true;const points=buttons.map((_,i)=>position(i));let index=points.findIndex(p=>p>=this._tickerOffset-1);if(index<0)index=0;index=(index+direction+entries.length)%entries.length;this._tickerOffset=points[index];paint();};previous.addEventListener('click',()=>move(-1));next.addEventListener('click',()=>move(1));
   viewport.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hover=true;paint();}});
   viewport.addEventListener('pointerleave',()=>{hover=false;drag=null;paint();});
-  viewport.addEventListener('focusin',e=>{focused=true;const index=e.target.closest('[data-alert-index]')?.dataset.alertIndex;if(index!==undefined)this._tickerOffset=position(Number(index));paint();});
+  viewport.addEventListener('focusin',e=>{focused=true;const index=e.target.closest('[data-alert-index]')?.dataset.alertIndex;if(index!==undefined&&drag===null)this._tickerOffset=position(Number(index));paint();});
   viewport.addEventListener('focusout',()=>{focused=false;paint();});
   viewport.addEventListener('pointerdown',e=>{drag={x:e.clientX,offset:this._tickerOffset};moved=false;paint();});
   viewport.addEventListener('pointermove',e=>{if(drag&&Math.abs(e.clientX-drag.x)>6){moved=true;this._tickerOffset=drag.offset+drag.x-e.clientX;paint();}});

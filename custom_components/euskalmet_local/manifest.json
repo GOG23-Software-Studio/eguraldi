@@ -20,5 +20,5 @@
     "custom_components.euskalmet_local"
   ],
   "requirements": [],
-  "version": "0.11.0"
+  "version": "0.11.1"
 }
