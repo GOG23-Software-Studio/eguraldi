@@ -475,7 +475,7 @@ class EuskalmetHistoryCard extends HTMLElement {
       @media(max-width:600px){ha-card{padding:14px}.controls{align-items:stretch}.controls .measure-picker{width:100%;max-width:none;flex-basis:100%}
         .date-tools{margin-left:0;width:100%}.date-tools .date-picker{flex:1}.chart-wrap{margin:0 -8px}.axis,.unit{font-size:20px}ha-card.embedded{padding:0 12px 16px}
         .legend{gap:2px}.legend-item{padding:5px 6px}}
-    
+
 :host{font-family:var(--primary-font-family,system-ui);font-size:13px;line-height:1.5}
 :host h2,:host .forecast-top h2{font-family:inherit;font-size:20px;font-weight:600;line-height:1.3;letter-spacing:0;margin:0 0 16px}
 :host h3{font-family:inherit;font-size:14px;font-weight:600;line-height:1.4}
