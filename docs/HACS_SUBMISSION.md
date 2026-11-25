@@ -5,23 +5,24 @@ Submission text prepared for a fresh PR to `hacs/default`. This file is not a su
 ## Checklist
 
 - [ ] I have read the current HACS publishing documentation.
-- [ ] The HACS action passes without errors or ignored checks on the candidate commit.
-- [ ] Hassfest passes on that same commit.
-- [ ] A full GitHub release was created after the validation actions passed.
+- [x] The HACS action passes without errors or ignored checks on the candidate commit.
+- [x] Hassfest passes on that same commit.
+- [x] A full GitHub release was created after the validation actions passed.
 - [ ] I am the repository owner or a major contributor, submitting from an editable personal fork.
 
-These boxes intentionally remain unchecked in this reusable document. Complete the actual PR from verified evidence, rather than copying unchecked claims as completed work.
+Technical boxes refer to candidate 0.11.2 and its verified run below. The submitter must read the current rules and confirm the personal-fork declaration when opening the actual PR; recheck technical results if the candidate changes.
 
 ## Links
 
 - Repository: https://github.com/GOG23-Software-Studio/eguraldi
-- Latest release: https://github.com/GOG23-Software-Studio/eguraldi/releases/latest
-- Validation workflow: https://github.com/GOG23-Software-Studio/eguraldi/actions/workflows/ci.yml
+- Candidate release: https://github.com/GOG23-Software-Studio/eguraldi/releases/tag/v0.11.2
+- Successful HACS and hassfest job: https://github.com/GOG23-Software-Studio/eguraldi/actions/runs/45708307070/job/139535862184
+- Full successful CI run: https://github.com/GOG23-Software-Studio/eguraldi/actions/runs/45708307070
 - Functional comparison and code/test evidence: https://github.com/GOG23-Software-Studio/eguraldi/blob/main/docs/DIFFERENCES.md
 - Reliability and limitations: https://github.com/GOG23-Software-Studio/eguraldi/blob/main/docs/RELIABILITY.md
 - Previous submission: https://github.com/hacs/default/pull/14144
 
-Before sending, replace the moving release/workflow links with the exact candidate release and successful run/job permalinks recorded in `HACS_EVIDENCE.md`.
+Evidence is recorded in [HACS_EVIDENCE.md](HACS_EVIDENCE.md). Refresh these links if a later candidate is submitted.
 
 ## Relationship to the previous submission
 
