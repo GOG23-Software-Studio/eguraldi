@@ -698,3 +698,16 @@ test('visual editors save alert presentation per card and dashboard propagates i
  const standalone=dom.window.document.createElement('eguraldi-alert-editor');standalone.setConfig({entity:'sensor.alert',view:'timeline'});standalone.hass=h;dom.window.document.body.append(standalone);let own;standalone.addEventListener('config-changed',e=>own=e.detail.config);const ownSelect=standalone.querySelector('#alert-editor-view');ownSelect.value='ticker';ownSelect.dispatchEvent(new dom.window.Event('change'));assert.equal(own.view,'ticker');assert.equal(own.entity,'sensor.alert');
  card.remove();editor.remove();standalone.remove();dom.window.close();
 });
+
+
+test('alert details close after 30 seconds across renders and resume with real icons without bypassing reduced motion',async()=>{
+ const dom=setup(),w=dom.window,h=alertViewsHass(dom),timers=new Map();let time=Date.parse('2026-11-25T16:00:00Z'),id=0;
+ w.Date.now=()=>time;w.setTimeout=(fn,delay)=>{timers.set(++id,{fn,at:time+delay});return id;};w.clearTimeout=key=>timers.delete(key);
+ const card=w.document.createElement('eguraldi-alert-card');card.setConfig({entity:'sensor.alert',view:'headlines'});card.hass=h;w.document.body.append(card);
+ const root=card.shadowRoot;assert.equal(root.querySelector('[data-motion-toggle] ha-icon').getAttribute('icon'),'mdi:pause');assert.doesNotMatch(root.querySelector('style').textContent,/Ⅱ/);
+ root.querySelector('.alert-message').click();assert.equal(card._tickerPaused,true);assert.equal(root.querySelector('[data-motion-toggle] ha-icon').getAttribute('icon'),'mdi:play');assert.equal(timers.size,1);
+ time+=20000;card._render();assert.equal(timers.size,1);assert.equal([...timers.values()][0].at-time,10000);assert.equal(card.shadowRoot.querySelector('.alert-detail').hidden,false);
+ time+=10000;const timer=[...timers.values()][0];timers.clear();timer.fn();assert.equal(card.shadowRoot.querySelector('.alert-detail').hidden,true);assert.equal(card._tickerPaused,false);assert.equal(card.shadowRoot.querySelector('[data-motion-toggle] ha-icon').getAttribute('icon'),'mdi:pause');
+ card.shadowRoot.querySelector('.alert-message').click();assert.equal(timers.size,1);card.remove();assert.equal(timers.size,0);
+ w.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});w.document.body.append(card);card.shadowRoot.querySelector('.alert-message').click();time+=30000;const reducedTimer=[...timers.values()][0];timers.clear();reducedTimer.fn();assert.equal(card.shadowRoot.querySelector('.alert-detail').hidden,true);assert.equal(card.shadowRoot.querySelector('[data-motion-toggle]').disabled,true);assert.equal(card._raf,undefined);card.remove();dom.window.close();
+});
