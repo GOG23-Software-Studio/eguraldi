@@ -10,14 +10,14 @@ Submission text prepared for a fresh PR to `hacs/default`. This file is not a su
 - [x] A full GitHub release was created after the validation actions passed.
 - [ ] I am the repository owner or a major contributor, submitting from an editable personal fork.
 
-Technical boxes refer to candidate 0.11.2 and its verified run below. The submitter must read the current rules and confirm the personal-fork declaration when opening the actual PR; recheck technical results if the candidate changes.
+Technical boxes refer to candidate 0.11.3 and its verified run below. The submitter must read the current rules and confirm the personal-fork declaration when opening the actual PR; recheck technical results if the candidate changes.
 
 ## Links
 
 - Repository: https://github.com/GOG23-Software-Studio/eguraldi
-- Candidate release: https://github.com/GOG23-Software-Studio/eguraldi/releases/tag/v0.11.2
-- Successful HACS and hassfest job: https://github.com/GOG23-Software-Studio/eguraldi/actions/runs/45708307070/job/139535862184
-- Full successful CI run: https://github.com/GOG23-Software-Studio/eguraldi/actions/runs/45708307070
+- Candidate release: https://github.com/GOG23-Software-Studio/eguraldi/releases/tag/v0.11.3
+- Successful HACS and hassfest job: https://github.com/GOG23-Software-Studio/eguraldi/actions/runs/45715189236/job/139559339098
+- Full successful CI run: https://github.com/GOG23-Software-Studio/eguraldi/actions/runs/45715189236
 - Functional comparison and code/test evidence: https://github.com/GOG23-Software-Studio/eguraldi/blob/main/docs/DIFFERENCES.md
 - Reliability and limitations: https://github.com/GOG23-Software-Studio/eguraldi/blob/main/docs/RELIABILITY.md
 - Previous submission: https://github.com/hacs/default/pull/14144
@@ -49,4 +49,4 @@ The unused modified/minified `weather-radar-card-euskalmet.js` build and its obs
 
 Country: ES. Domain: `euskalmet_local`, distinct from the original's `euskalmet`. One integration per repository, all runtime assets bundled under its component directory, local `brand/icon.png` and `icon@2x.png`, MIT license, public issue tracker and Spanish/Basque UI and README. HACS validation has no `ignore` key. CI runs Python and frontend tests plus real-HA import/config-flow smoke tests for the declared minimum HA 2026.8.0 and HA 2026.11.1.
 
-Public screenshots use simulated data. In addition to the maintainer's household HA, a [fresh isolated HA installation](CLEAN_INSTALL_TEST.md) was tested using the public 0.11.2 ZIP, unchanged integration files and a simulated API-method boundary. The exercise covered setup, entity creation, bundled cards, visual editor, live station changes and restart persistence. This was a manual install, not a clean HACS install or an independent household trial; real provider authentication and predictive accuracy were not validated by that exercise. A future HA device-registry deprecation warning is recorded in the report. Eguraldi remains available as a custom repository regardless of this review's outcome.
+Public screenshots use simulated data. In addition to the maintainer's household HA, a [fresh isolated HA installation](CLEAN_INSTALL_TEST.md) was tested using the public 0.11.2 ZIP, unchanged integration files and a simulated API-method boundary. The exercise covered setup, entity creation, bundled cards, visual editor, live station changes and restart persistence. This was a manual install, not a clean HACS install or an independent household trial; real provider authentication and predictive accuracy were not validated by that exercise. The device-registry deprecation warning observed in 0.11.2 is fixed in candidate 0.11.3, with the parent link and absence of the warning checked in the isolated HA. Eguraldi remains available as a custom repository regardless of this review's outcome.
