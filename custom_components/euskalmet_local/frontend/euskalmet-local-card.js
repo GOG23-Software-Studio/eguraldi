@@ -1,17 +1,17 @@
-import {daySummaryPlan,summaryAlerts} from './eguraldi-day-summary-model.js?v=0.9.0';
-import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.9.0';
-import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.9.0';
+import {daySummaryPlan,summaryAlerts} from './eguraldi-day-summary-model.js?v=0.10.0';
+import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.10.0';
+import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.10.0';
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.9.0';
-import './eguraldi-comparison-card.js?v=0.9.0';
-import './eguraldi-microclimate-card.js?v=0.9.0';
-import './euskalmet-history-card.js?v=0.9.0-controls';
-import './euskalmet-radar-map-card.js?v=0.9.0';
+import './euskalmet-alert-card.js?v=0.10.0';
+import './eguraldi-comparison-card.js?v=0.10.0';
+import './eguraldi-microclimate-card.js?v=0.10.0';
+import './euskalmet-history-card.js?v=0.10.0-controls';
+import './euskalmet-radar-map-card.js?v=0.10.0';
 
-import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.9.0';
-import {dryingPlan} from './eguraldi-drying-model.js?v=0.9.0';
+import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.10.0';
+import {dryingPlan} from './eguraldi-drying-model.js?v=0.10.0';
 
-import {outingPlan} from './eguraldi-outing-model.js?v=0.9.0';
+import {outingPlan} from './eguraldi-outing-model.js?v=0.10.0';
 
 const EU_TEXT = {
   "Volver al resumen":"Itzuli laburpenera",
@@ -159,6 +159,16 @@ const EU_TEXT = {
   "Próximos días": "Hurrengo egunak",
   "Histórico": "Historikoa",
   "Avisos": "Abisuak",
+  "Diseño de los avisos": "Abisuen diseinua",
+  "Lista por periodos": "Aldien araberako zerrenda",
+  "Banda en movimiento": "Banda mugikorra",
+  "Línea temporal": "Denbora-lerroa",
+  "Titulares · una línea": "Titularrak · lerro bakarra",
+  "Velocidad del movimiento": "Mugimenduaren abiadura",
+  "Lenta": "Motela",
+  "Normal": "Normala",
+  "Rápida": "Azkarra",
+
   "Bloques del resumen": "Laburpenaren blokeak",
   "Subir": "Igo",
   "Bajar": "Jaitsi",
@@ -559,7 +569,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       if(['hourly','daily','drying','outing','vehicle_wash','day_summary'].includes(this._tab))content.innerHTML=this._tab==='hourly'?this._hourly():this._tab==='daily'?this._daily():this._tab==='outing'?this._outing():this._tab==='vehicle_wash'?this._vehicleWash():this._tab==='day_summary'?this._daySummary():this._drying();
       else{
         const card=reusableExtra||document.createElement('euskalmet-local-card');
-        if(!reusableExtra)card.setConfig({entry_id:this._location.entry_id,mode:extraMode});
+        if(!reusableExtra)card.setConfig({entry_id:this._location.entry_id,mode:extraMode,alerts_view:this._config.alerts_view,alerts_speed:this._config.alerts_speed});
         card.hass=this._hass;content.append(card);
       }
     }
@@ -602,7 +612,7 @@ export class EuskalmetLocalCard extends HTMLElement {
     if(!this.shadowRoot.querySelector('#extra-content')){
       this.shadowRoot.innerHTML=`<style>${CSS}${FORECAST_CSS}${DRYING_CSS}.rows{padding:0 20px 18px}.row{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid #ffffff15;font-size:13px}.row span{color:#b5d2e4}.row strong{text-align:right;font-weight:500}.row.minimum strong{color:#68cef3}.row.maximum strong{color:#ffbf83}#extra-content>p{padding:0 20px 20px;color:#a9becf;font-size:12px}</style><ha-card><section id="extra-heading"><h2 id="extra-title"></h2><div class="muted measurement-source" id="extra-source"></div></section><div id="extra-content"></div></ha-card>`;
     }
-    this.shadowRoot.querySelector('#extra-heading').hidden=mode==='radar'&&this._config.show_title!==true;
+    this.shadowRoot.querySelector('#extra-heading').hidden=mode==='radar'&&this._config.show_title!==true||mode==='alerts'&&this._config.alerts_view==='headlines';
     this.shadowRoot.querySelector('#extra-source').hidden=mode==='alerts';
     this.shadowRoot.querySelector('#extra-title').textContent=`${loc.locality} · ${this._t(labels[mode])}`;
     this.shadowRoot.querySelector('#extra-source').textContent=['radar','alerts','environment'].includes(mode)?this._t(mode==='radar'?'Radar regional · Euskalmet':mode==='alerts'?'Avisos para la zona de tu localidad':'Cantábrico · mareas de Pasaia · captadora de polen de referencia'):this._measurementSource();
@@ -628,7 +638,7 @@ export class EuskalmetLocalCard extends HTMLElement {
       tag=mode==='history'?'eguraldi-history-card':mode==='radar'?'eguraldi-radar-map-card':'eguraldi-alert-card';
       const entity=loc.entities[mode==='history'?'temperature':mode==='radar'?'radar':'alert_level'];
       config={entity,entry_id:loc.entry_id,title:`${loc.locality} · ${this._t(labels[mode])}`};
-      if(mode==='alerts'){config.embedded=true;config.show_title=false;}
+      if(mode==='alerts'){config.embedded=true;config.show_title=false;config.view=this._config.alerts_view||'list';if(config.view==='headlines'){config.title=loc.locality;config.show_title=true;}config.ticker_speed=this._config.alerts_speed??24;}
       if(mode==='history'){config.station_id=loc.station_id;config.show_title=false;config.embedded=true;if(this._config.measure)config.measure=this._config.measure;}
       if(mode==='radar'){config.embedded=true;config.show_header=false;config.map_style=this._config.map_style||'satellite';config.latitude=loc.latitude;config.longitude=loc.longitude;config.locality=loc.locality;config.zoom=this._config.zoom??10;}
     }
@@ -695,6 +705,16 @@ class EuskalmetLocalEditor extends HTMLElement {
       const source=extra.querySelector('select');
       if(this._config.humidity_forecast_entity&&!sources.some(([id])=>id===this._config.humidity_forecast_entity)){const option=document.createElement('option');option.value=this._config.humidity_forecast_entity;option.textContent=this._config.humidity_forecast_entity;source.append(option);}
       source.value=this._config.humidity_forecast_entity||'';source.addEventListener('change',()=>source.value?this._save({humidity_forecast_entity:source.value,humidity_forecast_locality:(locations.find(l=>l.entry_id===this._config.entry_id||l.entities.weather===this._config.entity)||(locations.length===1?locations[0]:null))?.locality}):this._save({},['humidity_forecast_entity','humidity_forecast_locality']));
+    }
+    if(['alerts','dashboard','day_summary'].includes(this._config.mode||'dashboard')){
+      const label=document.createElement('label');label.textContent=this._t('Diseño de los avisos');const select=document.createElement('select');select.id='eg-alerts-view';
+      for(const [value,text] of [['list','Lista por periodos'],['ticker','Banda en movimiento'],['timeline','Línea temporal'],['headlines','Titulares · una línea']]){const option=document.createElement('option');option.value=value;option.textContent=this._t(text);select.append(option);}
+      select.value=this._config.alerts_view||'list';select.addEventListener('change',()=>this._save({alerts_view:select.value}));label.append(select);extra.append(label);
+      if(['ticker','headlines'].includes(this._config.alerts_view)){
+        const speedLabel=document.createElement('label');speedLabel.textContent=this._t('Velocidad del movimiento');const speed=document.createElement('select');speed.id='eg-alerts-speed';
+        for(const [value,text] of [[16,'Lenta'],[24,'Normal'],[36,'Rápida']]){const option=document.createElement('option');option.value=value;option.textContent=this._t(text);speed.append(option);}
+        const current=Number(this._config.alerts_speed)||24;if(![16,24,36].includes(current)){const option=document.createElement('option');option.value=current;option.textContent=String(current)+' px/s';speed.append(option);}speed.value=String(current);speed.addEventListener('change',()=>this._save({alerts_speed:Number(speed.value)}));speedLabel.append(speed);extra.append(speedLabel);
+      }
     }
     if(['dashboard','day_summary','outing','drying'].includes(this._config.mode)){
       const addSelect=(key,label,choices,value)=>{

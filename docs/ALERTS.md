@@ -25,3 +25,38 @@ mode: alerts
 ```
 
 La tarjeta independiente `custom:euskalmet-local-alert-card` también admite la entidad de nivel mediante `entity`. Las capturas del README usan datos simulados.
+
+
+## Diseños a elegir desde 0.10.0
+
+En el editor visual, selecciona **Avisos** y después **Diseño de los avisos**. En el panel completo y en Tu día, esa elección también se aplica al detalle de avisos. Cada tarjeta guarda su propia elección:
+
+| Diseño | Opción | Presentación |
+| --- | --- | --- |
+| Lista por periodos | `list` | Vista existente, con comunicados desplegables |
+| Banda en movimiento | `ticker` | Tarjetas que avanzan de derecha a izquierda |
+| Línea temporal | `timeline` | Periodos proporcionales a su duración y marca de la hora actual |
+| Titulares · una línea | `headlines` | Localidad y mensajes en una fila compacta, como noticias |
+
+La vista inicial sigue siendo la lista. Las cuatro utilizan los mismos niveles, fechas y comunicados de Euskalmet, sin consultas adicionales a la API. En la línea temporal, los periodos solapados del mismo fenómeno se colocan en carriles distintos; los horarios sin confirmar se muestran fuera del gráfico.
+
+La banda y los titulares se pausan al interactuar o al abrir un aviso. Se puede pausar o reanudar y navegar con teclado; la banda incluye flechas y ambas admiten arrastrar con el dedo. Respetan la preferencia del sistema de reducir movimiento y se detienen al quedar fuera de pantalla. No se anuncia cada avance a los lectores de pantalla. Al cerrar la tarjeta se liberan animaciones y observadores.
+
+En **Velocidad del movimiento** se puede elegir lenta, normal o rápida. La opción avanzada admite entre 12 y 48 píxeles por segundo, con 24 por defecto.
+
+```yaml
+type: custom:euskalmet-local-card
+mode: alerts
+alerts_view: headlines
+alerts_speed: 24
+```
+
+En la tarjeta independiente se usan `view` y `ticker_speed`:
+
+```yaml
+type: custom:euskalmet-local-alert-card
+entity: sensor.mi_nivel_de_aviso
+view: timeline
+```
+
+También dispone de editor visual para entidad, título, diseño y velocidad. No cambia las preferencias de otras tarjetas ni activa notificaciones.

@@ -6,7 +6,7 @@
 
 <script type="module">
 
-import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.9.0-controls';
+import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.10.0-controls';
 
 const now=new Date().setMinutes(0,0,0),loc={entry_id:'demo',locality:'Ortuella',station:'Arboleda',location_source:'home_assistant',distance_km:1.8,latitude:43.31,longitude:-3.05,entities:{weather:'weather.demo',temperature:'sensor.demo_temperature',humidity:'sensor.demo_humidity',precipitation_today:'sensor.demo_rain',temperature_min_today:'sensor.demo_min',temperature_max_today:'sensor.demo_max',wind_gust_max_today:'sensor.demo_gust',irradiance:'sensor.demo_irradiance'}};
 
@@ -76,7 +76,7 @@ if(view==='radar'){
 }
 if(view==='forecasts')document.querySelector('.grid').style.gridTemplateColumns='minmax(0,1fr)';
 if(view==='radar')document.querySelector('.grid').style.cssText='max-width:650px;grid-template-columns:minmax(0,1fr)';
-for(const mode of (view==='editor'?[]:view==='alerts'?['alerts']:view==='radar'?['radar']:view==='summaries'?['summaries']:view==='drying'?['drying']:view==='outing'?['outing']:view==='day_summary'?['day_summary']:view==='vehicle_wash'?['vehicle_wash']:view==='microclimate'?['microclimate']:view==='forecasts'?['hourly_chart','daily_tiles','planning']:view==='charts'?['comparison','history']:['overview','hourly','daily'])){const card=document.createElement('euskalmet-local-card');card.setConfig({mode,...(mode==='radar'?{autoplay:false}:{}),...(mode==='comparison'?{comparison_entity:'sensor.demo_balcony',comparison_name:'Balcón'}:{})});card.hass=hass;document.querySelector('#cards').append(card);}
+for(const mode of (view==='editor'?[]:view==='alerts'?['alerts']:view==='radar'?['radar']:view==='summaries'?['summaries']:view==='drying'?['drying']:view==='outing'?['outing']:view==='day_summary'?['day_summary']:view==='vehicle_wash'?['vehicle_wash']:view==='microclimate'?['microclimate']:view==='forecasts'?['hourly_chart','daily_tiles','planning']:view==='charts'?['comparison','history']:['overview','hourly','daily'])){const card=document.createElement('euskalmet-local-card');card.setConfig({mode,...(mode==='alerts'?{alerts_view:new URLSearchParams(location.search).get('style')||'list'}:{}),...(mode==='radar'?{autoplay:false}:{}),...(mode==='comparison'?{comparison_entity:'sensor.demo_balcony',comparison_name:'Balcón'}:{})});card.hass=hass;document.querySelector('#cards').append(card);}
 
 if(new URLSearchParams(location.search).get('view')==='editor'){
 

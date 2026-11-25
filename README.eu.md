@@ -17,6 +17,12 @@ Euskalmeteko eguraldia Home Assistanten: hurbileko estazioen neurketak, orduko e
 
 [Ikusi mugikorreko ikuspegia](docs/preview-mobile.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
 
+## Lau abisu-diseinu, zure aukeran
+
+Aukeratu txartel bakoitzean ikusizko editoretik: **Zerrenda**, **Banda mugikorra**, **Denbora-lerroa** edo **Titularrak lerro bakarrean**. Banda eta titularrak pausatu daitezke, xehetasunak ireki eta abiadura doitu; mugimendua murrizteko lehentasuna errespetatzen dute.
+
+[Banda](docs/alerts-ticker-eu.jpg) · [Denbora-lerroa](docs/alerts-timeline-eu.jpg) · [Titularrak](docs/alerts-headlines-eu.jpg) · [Konfigurazioa](docs/ALERTS.md) (gaztelaniaz).
+
 ## Abisu argiak, fenomenoaren eta aldiaren arabera
 
 ![Abisuak mailaren eta aldiaren arabera, simulatutako datuekin](docs/alerts-eu.jpg)

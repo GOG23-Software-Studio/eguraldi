@@ -663,3 +663,38 @@ test('alerts separate live future ended and unknown periods, translate causes an
  card.hass={...h,states:{...h.states,'sensor.alert':{...h.states['sensor.alert'],state:'unavailable'}}};assert.match(card.shadowRoot.textContent,/No se pueden comprobar/);assert.equal(card.shadowRoot.querySelectorAll('article').length,0);
  card.remove();dom.window.close();
 });
+
+
+function alertViewsHass(dom){
+ const at=Date.parse('2026-11-25T16:00:00Z');dom.window.Date.now=()=>at;const h=hass();
+ const rain={cause:'PERSISTENT_PRECIPITATIONS',level:'orange',zone:'BIZKAIA_INTERIOR',starts_at:new Date(at-2*3600000).toISOString(),ends_at:new Date(at+2*3600000).toISOString(),description:'Alerta Naranja. Texto oficial de lluvia <script>no ejecutar</script>.'};
+ h.states['sensor.alert']={state:'orange',attributes:{alerts:[rain,{...rain,starts_at:new Date(at+3600000).toISOString(),ends_at:new Date(at+4*3600000).toISOString(),description:'Alerta Naranja. Otro periodo que se solapa.'},{...rain,level:'yellow',cause:'WIND_ON_EXPOSED_ZONES',starts_at:new Date(at+6*3600000).toISOString(),ends_at:new Date(at+8*3600000).toISOString()}]}};return h;
+}
+test('ticker stops on pause and removal, handles reduced motion changes and never shows stale messages',async()=>{
+ const dom=setup(),w=dom.window,h=alertViewsHass(dom),frames=new Map(),listeners=new Set();let id=0;
+ Object.defineProperty(w.document,'hidden',{get:()=>false});w.requestAnimationFrame=fn=>{frames.set(++id,fn);return id;};w.cancelAnimationFrame=n=>frames.delete(n);
+ const media={matches:false,addEventListener:(_,fn)=>listeners.add(fn),removeEventListener:(_,fn)=>listeners.delete(fn)};w.matchMedia=()=>media;
+ const card=w.document.createElement('eguraldi-alert-card');card.setConfig({entity:'sensor.alert',view:'ticker'});card.hass=h;w.document.body.append(card);await flush();assert.equal(frames.size,1);
+ const frame=t=>{const [key,fn]=frames.entries().next().value;frames.delete(key);fn(t);};frame(100);frame(180);assert.ok(card._tickerOffset>0);
+ card.shadowRoot.querySelectorAll('.alert-control')[1].click();assert.equal(frames.size,0);assert.equal(card.shadowRoot.querySelectorAll('.alert-control')[1].textContent,'Reanudar');
+ card.shadowRoot.querySelectorAll('.alert-control')[1].click();assert.equal(frames.size,1);media.matches=true;for(const fn of listeners)fn();assert.equal(frames.size,0);assert.equal(card.shadowRoot.querySelectorAll('.alert-control')[1].disabled,true);
+ media.matches=false;for(const fn of listeners)fn();assert.equal(frames.size,1);
+ card.shadowRoot.querySelector('.alert-message').click();assert.equal(card.shadowRoot.querySelector('.alert-detail').hidden,false);assert.match(card.shadowRoot.querySelector('.official').textContent,/Texto oficial/);assert.equal(card.shadowRoot.querySelectorAll('script').length,0);assert.equal(frames.size,0);
+ card.hass={...h,states:{...h.states,'sensor.alert':{state:'unavailable',attributes:h.states['sensor.alert'].attributes}}};assert.equal(card.shadowRoot.querySelectorAll('.alert-message').length,0);assert.equal(listeners.size,0);assert.equal(frames.size,0);card.remove();dom.window.close();
+});
+test('timeline keeps overlapping periods selectable in separate lanes and headlines retain date level and official text',async()=>{
+ const dom=setup(),h=alertViewsHass(dom),card=dom.window.document.createElement('eguraldi-alert-card');
+ card.setConfig({entity:'sensor.alert',view:'timeline'});card.hass=h;dom.window.document.body.append(card);await flush();
+ assert.equal(card.shadowRoot.querySelectorAll('.time-row').length,2);assert.equal(card.shadowRoot.querySelector('.time-row').querySelectorAll('.time-track').length,2);assert.equal(card.shadowRoot.querySelectorAll('.time-bar').length,3);
+ for(const bar of card.shadowRoot.querySelectorAll('.time-bar')){assert.ok(parseFloat(bar.style.width)>0);assert.ok(parseFloat(bar.style.left)>=0);bar.click();assert.equal(card.shadowRoot.querySelector('.alert-detail').hidden,false);}
+ card.setConfig({entity:'sensor.alert',view:'headlines'});card.hass=h;await flush();assert.ok(card.shadowRoot.querySelector('.headline-shell'));assert.equal(card.shadowRoot.querySelectorAll('.alert-message').length,3);assert.match(card.shadowRoot.querySelector('.headline-line').textContent,/Naranja/);assert.match(card.shadowRoot.querySelector('.headline-period').textContent,/25 nov/);
+ card.shadowRoot.querySelector('[aria-label="Aviso siguiente"]').click();assert.ok(card._tickerOffset>0);card.shadowRoot.querySelector('.alert-message').click();assert.equal(card.shadowRoot.querySelector('.alert-detail').hidden,false);card.remove();dom.window.close();
+});
+test('visual editors save alert presentation per card and dashboard propagates it to its alert child',async()=>{
+ const dom=setup(),h=alertViewsHass(dom),editor=dom.window.document.createElement('euskalmet-local-editor');h.callWS=async()=>[{...location,entities:{...location.entities,alert_level:'sensor.alert'}}];let saved;
+ editor.setConfig({mode:'alerts',entry_id:'test'});editor.hass=h;dom.window.document.body.append(editor);await flush();editor.addEventListener('config-changed',e=>saved=e.detail.config);
+ const select=editor.querySelector('#eg-alerts-view');select.value='headlines';select.dispatchEvent(new dom.window.Event('change'));assert.equal(saved.alerts_view,'headlines');assert.equal(saved.entry_id,'test');const speed=editor.querySelector('#eg-alerts-speed');speed.value='16';speed.dispatchEvent(new dom.window.Event('change'));assert.equal(saved.alerts_speed,16);
+ const card=dom.window.document.createElement('euskalmet-local-card');card.setConfig({...saved,mode:'dashboard'});card.hass=h;dom.window.document.body.append(card);await flush();card.shadowRoot.querySelector('[data-tab=alerts]').click();await flush();assert.equal(card.shadowRoot.querySelector('#content > euskalmet-local-card')._config.alerts_view,'headlines');
+ const standalone=dom.window.document.createElement('eguraldi-alert-editor');standalone.setConfig({entity:'sensor.alert',view:'timeline'});standalone.hass=h;dom.window.document.body.append(standalone);let own;standalone.addEventListener('config-changed',e=>own=e.detail.config);const ownSelect=standalone.querySelector('#alert-editor-view');ownSelect.value='ticker';ownSelect.dispatchEvent(new dom.window.Event('change'));assert.equal(own.view,'ticker');assert.equal(own.entity,'sensor.alert');
+ card.remove();editor.remove();standalone.remove();dom.window.close();
+});

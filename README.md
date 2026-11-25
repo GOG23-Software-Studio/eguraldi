@@ -26,6 +26,12 @@ El tiempo de Euskalmet en Home Assistant: observaciones de estaciones cercanas, 
 
 </details>
 
+## Cuatro diseños de avisos, a tu elección
+
+Elige por tarjeta desde el editor visual: **Lista**, **Banda en movimiento**, **Línea temporal** o **Titulares en una línea**. La banda y los titulares tienen pausa, detalle al pulsar y velocidad ajustable; respetan la reducción de movimiento.
+
+[Ver banda](docs/alerts-ticker.jpg) · [Ver línea temporal](docs/alerts-timeline.jpg) · [Ver titulares](docs/alerts-headlines.jpg) · [Titulares en móvil](docs/alerts-headlines-mobile.jpg) · [Configuración](docs/ALERTS.md).
+
 ## Avisos claros, por fenómeno y periodo
 
 ![Avisos por nivel y periodo, con datos simulados](docs/alerts.jpg)
