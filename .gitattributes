@@ -1,0 +1,2 @@
+# Keep submission patches directly applicable on Windows and Unix.
+*.patch text eol=lf
