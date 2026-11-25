@@ -19,7 +19,7 @@ Revisión: 25 de noviembre de 2026. Estado: candidata 0.11.3 publicada y comprob
 
 Comprobado en la instalación del mantenedor: instalación y actualización mediante HACS, arranque, datos reales, selección de localidad/estación, tarjetas, apertura con un clic y cierre de avisos a los 30 segundos. Las pruebas automatizadas cubren datos ausentes, caducidad, cambios de origen, validación separada del entrenamiento y control de notificaciones.
 
-Se ha completado una [instalación limpia manual en laboratorio](CLEAN_INSTALL_TEST.md) con HA real, proveedor simulado, tarjetas, editor y reinicio. No sustituye el ensayo por otra persona, una instalación limpia mediante HACS ni resultados de Microclima en varios hogares. Esas pruebas externas no son requisitos formales adicionales de HACS, pero siguen siendo una limitación de la evidencia. No se debe marcar como realizado lo que no se haya probado.
+Se ha completado una [instalación limpia manual en laboratorio](CLEAN_INSTALL_TEST.md) con HA real, proveedor simulado, tarjetas, editor y reinicio. También se ha completado la [instalación limpia desde el Marketplace integrado de HA 2026.11.1](MARKETPLACE_INSTALL_TEST.md). Ninguno de los dos ensayos sustituye una prueba por otra persona ni resultados de Microclima en varios hogares. Esas pruebas externas no son requisitos formales adicionales de HACS, pero siguen siendo una limitación de la evidencia. No se debe marcar como realizado lo que no se haya probado.
 
 ### Guion de prueba externa
 
