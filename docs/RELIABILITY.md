@@ -38,6 +38,8 @@ No se han revocado las credenciales reales ni provocado una caída de la API en 
 
 Pendiente: matriz de pruebas con todas las versiones de HA declaradas compatibles, pruebas reales en otras instalaciones y validación de Microclima con suficientes días. Las tarjetas adicionales de radar, polen, mar e históricos no se han sometido en esta revisión a todos los escenarios de caída prolongada de sus proveedores.
 
+Actualización del 25 de noviembre: [CI de la candidata 0.11.2](HACS_EVIDENCE.md) incorpora formularios e importaciones con HA 2026.8.0 y 2026.11.1; no cubre cada función ni cada versión intermedia. Se añade un [ensayo de instalación manual limpia en laboratorio](CLEAN_INSTALL_TEST.md), con HA real y proveedor simulado. Siguen pendientes las pruebas independientes y la precisión de Microclima en varios hogares.
+
 
 ## Estado visual ante datos caducados
 
