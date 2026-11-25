@@ -82,12 +82,19 @@ def test_weather_identity_uses_locality_and_preserves_station():
     coordinator = SimpleNamespace(
         config_entry_id="example_entry",
         locality="Ortuella",
+        device_id="station_device_registry_id",
         api=SimpleNamespace(station_id="C061", station_name="Arboleda"),
     )
     entity = EuskalmetWeather(coordinator)
     assert entity.unique_id == "example_entry_weather"
     assert entity.device_info["name"] == "Ortuella"
-    assert entity.device_info["via_device"] == ("euskalmet_local", "C061")
+    assert entity.device_info["via_device_id"] == "station_device_registry_id"
+    assert "via_device" not in entity.device_info
+    identity = entity.device_info["identifiers"]
+    coordinator.device_id = "replacement_station_registry_id"
+    coordinator.api.station_id = "C042"
+    assert entity.device_info["via_device_id"] == "replacement_station_registry_id"
+    assert entity.device_info["identifiers"] == identity
     assert entity.name is None
 
 

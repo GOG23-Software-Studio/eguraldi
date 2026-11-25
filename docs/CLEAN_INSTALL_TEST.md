@@ -41,3 +41,9 @@ Durante la construcción del laboratorio, la primera carga del proveedor simulad
 No se han validado aquí autenticación real, tráfico/formatos reales de la API, instalación limpia mediante HACS, funcionamiento durante varios días, precisión de Microclima, dispositivos de notificación externos, todos los navegadores ni todos los escenarios de fallo. El HA doméstico aporta evidencia distinta de uso real, pero no convierte este ensayo simulado en una prueba independiente. Los resultados de CI siguen documentados en [HACS_EVIDENCE.md](HACS_EVIDENCE.md).
 
 El laboratorio se detiene al finalizar. Sus credenciales efímeras y configuración permanecen fuera de Git en `private/`; solo se publica documentación, fixture y captura con datos simulados.
+
+## Corrección de compatibilidad · candidata 0.11.3
+
+Se sustituye el último `via_device` heredado de la entidad meteorológica por el `via_device_id` de la estación ya registrada. Se conservan los identificadores de localidad y entidad. La prueba de identidad comprueba también que cambiar de estación actualiza el padre sin cambiar la identidad de la localidad.
+
+En el mismo HA aislado 2026.11.1 se ha instalado la candidata, recuperado la entrada y comprobado el vínculo del registro. Los registros del nuevo arranque ya no contienen el aviso de obsolescencia de `via_device`. El apartado de hallazgos anterior describe la versión 0.11.2 ensayada originalmente, no la candidata corregida.

@@ -100,13 +100,15 @@ class EuskalmetWeather(
     def device_info(self) -> DeviceInfo:
         """Información del dispositivo."""
 
-        return DeviceInfo(
+        info = DeviceInfo(
             identifiers={(DOMAIN, f"{self.coordinator.config_entry_id}_locality")},
             name=self.coordinator.locality,
             manufacturer=MANUFACTURER,
             model="Tiempo por localidad",
-            via_device=(DOMAIN, self.coordinator.api.station_id),
         )
+        if (parent_id := getattr(self.coordinator, "device_id", None)) is not None:
+            info["via_device_id"] = parent_id
+        return info
 
     def _current(self, key: str) -> dict[str, Any] | None:
         """Obtener una medición actual."""
