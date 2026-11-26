@@ -104,7 +104,7 @@ class EuskalmetAlertCard extends HTMLElement {
   const show=()=>{
    area.replaceChildren();const entry=entries.find(e=>e.key===this._selectedAlertKey);area.hidden=!entry;if(!entry)return;
    const head=el('div','alert-detail-head'),button=el('button','alert-control',text.close);button.type='button';button.addEventListener('click',close);
-   head.append(el('h3','',this._entryTitle(entry,t)+' · '+t.levels[entry.group.level]),button);
+   head.append(el('h3','',this._entryTitle(entry,t)+(entry.news?'':' · '+t.levels[entry.group.level])),button);
    area.append(head,el('div','when '+entry.group.level,this._period(entry,t)),el('p','official',entry.description||t.unknown));
   };
   const schedule=()=>{
@@ -118,10 +118,10 @@ class EuskalmetAlertCard extends HTMLElement {
   const generation=this._motionVersion,compact=this._config.view==='headlines',text=this._viewText(t),viewport=el('div','alert-band'+(compact?' headlines':''));viewport.setAttribute('aria-label',text.moving);target.append(viewport);
   const buttons=entries.map((entry,index)=>{
    const button=el('button','alert-message '+entry.group.level);button.type='button';button.dataset.alertIndex=String(index);
-   const head=el('div','risk-head'),icon=el('ha-icon');icon.setAttribute('icon',ALERT_CAUSES[entry.group.cause]?.[2]||'mdi:alert-outline');icon.setAttribute('aria-hidden','true');head.append(icon,el('span','cause',this._entryTitle(entry,t)));
+   const head=el('div','risk-head'),icon=el('ha-icon');icon.setAttribute('icon',entry.icon||ALERT_CAUSES[entry.group.cause]?.[2]||'mdi:alert-outline');icon.setAttribute('aria-hidden','true');head.append(icon,el('span','cause',this._entryTitle(entry,t)));
    const first=entry.description.replace(/^\s*[-–]\s*/,'').split(/(?<=[.!?])\s+/),excerpt=first.length>1?first.slice(1).join(' '):first[0];
    button.append(head,el('div','message-meta',t.levels[entry.group.level]+' · '+t[entry.status]),el('div','message-time',this._period(entry,t)),el('p','excerpt',excerpt.length>170?excerpt.slice(0,167).trimEnd()+'…':excerpt));
-   button.addEventListener('click',event=>{if(!moved||event.detail===0)this._openAlert(entry);});if(compact){const line=el('span','headline-line'),icon=el('ha-icon');icon.setAttribute('icon',ALERT_CAUSES[entry.group.cause]?.[2]||'mdi:alert-outline');icon.setAttribute('aria-hidden','true');line.append(icon,el('strong','',this._entryTitle(entry,t)),el('span','headline-level',t.levels[entry.group.level]),el('span','headline-period',this._period(entry,t)));button.replaceChildren(line);button.setAttribute('aria-label',this._entryTitle(entry,t)+' · '+t.levels[entry.group.level]+' · '+this._period(entry,t));}viewport.append(button);return button;
+   button.addEventListener('click',event=>{if(!moved||event.detail===0)this._openAlert(entry);});if(compact){const line=el('span','headline-line'),icon=el('ha-icon');icon.setAttribute('icon',entry.icon||ALERT_CAUSES[entry.group.cause]?.[2]||'mdi:alert-outline');icon.setAttribute('aria-hidden','true');line.append(icon,el('strong','',this._entryTitle(entry,t)),el('span','headline-level',t.levels[entry.group.level]),el('span','headline-period',this._period(entry,t)));button.replaceChildren(line);button.setAttribute('aria-label',this._entryTitle(entry,t)+(entry.news?'':' · '+t.levels[entry.group.level]+' · '+this._period(entry,t)));}viewport.append(button);return button;
   });
   const controls=el('div','alert-band-footer'+(compact?' headlines-footer':'')),status=el('span','motion-status'),actions=el('div','alert-actions');controls.append(status,actions);target.append(controls);
   const make=(label,content)=>{const b=el('button','alert-control',content);b.type='button';b.setAttribute('aria-label',label);actions.append(b);return b;};
@@ -167,7 +167,7 @@ class EuskalmetAlertCard extends HTMLElement {
    const lanes=[];
    for(const entry of group.sort((a,b)=>a.start-b.start)){
     let lane=lanes.find(l=>l.end<=entry.start);if(!lane){lane={end:-Infinity,track:el('div','time-track')};lanes.push(lane);tracks.append(lane.track);}lane.end=entry.end;
-    const left=Math.max(0,(entry.start-start)/span*100),right=Math.min(100,(entry.end-start)/span*100),bar=el('button','time-bar '+entry.group.level+(entry.status==='future'?' future':''),t.levels[entry.group.level]);bar.type='button';bar.dataset.alertIndex=String(entries.indexOf(entry));bar.style.left=left+'%';bar.style.width=(right-left)+'%';bar.setAttribute('aria-label',this._entryTitle(entry,t)+' · '+t.levels[entry.group.level]+' · '+this._period(entry,t));bar.title=this._period(entry,t);bar.addEventListener('click',()=>this._openAlert(entry));lane.track.append(bar);
+    const left=Math.max(0,(entry.start-start)/span*100),right=Math.min(100,(entry.end-start)/span*100),bar=el('button','time-bar '+entry.group.level+(entry.status==='future'?' future':''),t.levels[entry.group.level]);bar.type='button';bar.dataset.alertIndex=String(entries.indexOf(entry));bar.style.left=left+'%';bar.style.width=(right-left)+'%';bar.setAttribute('aria-label',this._entryTitle(entry,t)+(entry.news?'':' · '+t.levels[entry.group.level]+' · '+this._period(entry,t)));bar.title=this._period(entry,t);bar.addEventListener('click',()=>this._openAlert(entry));lane.track.append(bar);
    }
    for(const lane of lanes){const line=el('div','time-now');line.style.left=((now-start)/span*100)+'%';line.setAttribute('aria-hidden','true');lane.track.append(line);}
   }

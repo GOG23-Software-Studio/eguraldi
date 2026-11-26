@@ -12,7 +12,7 @@ function setup(){
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/euskalmet-alert-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-comparison-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
   vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/eguraldi-microclimate-card.js',import.meta.url),'utf8'),dom.getInternalVMContext());
-  for(const file of ['eguraldi-laundry-settings.js','eguraldi-drying-model.js','eguraldi-vehicle-wash-model.js','eguraldi-drying-style.js','eguraldi-outing-model.js','eguraldi-day-summary-model.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replaceAll('export ',''),dom.getInternalVMContext());
+  for(const file of ['eguraldi-headlines-model.js','eguraldi-headlines-card.js','eguraldi-laundry-settings.js','eguraldi-drying-model.js','eguraldi-vehicle-wash-model.js','eguraldi-drying-style.js','eguraldi-outing-model.js','eguraldi-day-summary-model.js'])vm.runInContext(readFileSync(new URL('../custom_components/euskalmet_local/frontend/'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replaceAll('export ',''),dom.getInternalVMContext());
   vm.runInContext(source+'\nwindow.logic={forecastRows,iconName,isNight,numeric,escapeHTML};',dom.getInternalVMContext());
   return dom;
 }
@@ -724,4 +724,30 @@ test('pointer focus keeps a moving alert under the pointer until its first click
  assert.equal(root.querySelector('.alert-detail').hidden,false);
  button.blur();button.focus();assert.notEqual(card._tickerOffset,45);
  card.remove();dom.window.close();
+});
+
+
+test('household headlines combine live data and official alerts, retain the mounted ticker and suppress stale forecasts',async()=>{
+ const dom=setup(),w=dom.window,h=hass(),count={};let time=Date.now();w.Date.now=()=>time;
+ const loc={...location,entities:{...location.entities,alert_level:'sensor.alert'}};h.callWS=async()=>[loc];
+ h.states['weather.test']={state:'cloudy',last_updated:new Date(time).toISOString(),attributes:{temperature:15,temperature_unit:'°C',alerts_updated:new Date(time).toISOString(),alerts_stale:false}};
+ h.states['sensor.alert']={state:'orange',attributes:{alerts:[{cause:'PERSISTENT_PRECIPITATIONS',level:'orange',starts_at:new Date(time-1000).toISOString(),ends_at:new Date(time+3600000).toISOString(),description:'Official <script>text</script>'}]}};
+ h.states['update.eguraldi']={state:'on',attributes:{latest_version:'0.99'}};
+ const card=w.document.createElement('euskalmet-local-card');card.setConfig({mode:'headlines',headline_update_entity:'update.eguraldi',headline_topics:['current','rain','update','alerts']});card.hass=h;w.document.body.append(card);await flush();
+ const child=card.shadowRoot.querySelector('eguraldi-headlines-card'),root=child.shadowRoot;
+ assert.equal(root.querySelector('.news-brand').textContent,'EGURALDI');assert.equal(root.querySelector('.news-edition'),null);assert.match(root.querySelector('.news-topic').textContent,/AVISO OFICIAL/);
+ assert.match(root.querySelector('.alert-message').textContent,/Lluvia persistente/);assert.match(root.textContent,/Ahora: 15/);assert.match(root.textContent,/0.99/);
+ const button=[...root.querySelectorAll('.alert-message')].find(b=>b.textContent.includes('Ahora:'));button.click();const deadline=child._detailExpiresAt;assert.equal(root.querySelector('.alert-detail').hidden,false);
+ time+=1000;card.hass={...h,states:{...h.states,'update.eguraldi':{state:'off',attributes:{latest_version:'0.99'}}}};await flush();
+ assert.equal(card.shadowRoot.querySelector('eguraldi-headlines-card'),child);assert.equal(child._detailExpiresAt,deadline);assert.equal(child.shadowRoot.querySelector('.alert-detail').hidden,false);assert.doesNotMatch(child.shadowRoot.textContent,/0.99/);assert.equal(child.shadowRoot.querySelector('script'),null);
+ card.hass={...h,states:{...h.states,'weather.test':{...h.states['weather.test'],attributes:{...h.states['weather.test'].attributes,forecast_hourly_stale:true,alerts_stale:true}}}};await flush();assert.match(child.shadowRoot.textContent,/No se pueden comprobar/);assert.doesNotMatch(child.shadowRoot.textContent,/Lluvia prevista|Sin lluvia prevista/);
+ card.remove();dom.window.close();
+});
+
+test('headlines visual editor saves topics, ordering and update entity without changing locality',async()=>{
+ const dom=setup(),w=dom.window,h=hass();h.states['update.eguraldi']={state:'off',attributes:{friendly_name:'Eguraldi'}};
+ const editor=w.document.createElement('euskalmet-local-editor');editor.setConfig({type:'custom:euskalmet-local-card',mode:'headlines',entry_id:'test',headline_topics:['current','rain','alerts']});editor.hass=h;w.document.body.append(editor);await flush();let saved;editor.addEventListener('config-changed',e=>saved=e.detail.config);
+ editor.querySelector('[aria-label="Subir · Lluvia prevista"]').click();assert.deepEqual(Array.from(saved.headline_topics),['rain','current','alerts']);assert.equal(saved.entry_id,'test');
+ const check=editor.querySelector('[data-headline-topic="alerts"]');check.checked=false;check.dispatchEvent(new w.Event('change'));assert.ok(!saved.headline_topics.includes('alerts'));
+ const select=editor.querySelector('#eg-headline_update_entity');select.value='update.eguraldi';select.dispatchEvent(new w.Event('change'));assert.equal(saved.headline_update_entity,'update.eguraldi');assert.equal(saved.entry_id,'test');editor.remove();dom.window.close();
 });

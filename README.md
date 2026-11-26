@@ -39,6 +39,14 @@ Su desarrollo propio se centra en conectar esa información con cada hogar:
 
 [Comparación documentada con la original](docs/DIFFERENCES.md) · [Estado y preparación de la candidatura a HACS](docs/HACS_READINESS.md)
 
+## Titulares de Eguraldi
+
+Un carrusel de una línea con tiempo actual, lluvia y viento previstos, mínimas/máximas, planes, Microclima y actualizaciones, además de los avisos oficiales. Activa los temas, cambia su orden, velocidad y longitud desde el editor. Las probabilidades aparecen solo si la fuente las publica; los datos caducados se omiten. [Configurar titulares](docs/HEADLINES.md).
+
+![Boletín Eguraldi en Home Assistant, con datos simulados](docs/news-headlines.jpg)
+
+[Vista móvil](docs/news-headlines-mobile.jpg).
+
 ## Un mismo estilo en todas las tarjetas
 
 Cabeceras con localidad, tipografía, espaciados y colores coherentes; mínimas en azul y máximas en naranja. [Ver conjunto actualizado](docs/visual-consistency.jpg) · [Criterios de estilo](docs/VISUAL_STYLE.md).
@@ -201,6 +209,7 @@ mode: dashboard
 | Histórico mensual | `history` |
 | Radar | `radar` |
 | Avisos | `alerts` |
+| Boletín del tiempo y avisos configurable | `headlines` |
 | Comparación de temperatura | `comparison` |
 | Costa y ambiente | `environment` |
 

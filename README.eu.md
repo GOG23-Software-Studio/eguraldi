@@ -30,6 +30,12 @@ Garapen propioa etxe bakoitzaren beharretan oinarritzen da:
 
 [Jatorrizkoarekiko alderaketa](docs/DIFFERENCES.md) · [HACSerako hautagaitzaren egoera](docs/HACS_READINESS.md) (gaztelaniaz eta ingelesez).
 
+## Eguraldiren titularrak
+
+Lerro bakarreko karusela: uneko eguraldia, espero den euria eta haizea, minimoak/maximoak, planak, Mikroklima eta eguneraketak, abisu ofizialekin batera. Gaiak, ordena, abiadura eta luzera ikusizko editorean aukera daitezke. Probabilitateak iturriak argitaratzen dituenean soilik agertzen dira; iraungitako datuak ezkutatzen dira. [Titularren konfigurazioa](docs/HEADLINES.md) (gaztelaniaz).
+
+[Home Assistanteko buletina](docs/news-headlines.jpg) · [Mugikorreko ikuspegia](docs/news-headlines-mobile.jpg) (simulatutako datuak, gaztelaniaz).
+
 ## Estilo bera txartel guztietan
 
 Herria agertzen duten goiburuak, tipografia, tarteak eta kolore koherenteak; minimoak urdinez eta maximoak laranjaz. [Ikusi multzo eguneratua](docs/visual-consistency-eu.jpg) · [Estilo-irizpideak](docs/VISUAL_STYLE.md) (gaztelaniaz).
@@ -177,6 +183,7 @@ mode: dashboard
 | Hileko historikoa | `history` |
 | Radarra | `radar` |
 | Abisuak | `alerts` |
+| Eguraldi-buletin eta abisu konfiguragarriak | `headlines` |
 | Tenperaturen konparazioa | `comparison` |
 | Kostaldea eta ingurumena | `environment` |
 

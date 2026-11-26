@@ -6,7 +6,7 @@
 
 <script type="module">
 
-import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.11.3-controls';
+import {EuskalmetLocalCard} from '/euskalmet_local_static/euskalmet-local-card.js?v=0.12.0-controls';
 
 const now=new Date().setMinutes(0,0,0),loc={entry_id:'demo',locality:'Ortuella',station:'Arboleda',location_source:'home_assistant',distance_km:1.8,latitude:43.31,longitude:-3.05,entities:{weather:'weather.demo',temperature:'sensor.demo_temperature',humidity:'sensor.demo_humidity',precipitation_today:'sensor.demo_rain',temperature_min_today:'sensor.demo_min',temperature_max_today:'sensor.demo_max',wind_gust_max_today:'sensor.demo_gust',irradiance:'sensor.demo_irradiance'}};
 
@@ -23,7 +23,7 @@ if(new URLSearchParams(location.search).get('lang')==='eu'){document.querySelect
 const view=new URLSearchParams(location.search).get('view');
 if(new URLSearchParams(location.search).get('state')==='stale'){for(const kind of ['hourly','daily']){hass.states['weather.demo'].attributes['forecast_'+kind+'_stale']=true;hass.states['weather.demo'].attributes['forecast_'+kind+'_updated']=new Date(Date.now()-24*3600000).toISOString();}}
 
-if(['alerts','all'].includes(view)){
+if(['headlines','alerts','all'].includes(view)){
  document.querySelector('.grid').style.cssText='max-width:1100px;grid-template-columns:minmax(0,1fr)';loc.entities.alert_level='sensor.demo_alert';
  const at=(offset,hour)=>{const d=new Date();d.setDate(d.getDate()+offset);d.setHours(hour,0,0,0);return d.toISOString();};
  const base={severity:'ORANGE',zone:'BIZKAIA_INTERIOR',issued:at(0,8),valid_for:at(0,0)};
@@ -33,6 +33,7 @@ if(['alerts','all'].includes(view)){
  {...base,cause:'PERSISTENT_PRECIPITATIONS',level:'orange',valid_for:at(1,0),starts_at:at(1,0),ends_at:at(1,9),description:'Alerta Naranja por precipitaciones persistentes desde las 00 hasta las 09 hora local. La lluvia puede continuar durante la madrugada.',descriptions_by_language:{eu:'Alerta Laranja prezipitazio iraunkorragatik. Goizaldean euria egiten jarrai dezake.'}},
  ]}};
 }
+if(view==='headlines'){document.querySelector('.grid').style.cssText='max-width:1100px;grid-template-columns:minmax(0,1fr)';Object.assign(hass.states['weather.demo'].attributes,{alerts_updated:new Date().toISOString(),alerts_stale:false});hass.states['weather.demo'].last_updated=new Date().toISOString();hass.states['update.demo_eguraldi']={state:'on',attributes:{latest_version:'0.12.1 (demo)',friendly_name:'Eguraldi'}};}
 if(view==='day_summary'){document.querySelector('.grid').style.cssText='max-width:900px;grid-template-columns:minmax(0,1fr)';loc.entities.alert_level='sensor.demo_alert';hass.states['sensor.demo_alert']={state:'none',attributes:{alerts:[]}};Object.assign(hass.states['weather.demo'].attributes,{alerts_updated:new Date().toISOString(),alerts_stale:false});for(let i=0;i<hourly.length;i++){hourly[i].temperature=19;hourly[i].humidity=60;hourly[i].precipitation=i<8?0:1;hourly[i].condition=i<8?'partlycloudy':'rainy';}daily[1].condition='sunny';daily[2].condition='partlycloudy';if(new URLSearchParams(location.search).get('state')==='stale')hass.states['weather.demo'].attributes.alerts_stale=true;}
 if(view==='vehicle_wash'){document.querySelector('.grid').style.cssText='max-width:960px;grid-template-columns:minmax(0,1fr)';['rainy','partlycloudy','sunny','cloudy','rainy','partlycloudy','rainy'].forEach((condition,i)=>daily[i].condition=condition);}
 if(view==='outing'){document.querySelector('.grid').style.cssText='max-width:760px;grid-template-columns:minmax(0,1fr)';for(let i=0;i<hourly.length;i++){hourly[i].temperature=i<6?18-i*.3:12;hourly[i].wind_speed=i<6?8:24;hourly[i].precipitation=i>=6?.6:0;hourly[i].condition=i>=6?'rainy':'partlycloudy';}if(new URLSearchParams(location.search).get('state')==='missing')for(const f of hourly)delete f.precipitation;}
@@ -77,7 +78,7 @@ if(view==='radar'){
 if(view==='forecasts')document.querySelector('.grid').style.gridTemplateColumns='minmax(0,1fr)';
 if(view==='radar')document.querySelector('.grid').style.cssText='max-width:650px;grid-template-columns:minmax(0,1fr)';
 if(view==='all')document.querySelector('.grid').style.cssText='max-width:1100px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))';
-for(const mode of (view==='all'?['day_summary','overview','summaries','comparison','hourly_chart','hourly','daily_tiles','daily','planning','drying','outing','vehicle_wash','history','microclimate','environment','alerts']:view==='editor'?[]:view==='alerts'?['alerts']:view==='radar'?['radar']:view==='summaries'?['summaries']:view==='drying'?['drying']:view==='outing'?['outing']:view==='day_summary'?['day_summary']:view==='vehicle_wash'?['vehicle_wash']:view==='microclimate'?['microclimate']:view==='forecasts'?['hourly_chart','daily_tiles','planning']:view==='charts'?['comparison','history']:['overview','hourly','daily'])){const card=document.createElement('euskalmet-local-card');card.setConfig({mode,...(mode==='alerts'?{alerts_view:new URLSearchParams(location.search).get('style')||'list'}:{}),...(mode==='radar'?{autoplay:false}:{}),...(mode==='comparison'?{comparison_entity:'sensor.demo_balcony',comparison_name:'Balcón'}:{})});card.hass=hass;document.querySelector('#cards').append(card);}
+for(const mode of (view==='all'?['headlines','day_summary','overview','summaries','comparison','hourly_chart','hourly','daily_tiles','daily','planning','drying','outing','vehicle_wash','history','microclimate','environment','alerts']:view==='editor'?[]:view==='headlines'?['headlines']:view==='alerts'?['alerts']:view==='radar'?['radar']:view==='summaries'?['summaries']:view==='drying'?['drying']:view==='outing'?['outing']:view==='day_summary'?['day_summary']:view==='vehicle_wash'?['vehicle_wash']:view==='microclimate'?['microclimate']:view==='forecasts'?['hourly_chart','daily_tiles','planning']:view==='charts'?['comparison','history']:['overview','hourly','daily'])){const card=document.createElement('euskalmet-local-card');card.setConfig({mode,...(mode==='headlines'?{headline_update_entity:'update.demo_eguraldi'}:{}),...(mode==='alerts'?{alerts_view:new URLSearchParams(location.search).get('style')||'list'}:{}),...(mode==='radar'?{autoplay:false}:{}),...(mode==='comparison'?{comparison_entity:'sensor.demo_balcony',comparison_name:'Balcón'}:{})});card.hass=hass;document.querySelector('#cards').append(card);}
 
 if(new URLSearchParams(location.search).get('view')==='editor'){
 
@@ -87,7 +88,7 @@ if(new URLSearchParams(location.search).get('view')==='editor'){
 
   editor.style.cssText='display:block;background:#132331;padding:20px;border-radius:20px;--card-background-color:#132331;--primary-text-color:#eef8ff;--secondary-text-color:#9bb7cc;--divider-color:#385269';
 
-  editor.setConfig({type:'custom:euskalmet-local-card',mode:'radar',entry_id:'demo',zoom:10});editor.hass=hass;
+  editor.setConfig({type:'custom:euskalmet-local-card',mode:new URLSearchParams(location.search).get('mode')||'radar',entry_id:'demo',zoom:10});editor.hass=hass;
 
   document.querySelector('#cards').append(editor);
 
