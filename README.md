@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="custom_components/euskalmet_local/brand/icon@2x.png" alt="Eguraldi" width="128">
+</p>
+
 ![Eguraldi · GOG23 Software Studio](docs/studio-banner.svg)
 
 # Eguraldi
