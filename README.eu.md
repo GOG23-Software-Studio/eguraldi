@@ -15,7 +15,11 @@ Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotu
 
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
-[Ikusi mugikorreko ikuspegia](docs/preview-mobile.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
+Buletina, uneko eguraldia, iragarpena, radarra eta gomendioak biltzen dituen panel-proposamena. Konparazioa, Mikroklima eta historikoa modal batean irekitzen dira, beste fitxarik sortu gabe. Antolaketa editagarria da; adibideko modalak **Browser Mod** erabiltzen du, aukerakoa eta Eguralditik independentea. [Antolaketa prestatu](docs/DASHBOARD_LAYOUT.md) (gaztelaniaz).
+
+![Konparazioaren, Mikroklimaren eta historikoaren modala, simulatutako datuekin](docs/detail-modal-eu.jpg)
+
+[Ikusi mugikorreko ikuspegia](docs/preview-mobile-eu.jpg) · [Ikusi modala mugikorrean](docs/detail-modal-mobile-eu.jpg) · [Ikusi editore bisuala](docs/preview-editor.jpg)
 
 ## Eguraldiren ekarpena
 

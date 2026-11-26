@@ -14,13 +14,19 @@ El tiempo de Euskalmet y la planificación del día en Home Assistant: Microclim
 
 Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
-![Tarjetas actuales de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
+![Página del tiempo de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
+
+Una propuesta de panel con boletín, tiempo actual, previsión, radar y recomendaciones. La comparación, Microclima y el histórico se consultan en un modal, sin crear otra pestaña. La distribución es editable; el modal de este ejemplo utiliza **Browser Mod**, opcional y ajeno a Eguraldi. [Montar esta distribución](docs/DASHBOARD_LAYOUT.md).
+
+![Modal de comparación, Microclima e histórico, con datos simulados](docs/detail-modal.jpg)
 
 <details>
 
-<summary>Ver la vista móvil y el editor visual</summary>
+<summary>Ver la página y el modal en móvil, y el editor visual</summary>
 
 ![Eguraldi en móvil, con datos simulados](docs/preview-mobile.jpg)
+
+![Modal de detalle en móvil, con datos simulados](docs/detail-modal-mobile.jpg)
 
 ![Editor visual de Eguraldi, con datos simulados](docs/preview-editor.jpg)
 
