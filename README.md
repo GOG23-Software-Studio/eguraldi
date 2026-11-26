@@ -1,10 +1,6 @@
-<p align="center">
-  <img src="custom_components/euskalmet_local/brand/icon@2x.png" alt="Eguraldi" width="128">
-</p>
-
 ![Eguraldi · GOG23 Software Studio](docs/studio-banner.svg)
 
-# Eguraldi
+# <img src="custom_components/euskalmet_local/brand/icon@2x.png" width="48" height="48" align="middle" alt=""> Eguraldi
 
 **Castellano** · [Euskaraz irakurri](README.eu.md)
 
