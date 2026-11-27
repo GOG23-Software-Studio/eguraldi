@@ -13,6 +13,8 @@ Euskalmeteko eguraldia eta eguneroko plangintza Home Assistanten: tokian egiazta
 
 Komunitate-proiektu independentea, Euskalmetekin edo Eusko Jaurlaritzarekin lotura ofizialik gabea.
 
+**HACSeko katalogo orokorrean eskuragarri.** [2026ko azaroaren 27an onartua](https://github.com/hacs/default/pull/14962). Bilatu **Eguraldi** HACS / Marketplace-n; ez da biltegi pertsonalizaturik gehitu behar.
+
 ![Eguraldiren txartelak, simulatutako datuekin](docs/preview-eu.jpg)
 
 Buletina, uneko eguraldia, iragarpena, radarra eta gomendioak biltzen dituen panel-proposamena. Konparazioa, Mikroklima eta historikoa modal batean irekitzen dira, beste fitxarik sortu gabe. Antolaketa editagarria da; adibideko modalak **Browser Mod** erabiltzen du, aukerakoa eta Eguralditik independentea. [Antolaketa prestatu](docs/DASHBOARD_LAYOUT.md) (gaztelaniaz).
@@ -32,7 +34,7 @@ Garapen propioa etxe bakoitzaren beharretan oinarritzen da:
 - **Arropa esekia:** HA barruko jarraipena eta abisuak, herri bakoitzerako hartzailea eta atalaseak aukeratuta. Lehenespenez desaktibatuta; arropa kanpoan dagoela adierazi behar da.
 - **Herria eta panela:** HAren kokapena edo beste udalerri batzuk, alda daitekeen hurbileko estazioa, txartel propioak eta ikusizko editoreak. Abisuetarako lau diseinu eta gomendioak biltzen dituen ikuspegia ditu.
 
-[Jatorrizkoarekiko alderaketa](docs/DIFFERENCES.md) · [HACSerako hautagaitzaren egoera](docs/HACS_READINESS.md) (gaztelaniaz eta ingelesez).
+[Jatorrizkoarekiko alderaketa](docs/DIFFERENCES.md) · [HACSen sartzea eta egiaztapenak](docs/HACS_READINESS.md) (gaztelaniaz eta ingelesez).
 
 ## Eguraldiren titularrak
 
@@ -122,17 +124,16 @@ Grafikoak zure sentsorea, estazioa eta tokiko doikuntza alderatzen ditu egiaztat
 
 [**Ireki Eguraldi HACSen**](https://my.home-assistant.io/redirect/hacs_repository/?owner=GOG23-Software-Studio&repository=eguraldi&category=integration)
 
-Estekak ez badu funtzionatzen, gehitu `https://github.com/GOG23-Software-Studio/eguraldi` HACS / Marketplace-n, biltegi pertsonalizatu gisa, **Integrazioa** kategorian.
-
-1. Instalatu Eguraldiren azken bertsioa eta berrabiarazi Home Assistant.
-2. Joan **Ezarpenak → Gailuak eta zerbitzuak → Gehitu integrazioa → Eguraldi** atalera.
-3. Sartu [Open Data Euskadiko](https://api.euskadi.eus/opendata-apikey/#/) kontuaren helbide elektronikoa eta `privatekey.pem` fitxategiaren eduki osoa.
-4. Utzi **Home Assistant-en kokapena** hautatuta, edo aukeratu **Beste herri bat**. Berrikusi udalerria eta estazioa gorde aurretik.
-5. Gehitu **Eguraldi** txartela zure panelera. Aukeratu ikuspegia eta kokapena editore bisualean.
+1. HACS konfiguratuta duzula, ireki **HACS / Marketplace**, bilatu **Eguraldi** eta ireki **GOG23-Software-Studio/eguraldi** emaitza. Goiko esteka ere erabil dezakezu.
+2. Sakatu **Deskargatu**, instalatu azken bertsio egonkorra eta berrabiarazi Home Assistant.
+3. Joan **Ezarpenak → Gailuak eta zerbitzuak → Gehitu integrazioa → Eguraldi** atalera.
+4. Sartu [Open Data Euskadiko](https://api.euskadi.eus/opendata-apikey/#/) kontuaren helbide elektronikoa eta `privatekey.pem` fitxategiaren eduki osoa.
+5. Utzi **Home Assistant-en kokapena** hautatuta, edo aukeratu **Beste herri bat**. Berrikusi udalerria eta estazioa gorde aurretik.
+6. Gehitu **Eguraldi** txartela zure panelera. Aukeratu ikuspegia eta kokapena editore bisualean.
 
 Home Assistant **2026.8 edo berriagoa**, Internet eta Open Data Euskadiko doako kontua behar dira. Aktibazio-mezua ez bada iristen, begiratu spam karpeta edo saiatu **Google bidez sartzen**. Laguntzaileak gakoak deskargatzeko esteka du.
 
-Eguraldi **HACSeko biltegi pertsonalizatu** gisa instalatzen da. Katalogo orokorrean sartzeko [eskaera](https://github.com/hacs/default/pull/14144) 2026ko azaroaren 17an itxi zen, onartu gabe, aktibo jarraitzen duen jatorrizko Euskalmet integrazioaren antzekoa delako. Horrek ez die eragiten biltegi pertsonalizatu honetako instalazioari eta eguneraketei. [#14962 eskaera berriak](https://github.com/hacs/default/pull/14962) funtzio berriak eta Marketplace bidezko instalazio-proba aurkezten ditu. Berrikuspenaren zain dago; oraindik ez dago katalogo orokorrean onartuta.
+[HACSeko katalogo orokorrean sartzea](https://github.com/hacs/default/pull/14962) onartuta dago. Hasierako hedapenak **8 ordu** arte iraun dezake onarpenetik; zure katalogoan oraindik agertzen ez bada, begiratu berriro geroago. Eguraldi biltegi pertsonalizatu gisa instalatuta bazenuen, **mantendu instalazioa eta eguneratu ohi bezala HACSetik**: ez da desinstalatu edo kredentzialak berriro sartu behar.
 
 [Instalazioari, eguneraketei eta arazoei buruzko gida (gaztelaniaz)](docs/INSTALLATION.md)
 

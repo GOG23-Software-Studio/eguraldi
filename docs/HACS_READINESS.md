@@ -1,6 +1,10 @@
-# Preparación de la candidatura a HACS
+# Inclusión de Eguraldi en HACS
 
-Revisión: 25 de noviembre de 2026. Estado: candidata 0.11.3 publicada y comprobaciones correctas; Eguraldi sigue disponible como repositorio personalizado. La [nueva solicitud #14962](https://github.com/hacs/default/pull/14962) está abierta, pendiente de revisión; no implica aprobación. [Resultados y enlaces exactos](HACS_EVIDENCE.md).
+Estado actualizado el 27 de noviembre de 2026: **aprobada e incorporada al catálogo general de HACS**. Frenck aprobó la [solicitud #14962](https://github.com/hacs/default/pull/14962), fusionada ese día tras la corrección publicada en 0.12.1. [Confirmación de HACS y plazo inicial de propagación de hasta 8 horas](https://github.com/hacs/default/pull/14962#issuecomment-7221431536).
+
+Para instalar, busca **Eguraldi** en HACS / Marketplace; no es necesario añadir un repositorio personalizado. [Pasos de instalación](INSTALLATION.md). Si ya está instalada, conserva la configuración y actualiza normalmente.
+
+Las secciones siguientes conservan la preparación y el procedimiento histórico de la candidatura. [Resultados y enlaces de esa preparación](HACS_EVIDENCE.md).
 
 ## Requisitos y evidencia
 

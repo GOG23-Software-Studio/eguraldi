@@ -2,12 +2,14 @@
 
 ## HACS / Marketplace
 
-1. Abre [Eguraldi en HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=GOG23-Software-Studio&repository=eguraldi&category=integration).
-2. Si no se abre, usa **Añadir desde enlace** en Marketplace o **Repositorios personalizados** en HACS. Pega `https://github.com/GOG23-Software-Studio/eguraldi` y elige **Integración**.
-3. Descarga la última versión y reinicia HA.
+1. Con HACS configurado, abre **HACS / Marketplace**, busca **Eguraldi** y selecciona **GOG23-Software-Studio/eguraldi**. También puedes [abrir Eguraldi directamente en HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=GOG23-Software-Studio&repository=eguraldi&category=integration).
+2. Abre la página de Eguraldi y pulsa **Descargar**. No necesitas añadir un repositorio personalizado.
+3. Selecciona la última versión estable, completa la descarga y reinicia HA.
 4. En **Ajustes → Dispositivos y servicios → Añadir integración**, busca **Eguraldi**.
 
-Eguraldi se instala actualmente como repositorio personalizado. No hace falta activar versiones preliminares para instalar la última versión estable. La preparación de una nueva candidatura no implica aprobación del catálogo general.
+Eguraldi forma parte del catálogo general de HACS desde el [27 de noviembre de 2026](https://github.com/hacs/default/pull/14962). La propagación inicial puede tardar hasta 8 horas. No hace falta activar versiones preliminares para instalar la última versión estable. Si ya la instalaste como repositorio personalizado, conserva la integración y actualiza desde HACS; no necesitas reinstalar ni reintroducir las credenciales.
+
+[Documentación de HACS sobre búsqueda y descarga de repositorios](https://github.com/hacs/documentation/blob/main/source/docs/use/repositories/dashboard.md).
 
 ## Credenciales y ubicación
 

@@ -14,6 +14,8 @@ El tiempo de Euskalmet y la planificación del día en Home Assistant: Microclim
 
 Proyecto comunitario independiente, sin afiliación con Euskalmet ni con el Gobierno Vasco.
 
+**Disponible en el catálogo general de HACS.** [Aprobada el 27 de noviembre de 2026](https://github.com/hacs/default/pull/14962). Busca **Eguraldi** en HACS / Marketplace; no necesitas añadir un repositorio personalizado.
+
 ![Página del tiempo de Eguraldi en escritorio, con datos simulados](docs/preview.jpg)
 
 Una propuesta de panel con boletín, tiempo actual, previsión, radar y recomendaciones. La comparación, Microclima y el histórico se consultan en un modal, sin crear otra pestaña. La distribución es editable; el modal de este ejemplo utiliza **Browser Mod**, opcional y ajeno a Eguraldi. [Montar esta distribución](docs/DASHBOARD_LAYOUT.md).
@@ -43,7 +45,7 @@ Su desarrollo propio se centra en conectar esa información con cada hogar:
 - **Ropa tendida:** seguimiento y avisos dentro de HA, por localidad, con destino y umbrales configurables. Desactivados por defecto; requieren iniciar una sesión de ropa fuera.
 - **Localidad y panel:** ubicación de HA u otros municipios, estación cercana modificable, tarjetas propias y editores visuales. Incluye cuatro presentaciones de avisos y una vista que reúne las recomendaciones.
 
-[Comparación documentada con la original](docs/DIFFERENCES.md) · [Estado y preparación de la candidatura a HACS](docs/HACS_READINESS.md)
+[Comparación documentada con la original](docs/DIFFERENCES.md) · [Inclusión y validación en HACS](docs/HACS_READINESS.md)
 
 ## Titulares de Eguraldi
 
@@ -135,26 +137,21 @@ El gráfico compara tu sensor, la estación y el ajuste local en los dos días r
 
 [**Abrir Eguraldi en HACS**](https://my.home-assistant.io/redirect/hacs_repository/?owner=GOG23-Software-Studio&repository=eguraldi&category=integration)
 
-Si el enlace no funciona, añade este repositorio en **HACS / Marketplace**, como **Integración**:
+1. Con HACS ya configurado, abre **HACS / Marketplace**, busca **Eguraldi** y abre el resultado de **GOG23-Software-Studio/eguraldi**. También puedes usar el enlace anterior.
 
-```text
-https://github.com/GOG23-Software-Studio/eguraldi
+2. Pulsa **Descargar**, instala la última versión estable y reinicia Home Assistant.
 
-```
+3. Ve a **Ajustes → Dispositivos y servicios → Añadir integración → Eguraldi**.
 
-1. Instala la última versión de **Eguraldi** y reinicia Home Assistant.
+4. Introduce el correo de tu cuenta de [Open Data Euskadi](https://api.euskadi.eus/opendata-apikey/#/) y el contenido completo de `privatekey.pem`.
 
-2. Ve a **Ajustes → Dispositivos y servicios → Añadir integración → Eguraldi**.
+5. Deja seleccionada **Ubicación de Home Assistant**, o elige **Otra localidad**. Revisa el municipio y la estación antes de guardar.
 
-3. Introduce el correo de tu cuenta de [Open Data Euskadi](https://api.euskadi.eus/opendata-apikey/#/) y el contenido completo de `privatekey.pem`.
-
-4. Deja seleccionada **Ubicación de Home Assistant**, o elige **Otra localidad**. Revisa el municipio y la estación antes de guardar.
-
-5. Añade una tarjeta **Eguraldi** a tu panel. Elige la vista y la ubicación en el editor visual.
+6. Añade una tarjeta **Eguraldi** a tu panel. Elige la vista y la ubicación en el editor visual.
 
 Necesitas **Home Assistant 2026.8 o posterior**, Internet y una cuenta gratuita de Open Data Euskadi. Si no llega el correo de activación, revisa spam o prueba **Iniciar sesión con Google**. El asistente incluye el enlace para descargar tus claves.
 
-Eguraldi se instala como **repositorio personalizado de HACS**. La [solicitud de inclusión en el catálogo general](https://github.com/hacs/default/pull/14144) se cerró el 17 de noviembre de 2026, sin aprobación, por su similitud con la integración Euskalmet original, que sigue activa. Esto no afecta a la instalación ni a las actualizaciones desde este repositorio personalizado. La [nueva solicitud #14962](https://github.com/hacs/default/pull/14962) presenta la evolución funcional y la prueba de instalación desde Marketplace; está pendiente de revisión y todavía no implica inclusión en el catálogo general.
+La [inclusión en el catálogo general de HACS](https://github.com/hacs/default/pull/14962) está aprobada. La propagación inicial puede tardar hasta **8 horas** desde la aprobación; si todavía no aparece en tu catálogo, vuelve a comprobarlo más tarde. Si ya utilizabas Eguraldi como repositorio personalizado, **conserva la instalación y actualiza normalmente desde HACS**: no necesitas desinstalarla ni volver a introducir tus credenciales.
 
 [Guía de instalación, actualización y solución de problemas](docs/INSTALLATION.md)
 
