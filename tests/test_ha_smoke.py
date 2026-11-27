@@ -651,6 +651,78 @@ def test_microclimate_units_freshness_and_validation_gate(tmp_path, monkeypatch)
     asyncio.run(scenario())
 
 
+@pytest.mark.parametrize(
+    ("utc_time", "local_hour"),
+    [
+        ("2026-11-27T07:30:00+00:00", 8),
+        ("2026-07-15T07:30:00+00:00", 9),
+        ("2026-10-25T00:30:00+00:00", 2),
+        ("2026-10-25T01:30:00+00:00", 2),
+        ("2026-11-26T23:30:00+00:00", 0),
+    ],
+)
+def test_microclimate_sensor_reads_reuse_ha_timezone_without_disk_lookup(
+    tmp_path, monkeypatch, utc_time, local_hour
+):
+    from zoneinfo import ZoneInfo
+
+    from homeassistant.helpers import entity_registry as er
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.euskalmet_local import microclimate
+
+    # HA resolves this zone outside sensor reads; a cold lookup there must fail.
+    zone = ZoneInfo("Europe/Madrid")
+    now = dt_util.parse_datetime(utc_time)
+
+    def forbidden_zone_lookup(*args, **kwargs):
+        raise AssertionError("Sensor properties must not construct ZoneInfo")
+
+    async def scenario():
+        hass = HomeAssistant(str(tmp_path))
+        entry = SimpleNamespace(
+            entry_id="micro-timezone-test",
+            options={"microclimate_sensor": "sensor.outdoor"},
+            data={"locality": "Ortuella"},
+            async_on_unload=lambda callback: None,
+        )
+        monkeypatch.setattr(dt_util, "DEFAULT_TIME_ZONE", zone)
+        monkeypatch.setattr(dt_util, "utcnow", lambda: now)
+        monkeypatch.setattr(
+            er,
+            "async_get",
+            lambda hass: SimpleNamespace(
+                async_get_entity_id=lambda *args: "sensor.reference"
+            ),
+        )
+        micro = microclimate.MicroclimateCoordinator(hass, entry)
+        monkeypatch.setattr(
+            micro,
+            "reading",
+            lambda entity: (18 if entity == micro.reference else 20, now),
+        )
+        micro.data = {
+            "status": "validated",
+            "last_pair": now.isoformat(),
+            "hourly": [
+                {"hour": hour, "correction": 1 + hour / 10} for hour in range(24)
+            ],
+        }
+        monkeypatch.setattr(
+            microclimate, "ZoneInfo", forbidden_zone_lookup, raising=False
+        )
+        estimate = microclimate.MicroclimateSensor(micro, "estimate")
+        status = microclimate.MicroclimateSensor(micro, "status")
+        for _ in range(2):
+            assert estimate.native_value == round(19 + local_hour / 10, 2)
+            assert status.extra_state_attributes["estimate"] == estimate.native_value
+            assert status.extra_state_attributes["current_difference"] == 2
+        await micro.async_shutdown()
+        await hass.async_block_till_done()
+
+    asyncio.run(scenario())
+
+
 def test_microclimate_source_binding_survives_restart_and_resets_on_station_change(
     tmp_path, monkeypatch
 ):

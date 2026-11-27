@@ -1,4 +1,4 @@
-import './euskalmet-alert-card.js?v=0.12.0';
+import './euskalmet-alert-card.js?v=0.12.1';
 /* Reuse the alert ticker's pointer, keyboard, timer and reduced-motion behavior. */
 class EguraldiHeadlinesCard extends customElements.get('eguraldi-alert-card') {
   update(items,hass,alertsFresh){this._items=items;this._hass=hass;this._alertsFresh=alertsFresh;this._render();}

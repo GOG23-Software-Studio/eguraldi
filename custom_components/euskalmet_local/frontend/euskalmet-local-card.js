@@ -1,19 +1,19 @@
-import {buildHeadlines,headlineTopics,HEADLINE_TOPICS} from './eguraldi-headlines-model.js?v=0.12.0';
-import './eguraldi-headlines-card.js?v=0.12.0';
-import {daySummaryPlan,summaryAlerts} from './eguraldi-day-summary-model.js?v=0.12.0';
-import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.12.0';
-import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.12.0';
+import {buildHeadlines,headlineTopics,HEADLINE_TOPICS} from './eguraldi-headlines-model.js?v=0.12.1';
+import './eguraldi-headlines-card.js?v=0.12.1';
+import {daySummaryPlan,summaryAlerts} from './eguraldi-day-summary-model.js?v=0.12.1';
+import {vehicleWashPlan} from './eguraldi-vehicle-wash-model.js?v=0.12.1';
+import {openLaundrySettings} from './eguraldi-laundry-settings.js?v=0.12.1';
 /* Eguraldi — GOG23 Software Studio. MIT. Icons: Meteocons / Bas Milius. */
-import './euskalmet-alert-card.js?v=0.12.0';
-import './eguraldi-comparison-card.js?v=0.12.0';
-import './eguraldi-microclimate-card.js?v=0.12.0';
-import './euskalmet-history-card.js?v=0.12.0-controls';
-import './euskalmet-radar-map-card.js?v=0.12.0';
+import './euskalmet-alert-card.js?v=0.12.1';
+import './eguraldi-comparison-card.js?v=0.12.1';
+import './eguraldi-microclimate-card.js?v=0.12.1';
+import './euskalmet-history-card.js?v=0.12.1-controls';
+import './euskalmet-radar-map-card.js?v=0.12.1';
 
-import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.12.0';
-import {dryingPlan} from './eguraldi-drying-model.js?v=0.12.0';
+import {DRYING_CSS} from './eguraldi-drying-style.js?v=0.12.1';
+import {dryingPlan} from './eguraldi-drying-model.js?v=0.12.1';
 
-import {outingPlan} from './eguraldi-outing-model.js?v=0.12.0';
+import {outingPlan} from './eguraldi-outing-model.js?v=0.12.1';
 
 const EU_TEXT = {
   "Titulares de Eguraldi":"Eguraldiren titularrak",

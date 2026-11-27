@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timedelta
 from functools import partial
-from zoneinfo import ZoneInfo
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -192,9 +191,7 @@ class MicroclimateCoordinator(DataUpdateCoordinator):
             and latest
             and (dt_util.utcnow() - latest).total_seconds() < 86400
         ):
-            hour = (
-                dt_util.utcnow().astimezone(ZoneInfo(self.hass.config.time_zone)).hour
-            )
+            hour = dt_util.as_local(dt_util.utcnow()).hour
             correction = next(
                 (
                     item["correction"]
